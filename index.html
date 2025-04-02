@@ -6,76 +6,167 @@
     <title>Senin İçin</title>
     <link rel="stylesheet" href="styles.css">
     <style>
+        /* Genel stil ayarları */
         body {
-            background-color: #fceff5;
-            font-family: 'Arial', sans-serif;
-            text-align: center;
-            color: #6d597a;
             margin: 0;
-            padding: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            background-color: #fceff5;
         }
+        /* Menü stilini oluşturuyoruz */
+        .menu {
+            height: 100%;
+            width: 250px;
+            background-color: #6d597a;
+            position: fixed;
+            top: 0;
+            left: -250px;
+            transition: 0.3s;
+            padding-top: 60px;
+            z-index: 1;
+        }
+
+        .menu a {
+            padding: 8px 16px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .menu a:hover {
+            background-color: #ff69b4;
+        }
+
+        /* Menü açıldığında */
+        .menu.open {
+            left: 0;
+        }
+
+        /* Menü açma butonu */
+        .menu-btn {
+            font-size: 30px;
+            color: #6d597a;
+            background-color: transparent;
+            border: none;
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            cursor: pointer;
+        }
+
+        /* Sayfa içeriği stilini oluşturuyoruz */
         .container {
-            padding: 50px;
+            margin-left: 250px;
+            padding: 20px;
         }
+
+        h1, p {
+            color: #6d597a;
+        }
+
+        /* Kategoriler kısmının stili */
+        .messages, .timeline, .gallery {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: 40px 0;
+            display: none;
+        }
+
+        /* Mesajlar & Şiirler kutularının stili */
+        .message {
+            background: #f9d7e0;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 4px rgba(0,0,0,0.1);
+        }
+
+        .message p {
+            font-size: 1.2em;
+            color: #6d597a;
+        }
+
+        .message strong {
+            font-size: 1.5em;
+            color: #ff69b4;
+        }
+
+        /* Başlangıç sayfasındaki stil */
         h1 {
             font-size: 2.5em;
             color: #ff69b4;
         }
+
         p {
             font-size: 1.2em;
-            max-width: 600px;
-            margin: 20px auto;
-        }
-        .timeline, .gallery, .messages {
-            background: #fff;
-            margin: 40px auto;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            max-width: 800px;
+            color: #6d597a;
         }
     </style>
 </head>
 <body>
-    <audio autoplay loop>
-        <source src="ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
-    </audio>
-    
+    <!-- Menü Butonu -->
+    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+
+    <!-- Menü -->
+    <div id="myMenu" class="menu">
+        <a href="javascript:void(0)" onclick="showCategory('messages')">Mesajlar & Şiirler</a>
+        <a href="javascript:void(0)" onclick="showCategory('timeline')">Zaman Tüneli</a>
+        <a href="javascript:void(0)" onclick="showCategory('gallery')">Fotoğraf Galerisi</a>
+    </div>
+
+    <!-- Sayfa İçeriği -->
     <div class="container">
         <h1>Bir yıl önce hayatıma girdin ve her şeyi güzelleştirdin.</h1>
         <p>Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim.</p>
-    </div>
-    
-    <section class="timeline">
-        <h2>Zaman Tüneli</h2>
-        <!-- Zaman tüneli burada olacak, sonradan düzenlenebilir şekilde tasarlanacak -->
-    </section>
-    
-    <section class="gallery">
-        <h2>Fotoğraf Galerisi</h2>
-        <!-- Fotoğraf galerisi buraya gelecek -->
-    </section>
-    
-    <section class="messages">
-        <h2>Özel Mesajlar & Şiirler</h2>
-        <!-- Özel mesajlar ve şiirler buraya eklenecek -->
-    </section>
-    <section class="messages">
-    <h2>Özel Mesajlar & Şiirler</h2>
-    <div class="message">
-        <p><strong>Birinci Yıl Dönümümüz</strong></p>
-        <p>"Bir yıl önce hayatıma girdin ve her şeyi güzelleştirdin. Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim."</p>
-    </div>
-    
-    <div class="message">
-        <p><strong>Gözlerin</strong></p>
-        <p>"Gözlerin bir okyanus gibi derin, içlerinde kaybolduğum. Her baktığımda yeniden bulduğum huzur. Sonsuza kadar seninle bu gözlere bakmak istiyorum."</p>
+        
+        <!-- Kategorilere göre içerik -->
+        <div id="messages" class="messages">
+            <h2>Mesajlar & Şiirler</h2>
+            <div class="message">
+                <p><strong>Birinci Yıl Dönümümüz</strong></p>
+                <p>"Bir yıl önce hayatıma girdin ve her şeyi güzelleştirdin. Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim."</p>
+            </div>
+            <div class="message">
+                <p><strong>Gözlerin</strong></p>
+                <p>"Gözlerin bir okyanus gibi derin, içlerinde kaybolduğum. Her baktığımda yeniden bulduğum huzur. Sonsuza kadar seninle bu gözlere bakmak istiyorum."</p>
+            </div>
+        </div>
+        
+        <div id="timeline" class="timeline">
+            <h2>Zaman Tüneli</h2>
+            <p>İlk tanıştığımız gün, ilk randevumuz, ilk yıl dönümümüz...</p>
+        </div>
+        
+        <div id="gallery" class="gallery">
+            <h2>Fotoğraf Galerisi</h2>
+            <p>Birlikte geçirdiğimiz güzel anlar...</p>
+        </div>
     </div>
 
-    <div class="message">
-        <p><strong>Aşkımız</strong></p>
-        <p>"Birlikte geçirdiğimiz her an, bir ömre bedel. Aşkımızı, her gün biraz daha büyüterek yaşamak... Seninle her şey daha güzel."</p>
-    </div>
-</section>
+    <!-- Müzik Çalma -->
+    <audio autoplay loop>
+        <source src="ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Menü açma ve kapama
+        function toggleMenu() {
+            const menu = document.getElementById("myMenu");
+            menu.classList.toggle("open");
+        }
+
+        // Kategoriye tıkladığında içerik gösterme
+        function showCategory(category) {
+            const categories = ['messages', 'timeline', 'gallery'];
+            categories.forEach(cat => {
+                const categoryDiv = document.getElementById(cat);
+                categoryDiv.style.display = (cat === category) ? 'block' : 'none';
+            });
+        }
+    </script>
 </body>
 </html>
