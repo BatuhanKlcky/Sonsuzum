@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Senin İçin</title>
     <style>
+        /* Genel boşlukları sıfırlayalım */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             background-image: url('https://i.imgur.com/iwhcNjJ.jpeg');
             background-size: cover;
@@ -17,9 +24,13 @@
             text-align: center;
         }
 
+        .container {
+            padding: 20px;
+        }
+
         h1 {
             font-size: 2.5em;
-            color: #fff; /* Başlık yazısını beyaz yapıyoruz */
+            color: #fff;
             margin-bottom: 20px;
         }
 
@@ -39,20 +50,7 @@
             max-width: 800px;
         }
 
-        footer {
-            margin-top: 50px;
-            font-size: 1.1em;
-            color: #fff;
-        }
-
-        footer a {
-            color: #ff69b4;
-        }
-
-        footer a:hover {
-            color: #ff4c8b;
-        }
-
+        /* Menü düzeni */
         .menu {
             position: fixed;
             top: 50%;
@@ -80,6 +78,7 @@
 <body>
     <audio autoplay loop>
         <source src="ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
+        Tarayıcınız ses dosyasını desteklemiyor.
     </audio>
 
     <div class="container">
