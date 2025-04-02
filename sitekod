@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senin İçin</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background-color: #fceff5;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            color: #6d597a;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            padding: 50px;
+        }
+        h1 {
+            font-size: 2.5em;
+            color: #ff69b4;
+        }
+        p {
+            font-size: 1.2em;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        .timeline, .gallery, .messages {
+            background: #fff;
+            margin: 40px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-width: 800px;
+        }
+    </style>
+</head>
+<body>
+    <audio autoplay loop>
+        <source src="ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
+    </audio>
+    
+    <div class="container">
+        <h1>Bir yıl önce hayatıma girdin ve her şeyi güzelleştirdin.</h1>
+        <p>Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim.</p>
+    </div>
+    
+    <section class="timeline">
+        <h2>Zaman Tüneli</h2>
+        <!-- Zaman tüneli burada olacak, sonradan düzenlenebilir şekilde tasarlanacak -->
+    </section>
+    
+    <section class="gallery">
+        <h2>Fotoğraf Galerisi</h2>
+        <!-- Fotoğraf galerisi buraya gelecek -->
+    </section>
+    
+    <section class="messages">
+        <h2>Özel Mesajlar & Şiirler</h2>
+        <!-- Özel mesajlar ve şiirler buraya eklenecek -->
+    </section>
+</body>
+</html>
