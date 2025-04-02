@@ -4,62 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Senin İçin</title>
-    <link rel="stylesheet" href="styles.css">
     <style>
-        /* Genel stil ayarları */
-       body {
-    background-color: #fceff5;
-    font-family: 'Arial', sans-serif;
-    text-align: center;
-    color: #6d597a;
-    margin: 0;
-    padding: 0;
-}
+        /* Genel sayfa stiliniz */
+        body {
+            background-color: #fceff5;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            color: #6d597a;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            overflow: hidden; /* Kalp animasyonunun dışarı taşmaması için */
+        }
 
-.container {
-    padding: 50px;
-}
-
-h1 {
-    font-size: 2.5em;
-    color: #ff69b4;
-    margin-bottom: 20px;
-}
-
-p {
-    font-size: 1.2em;
-    max-width: 600px;
-    margin: 20px auto;
-    line-height: 1.6;
-}
-
-.section {
-    background: #fff;
-    margin: 40px auto;
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    max-width: 800px;
-    transition: transform 0.3s ease-in-out;
-}
-
-.section:hover {
-    transform: scale(1.02);
-}
-
-footer {
-    margin-top: 50px;
-    font-size: 1.1em;
-    color: #6d597a;
-}
-
-footer a {
-    color: #ff69b4;
-}
-
-footer a:hover {
-    color: #ff4c8b;
-    /* Kalp şekli */
+        /* Kalp şekli */
         .heart {
             position: absolute;
             top: 50%;
@@ -110,154 +68,119 @@ footer a:hover {
                 transform: scale(1) rotate(45deg);
             }
         }
-    
-}
-        
-        /* Menü stilini oluşturuyoruz */
-        .menu {
-            height: 100%;
-            width: 250px;
-            background-color: #6d597a;
-            position: fixed;
-            top: 0;
-            left: -250px;
-            transition: 0.3s;
-            padding-top: 60px;
-            z-index: 1;
-        }
 
-        .menu a {
-            padding: 8px 16px;
-            text-decoration: none;
-            font-size: 18px;
-            color: white;
-            display: block;
-            transition: 0.3s;
-        }
-
-        .menu a:hover {
-            background-color: #ff69b4;
-        }
-
-        /* Menü açıldığında */
-        .menu.open {
-            left: 0;
-        }
-
-        /* Menü açma butonu */
-        .menu-btn {
-            font-size: 30px;
-            color: #6d597a;
-            background-color: transparent;
-            border: none;
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            cursor: pointer;
-        }
-
-        /* Sayfa içeriği stilini oluşturuyoruz */
-        .container {
-            margin-left: 250px;
-            padding: 20px;
-        }
-
-        h1, p {
-            color: #6d597a;
-        }
-
-        /* Kategoriler kısmının stili */
-        .messages, .timeline, .gallery {
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            margin: 40px 0;
-            display: none;
-        }
-
-        /* Mesajlar & Şiirler kutularının stili */
-        .message {
-            background: #f9d7e0;
-            margin: 20px 0;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 4px rgba(0,0,0,0.1);
-        }
-
-        .message p {
-            font-size: 1.2em;
-            color: #6d597a;
-        }
-
-        .message strong {
-            font-size: 1.5em;
-            color: #ff69b4;
-        }
-
-        /* Başlangıç sayfasındaki stil */
+        /* Başlık stil */
         h1 {
             font-size: 2.5em;
             color: #ff69b4;
+            margin-bottom: 20px;
         }
 
+        /* Paragraf stil */
         p {
             font-size: 1.2em;
+            max-width: 600px;
+            margin: 20px auto;
+            line-height: 1.6;
+        }
+
+        /* Zaman tüneli, fotoğraf galerisi ve mesajlar için bölüm stilleri */
+        .section {
+            background: #fff;
+            margin: 40px auto;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-width: 800px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .section:hover {
+            transform: scale(1.02);
+        }
+
+        /* Footer stil */
+        footer {
+            margin-top: 50px;
+            font-size: 1.1em;
             color: #6d597a;
+        }
+
+        footer a {
+            color: #ff69b4;
+        }
+
+        footer a:hover {
+            color: #ff4c8b;
+        }
+
+        /* Menü stili */
+        .menu {
+            position: fixed;
+            top: 50%;
+            left: 0;
+            background-color: #ff69b4;
+            color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+
+        .menu a {
+            display: block;
+            margin: 10px 0;
+            text-decoration: none;
+            color: white;
+        }
+
+        .menu a:hover {
+            color: #ff4c8b;
         }
     </style>
 </head>
 <body>
-    <!-- Menü Butonu -->
-    <button class="menu-btn" onclick="toggleMenu()">☰</button>
-
-    <!-- Menü -->
-    <div id="myMenu" class="menu">
-        <a href="messages.html">Mesajlar & Şiirler</a>
-        <a href="timeline.html">Zaman Tüneli</a>
-        <a href="gallery.html">Fotoğraf Galerisi</a>
-    </div>
-
-    <!-- Sayfa İçeriği -->
-    <div class="container">
-        <h1>Bir yıl önce hayatıma girdin ve her şeyi güzelleştirdin.</h1>
-        <p>Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim.</p>
-        
-        <!-- Kategorilere göre içerik -->
-        <div id="messages" class="messages">
-            <h2>Mesajlar & Şiirler</h2>
-            <div class="message">
-                <p><strong>Birinci Yıl Dönümümüz</strong></p>
-                <p>"Bir yıl önce hayatıma girdin ve her şeyi güzelleştirdin. Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim."</p>
-            </div>
-            <div class="message">
-                <p><strong>Gözlerin</strong></p>
-                <p>"Gözlerin bir okyanus gibi derin, içlerinde kaybolduğum. Her baktığımda yeniden bulduğum huzur. Sonsuza kadar seninle bu gözlere bakmak istiyorum."</p>
-            </div>
-        </div>
-        
-        <div id="timeline" class="timeline">
-            <h2>Zaman Tüneli</h2>
-            <p>İlk tanıştığımız gün, ilk randevumuz, ilk yıl dönümümüz...</p>
-        </div>
-        
-        <div id="gallery" class="gallery">
-            <h2>Fotoğraf Galerisi</h2>
-            <p>Birlikte geçirdiğimiz güzel anlar...</p>
-        </div>
-    </div>
-
-    <!-- Müzik Çalma -->
     <audio autoplay loop>
         <source src="ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
     </audio>
 
-    <script>
-        // Menü açma ve kapama
-        function toggleMenu() {
-            const menu = document.getElementById("myMenu");
-            menu.classList.toggle("open");
-        }
-    </script>
+    <!-- Arka planda sürekli açılıp kapanan kalp -->
+    <div class="heart"></div>
+
+    <!-- Giriş mesajı -->
+    <div class="container">
+        <h1>Bir yıl önce hayatıma girdin ve her şeyi güzelleştirdin.</h1>
+        <p>Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim.</p>
+    </div>
+
+    <!-- Menü -->
+    <div class="menu">
+        <a href="zaman-tuneli.html">Zaman Tüneli</a>
+        <a href="galeri.html">Fotoğraf Galerisi</a>
+        <a href="mesajlar.html">Özel Mesajlar & Şiirler</a>
+    </div>
+
+    <!-- Zaman Tüneli -->
+    <section class="section">
+        <h2>Zaman Tüneli</h2>
+        <p>Burada birlikte geçirdiğimiz özel anları paylaşıyoruz. Sonradan ekleme yapabilir ve düzenleyebilirsiniz.</p>
+    </section>
+
+    <!-- Fotoğraf Galerisi -->
+    <section class="section">
+        <h2>Fotoğraf Galerisi</h2>
+        <p>Birlikte çekildiğimiz fotoğrafları buraya ekleyebiliriz.</p>
+    </section>
+
+    <!-- Özel Mesajlar -->
+    <section class="section">
+        <h2>Özel Mesajlar & Şiirler</h2>
+        <p>Buraya bizim için özel olan mesajlar ve şiirler eklenebilir.</p>
+    </section>
+
+    <!-- Altbilgi -->
+    <footer>
+        <p>Bu site senin için, seni sonsuza kadar seveceğim. <a href="#">Sonsuza kadar</a></p>
+    </footer>
 </body>
 </html>
