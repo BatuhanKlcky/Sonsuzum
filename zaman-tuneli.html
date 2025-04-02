@@ -4,17 +4,137 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zaman Tüneli</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Genel stil */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #fceff5;
+            font-family: 'Arial', sans-serif;
+            color: #6d597a;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            color: #ff69b4;
+        }
+
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .event {
+            background-color: #fff;
+            margin: 10px 0;
+            padding: 20px;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .event:hover {
+            transform: scale(1.05);
+        }
+
+        .event h3 {
+            font-size: 1.5em;
+            color: #ff69b4;
+        }
+
+        .event p {
+            font-size: 1.1em;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .event-time {
+            font-size: 1.1em;
+            font-style: italic;
+            margin-top: 10px;
+        }
+
+        /* Menü stilini burada koruyoruz */
+        .menu {
+            position: fixed;
+            top: 50%;
+            left: 0;
+            background-color: #ff69b4;
+            color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+
+        .menu a {
+            display: block;
+            margin: 10px 0;
+            text-decoration: none;
+            color: white;
+        }
+
+        .menu a:hover {
+            color: #ff4c8b;
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        footer a {
+            text-decoration: none;
+            color: #ff69b4;
+        }
+
+        footer a:hover {
+            color: #ff4c8b;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Zaman Tüneli</h1>
-        <p>Burada birlikte geçirdiğimiz anıları paylaşıyoruz. Zamanla eklemeler yapabiliriz.</p>
-        <!-- Buraya zaman tüneline ait içerik ekleyebilirsiniz -->
+
+    <div class="menu">
+        <a href="index.html">Ana Sayfa</a>
+        <a href="galeri.html">Fotoğraf Galerisi</a>
+        <a href="mesajlar.html">Özel Mesajlar & Şiirler</a>
+    </div>
+
+    <h1>Zaman Tüneli</h1>
+
+    <div class="timeline">
+        <div class="event">
+            <h3>Tanıştığımız An</h3>
+            <p>Hayatımıza girdiğin an, her şeyin değiştiği o büyülü andı. Her anı unutulmaz.</p>
+            <p class="event-time">Tarih: 1 Nisan 2024</p>
+        </div>
+
+        <div class="event">
+            <h3>İlk Randevumuz</h3>
+            <p>İlk defa baş başa zaman geçirdiğimiz o anı hatırlıyorum. Seninle her şey çok farklıydı.</p>
+            <p class="event-time">Tarih: 15 Mayıs 2024</p>
+        </div>
+
+        <div class="event">
+            <h3>Birinci Yılımız</h3>
+            <p>Bugün, bir yıl önce hayatımıza giren en değerli insanla geçirdiğimiz ilk yıl.</p>
+            <p class="event-time">Tarih: 2 Nisan 2025</p>
+        </div>
     </div>
 
     <footer>
-        <a href="index.html">Ana Sayfa</a>
+        <p>&copy; 2025 Senin İçin. Tüm hakları saklıdır.</p>
     </footer>
 </body>
 </html>
