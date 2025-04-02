@@ -113,9 +113,9 @@
 
     <!-- Menü -->
     <div id="myMenu" class="menu">
-        <a href="javascript:void(0)" onclick="showCategory('messages')">Mesajlar & Şiirler</a>
-        <a href="javascript:void(0)" onclick="showCategory('timeline')">Zaman Tüneli</a>
-        <a href="javascript:void(0)" onclick="showCategory('gallery')">Fotoğraf Galerisi</a>
+        <a href="messages.html">Mesajlar & Şiirler</a>
+        <a href="timeline.html">Zaman Tüneli</a>
+        <a href="gallery.html">Fotoğraf Galerisi</a>
     </div>
 
     <!-- Sayfa İçeriği -->
@@ -157,15 +157,6 @@
         function toggleMenu() {
             const menu = document.getElementById("myMenu");
             menu.classList.toggle("open");
-        }
-
-        // Kategoriye tıkladığında içerik gösterme
-        function showCategory(category) {
-            const categories = ['messages', 'timeline', 'gallery'];
-            categories.forEach(cat => {
-                const categoryDiv = document.getElementById(cat);
-                categoryDiv.style.display = (cat === category) ? 'block' : 'none';
-            });
         }
     </script>
 </body>
