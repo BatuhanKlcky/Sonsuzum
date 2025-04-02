@@ -6,74 +6,20 @@
     <title>Senin İçin</title>
     <style>
         body {
-            background-color: #fceff5;
-            font-family: 'Arial', sans-serif;
-            text-align: center;
-            color: #6d597a;
+            background-image: url('https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/_c2e2f49f-bf7a-4798-b23c-0d89acac43a7.jfif');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             margin: 0;
             padding: 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-    background-image: url('https://github.com/BatuhanKlcky/sevdam1/blob/main/_c2e2f49f-bf7a-4798-b23c-0d89acac43a7.jfif');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-}
-        .heart {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 100px;
-            height: 100px;
-            background-color: #ff69b4;
-            transform: rotate(45deg);
-            animation: heartbeat 1.5s infinite;
-            z-index: -1;
-        }
-
-        .heart:before,
-        .heart:after {
-            content: '';
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background-color: #ff69b4;
-        }
-
-        .heart:before {
-            top: -50px;
-            left: 0;
-        }
-
-        .heart:after {
-            left: 50px;
-            top: 0;
-        }
-
-        @keyframes heartbeat {
-            0% {
-                transform: scale(1) rotate(45deg);
-            }
-            25% {
-                transform: scale(1.1) rotate(45deg);
-            }
-            50% {
-                transform: scale(1) rotate(45deg);
-            }
-            75% {
-                transform: scale(1.1) rotate(45deg);
-            }
-            100% {
-                transform: scale(1) rotate(45deg);
-            }
+            font-family: 'Arial', sans-serif;
+            color: #fff; /* Yazıyı beyaz yapmak için */
+            text-align: center;
         }
 
         h1 {
             font-size: 2.5em;
-            color: #ff69b4;
+            color: #fff; /* Başlık yazısını beyaz yapıyoruz */
             margin-bottom: 20px;
         }
 
@@ -85,23 +31,18 @@
         }
 
         .section {
-            background: #fff;
+            background: rgba(255, 255, 255, 0.8); /* Yarı saydam beyaz arka plan */
             margin: 40px auto;
             padding: 40px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             max-width: 800px;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .section:hover {
-            transform: scale(1.02);
         }
 
         footer {
             margin-top: 50px;
             font-size: 1.1em;
-            color: #6d597a;
+            color: #fff;
         }
 
         footer a {
@@ -140,8 +81,6 @@
     <audio autoplay loop>
         <source src="ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
     </audio>
-
-    <div class="heart"></div>
 
     <div class="container">
         <h1>Bir yıl önce hayatıma girdin ve her şeyi güzelleştirdin.</h1>
