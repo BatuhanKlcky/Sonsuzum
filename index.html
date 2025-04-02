@@ -13,7 +13,7 @@
         }
 
         body {
-            background-image: url('https://i.imgur.com/iwhcNjJ.jpeg');
+            background-image: url('https://i.imgur.com/4dTibf6.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -47,6 +47,7 @@
             color: #fff; /* Beyaz yazı rengi */
             margin-bottom: 20px;
             text-align: center;
+            font-weight: normal; /* Kutu olmaması için */
         }
 
         /* Zaman Tüneli içerik kısmının stilini değiştirelim */
@@ -82,11 +83,17 @@
         .menu a:hover {
             color: #ff4c8b;
         }
+
+        /* Sayfanın alt kısmında boşluk kalmasın */
+        footer {
+            margin-top: 40px;
+        }
     </style>
 </head>
 <body>
     <audio autoplay loop>
-        <source src="ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
+        <source src="https://example.com/ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
+        Tarayıcınız ses dosyasını desteklemiyor.
     </audio>
 
     <div class="container">
@@ -101,17 +108,17 @@
     </div>
 
     <section class="section">
-        <h1>Zaman Tüneli</h1>
+        <h2>Zaman Tüneli</h2>
         <p>Burada birlikte geçirdiğimiz özel anları paylaşıyoruz. Sonradan ekleme yapabilir ve düzenleyebilirsiniz.</p>
     </section>
 
     <section class="section">
-        <h1>Fotoğraf Galerisi</h1>
+        <h2>Fotoğraf Galerisi</h2>
         <p>Birlikte çekildiğimiz fotoğrafları buraya ekleyebiliriz.</p>
     </section>
 
     <section class="section">
-        <h1>Özel Mesajlar & Şiirler</h1>
+        <h2>Özel Mesajlar & Şiirler</h2>
         <p>Buraya bizim için özel olan mesajlar ve şiirler eklenebilir.</p>
     </section>
 
