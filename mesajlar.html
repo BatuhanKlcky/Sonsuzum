@@ -4,17 +4,128 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Özel Mesajlar & Şiirler</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Genel stil */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #fceff5; /* Hafif pembe arka plan */
+            font-family: 'Arial', sans-serif;
+            color: #6d597a;
+            padding: 0;
+            margin: 0;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            color: #ff69b4;
+            padding-top: 40px;
+        }
+
+        .message-box {
+            background-color: rgba(255, 255, 255, 0.8); /* Hafif şeffaf beyaz arka plan */
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 800px;
+            transition: transform 0.3s;
+        }
+
+        .message-box:hover {
+            transform: scale(1.05);
+        }
+
+        .message-box h2 {
+            font-size: 1.8em;
+            color: #ff69b4;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .message-box p {
+            font-size: 1.2em;
+            line-height: 1.6;
+            color: #6d597a;
+        }
+
+        .message-box .author {
+            font-style: italic;
+            font-size: 1.1em;
+            text-align: right;
+            margin-top: 15px;
+            color: #ff69b4;
+        }
+
+        .menu {
+            position: fixed;
+            top: 50%;
+            left: 0;
+            background-color: #ff69b4;
+            color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+
+        .menu a {
+            display: block;
+            margin: 10px 0;
+            text-decoration: none;
+            color: white;
+        }
+
+        .menu a:hover {
+            color: #ff4c8b;
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        footer a {
+            text-decoration: none;
+            color: #ff69b4;
+        }
+
+        footer a:hover {
+            color: #ff4c8b;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Özel Mesajlar & Şiirler</h1>
-        <p>Buraya bizim için anlam taşıyan mesajlar ve şiirler ekleyebiliriz.</p>
-        <!-- Mesajlar ve şiirler buraya eklenebilir -->
+
+    <div class="menu">
+        <a href="index.html">Ana Sayfa</a>
+        <a href="zaman-tuneli.html">Zaman Tüneli</a>
+        <a href="galeri.html">Fotoğraf Galerisi</a>
+    </div>
+
+    <h1>Özel Mesajlar & Şiirler</h1>
+
+    <div class="message-box">
+        <h2>Birinci Yılımız</h2>
+        <p>Bir yıl önce hayatımıza giren en değerli insanla geçirdiğimiz bu harika zamanı anlatmak çok zor. Her geçen gün birlikte daha da güçleniyoruz. İyi ki varsın, seni sonsuza kadar seveceğim.</p>
+        <p class="author">- Benim</p>
+    </div>
+
+    <div class="message-box">
+        <h2>Tanıştığımız An</h2>
+        <p>İlk görüşmemiz aklımda hala taze. O an seni gördüğümde içimde bir şeyler kıpırdamıştı. Seninle geçirdiğim her anı, her günümüzü çok değerli buluyorum.</p>
+        <p class="author">- Seninle</p>
     </div>
 
     <footer>
-        <a href="index.html">Ana Sayfa</a>
+        <p>&copy; 2025 Senin İçin. Tüm hakları saklıdır.</p>
     </footer>
+
 </body>
 </html>
