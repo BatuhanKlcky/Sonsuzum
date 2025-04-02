@@ -59,6 +59,58 @@ footer a {
 
 footer a:hover {
     color: #ff4c8b;
+    /* Kalp şekli */
+        .heart {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100px;
+            height: 100px;
+            background-color: #ff69b4;
+            transform: rotate(45deg);
+            animation: heartbeat 1.5s infinite;
+            z-index: -1; /* Kalp arka planda olacak */
+        }
+
+        .heart:before,
+        .heart:after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #ff69b4;
+        }
+
+        .heart:before {
+            top: -50px;
+            left: 0;
+        }
+
+        .heart:after {
+            left: 50px;
+            top: 0;
+        }
+
+        /* Kalp animasyonu */
+        @keyframes heartbeat {
+            0% {
+                transform: scale(1) rotate(45deg);
+            }
+            25% {
+                transform: scale(1.1) rotate(45deg);
+            }
+            50% {
+                transform: scale(1) rotate(45deg);
+            }
+            75% {
+                transform: scale(1.1) rotate(45deg);
+            }
+            100% {
+                transform: scale(1) rotate(45deg);
+            }
+        }
+    </style>
 }
         
         /* Menü stilini oluşturuyoruz */
