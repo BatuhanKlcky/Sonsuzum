@@ -99,6 +99,31 @@
         footer a:hover {
             color: #ff4c8b;
         }
+
+        /* Açılabilir mesaj kutusu */
+        .message-toggle {
+            background-color: #ff69b4;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+            font-size: 1.2em;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+
+        .message-toggle:hover {
+            background-color: #ff4c8b;
+        }
+
+        .message-content {
+            display: none;
+            margin-top: 20px;
+            font-size: 1.2em;
+            line-height: 1.6;
+            text-align: left;
+        }
     </style>
 </head>
 <body>
@@ -124,14 +149,37 @@
     </div>
 
     <div class="message-box">
-        <h2>İlk Ayımız /h2>
-        <p>00.00 :) </p>
+        <h2>İlk Ayımız</h2>
+        <p> 00.00 :) </p>
         <p class="author">- Seninle</p>
+    </div>
+
+    <!-- Açılabilir mesaj kutusu -->
+    <div class="message-box">
+        <h2>Meleğimle İkinci Ayımız</h2>
+        <button class="message-toggle" onclick="toggleMessage()">Mesajı Görüntüle</button>
+        <div class="message-content">
+            <p>Meleğim,</p>
+            <p>Bugün birlikte geçirdiğimiz ikinci ayın mutluluğunu yaşıyoruz... zaman ne kadar da hızlı geçti ilk günlerimizi hatırladığımda içimdeki heyecan ve kalbimdeki çarpıntıların hala taptaze olduğunu hissediyorum. Seninle geçirdiğim her an bana sevginin ve mutluluğun gerçek anlamını öğrettirtti...</p>
+            <p>Seni seviyorum ve bu sevgi her geçen gün katlanarak artıyor...</p>
+            <p>İyi ki varsın, iyi ki benimlesin...</p>
+        </div>
     </div>
 
     <footer>
         <p>&copy; 2025 Senin İçin. Tüm hakları saklıdır.</p>
     </footer>
+
+    <script>
+        function toggleMessage() {
+            var content = document.querySelector('.message-content');
+            if (content.style.display === "none") {
+                content.style.display = "block";
+            } else {
+                content.style.display = "none";
+            }
+        }
+    </script>
 
 </body>
 </html>
