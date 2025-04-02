@@ -13,16 +13,19 @@
         }
 
         body {
-            background-color: #fceff5;
+            background: linear-gradient(135deg, #ffb6c1, #f9d3d0); /* Pastel renk geçişi */
             font-family: 'Arial', sans-serif;
             color: #6d597a;
-            padding: 20px;
+            padding: 0;
+            margin: 0;
         }
 
         h1 {
             text-align: center;
             font-size: 2.5em;
-            color: #ff69b4;
+            color: #fff; /* Başlık rengi beyaz */
+            padding-top: 40px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* Başlık için gölge efekti */
         }
 
         .timeline {
@@ -30,10 +33,11 @@
             flex-direction: column;
             align-items: center;
             margin-top: 20px;
+            padding-bottom: 40px;
         }
 
         .event {
-            background-color: #fff;
+            background-color: rgba(255, 255, 255, 0.8); /* Kartların arka planını hafif beyaz yapıyoruz */
             margin: 10px 0;
             padding: 20px;
             width: 80%;
@@ -115,26 +119,32 @@
 
     <div class="timeline">
         <div class="event">
-            <h3>Tanıştığımız An</h3>
-            <p>Hayatımıza girdiğin an, her şeyin değiştiği o büyülü andı. Her anı unutulmaz.</p>
-            <p class="event-time">Tarih: 1 Nisan 2024</p>
+            <h3>İlk Mesajlaşmamız </h3>
+            <p>Belkide herşeyin başladığı zaman. </p>
+            <p class="event-time">Tarih: 6 Mart 2024</p>
         </div>
 
         <div class="event">
             <h3>İlk Randevumuz</h3>
             <p>İlk defa baş başa zaman geçirdiğimiz o anı hatırlıyorum. Seninle her şey çok farklıydı.</p>
-            <p class="event-time">Tarih: 15 Mayıs 2024</p>
+            <p class="event-time">Tarih: 6 Nisan 2024</p>
         </div>
 
         <div class="event">
             <h3>Birinci Yılımız</h3>
-            <p>Bugün, bir yıl önce hayatımıza giren en değerli insanla geçirdiğimiz ilk yıl.</p>
-            <p class="event-time">Tarih: 2 Nisan 2025</p>
+            <p></p>
+            <p class="event-time">Tarih: 24 Nisan 2025</p>
+        </div>
+        
+        <div class="event">
+            <h3>İlk Seni Seviyorum dediğin ve İlk konserimiz </h3>
+            <p></p>
+            <p class="event-time">Tarih: 29 Nisan 2024</p>
         </div>
     </div>
 
     <footer>
-        <p>&copy; 2025 Senin İçin. Tüm hakları saklıdır.</p>
+        <p>&copy; 2025 Senin İçin. Tüm Sevgim sende saklıdır.</p>
     </footer>
 </body>
 </html>
