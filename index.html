@@ -128,12 +128,6 @@
 </head>
 <body>
 
-    <!-- Şarkı eklenmiş -->
-    <audio autoplay loop>
-        <source src="https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
-        Tarayıcınız ses dosyasını desteklemiyor.
-    </audio>
-
     <!-- Şifre giriş ekranı -->
     <div class="password-modal" id="passwordModal">
         <div>
@@ -157,10 +151,13 @@
     </div>
 
     <footer>
-        <p>&copy; 2025 Senin İçin. Tüm Sevdam sende saklıdır.</p>
+        <p>&copy; 2025 Senin İçin. Tüm hakları saklıdır.</p>
     </footer>
 
     <script>
+        // Şarkı sesini başlatma fonksiyonu
+        var audio = new Audio("https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/ozdemir-erdogan-ac-kapiyi.mp3");
+
         // Şifre kontrol fonksiyonu
         function checkPassword() {
             var password = document.getElementById("passwordInput").value;
@@ -169,6 +166,9 @@
                 document.getElementById("passwordModal").classList.remove("active");
                 document.getElementById("mainContent").style.display = "block";
                 document.getElementById("menu").style.display = "block";
+                
+                // Şarkıyı başlat
+                audio.play();
             } else {
                 alert("Yanlış şifre!");
             }
