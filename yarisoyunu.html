@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yarış Oyunu</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background-color: #222;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            background: #444;
+            display: block;
+            margin: auto;
+            border-radius: 10px;
+        }
+        .controls {
+            margin-top: 10px;
+        }
+        button {
+            padding: 15px;
+            margin: 5px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            background-color: #ff4c8b;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #ff69b4;
+        }
+    </style>
+</head>
+<body>
+    <h1>Yarış Oyunu</h1>
+    <canvas id="gameCanvas" width="400" height="600"></canvas>
+    <div class="controls">
+        <button onclick="moveLeft()">⬅️</button>
+        <button onclick="moveRight()">➡️</button>
+    </div>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        
+        let car = { x: 175, y: 500, width: 50, height: 80 };
+        let roadLines = [
+            { x: 195, y: 0 },
+            { x: 195, y: 200 },
+            { x: 195, y: 400 }
+        ];
+        
+        function drawCar() {
+            ctx.fillStyle = "red";
+            ctx.fillRect(car.x, car.y, car.width, car.height);
+        }
+        
+        function drawRoad() {
+            ctx.fillStyle = "white";
+            roadLines.forEach(line => {
+                ctx.fillRect(line.x, line.y, 10, 50);
+            });
+        }
+        
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            roadLines.forEach(line => {
+                line.y += 5;
+                if (line.y > canvas.height) {
+                    line.y = -50;
+                }
+            });
+            
+            drawRoad();
+            drawCar();
+            requestAnimationFrame(update);
+        }
+        
+        function moveLeft() {
+            if (car.x > 100) {
+                car.x -= 50;
+            }
+        }
+        
+        function moveRight() {
+            if (car.x < 250) {
+                car.x += 50;
+            }
+        }
+        
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowLeft") moveLeft();
+            if (event.key === "ArrowRight") moveRight();
+        });
+        
+        update();
+    </script>
+</body>
+</html>
