@@ -113,37 +113,19 @@
             background-color: #ff4c8b;
         }
 
-        /* İçeriği gizle */
-        .container {
-            padding: 20px;
-            display: none;
-        }
-
-        h1 {
-            font-size: 2.5em;
-            color: #fff;
-            margin-bottom: 0;
-        }
-
-        p {
-            font-size: 1.2em;
-            max-width: 600px;
-            margin: 20px auto;
-            line-height: 1.6;
-        }
-
         /* Menü düzeni */
         .menu {
             position: fixed;
-            top: 50%;
-            left: 0;
+            top: 0;
+            left: -100%; /* Menü başlangıçta gizli */
             background-color: #ff69b4;
             color: #fff;
             padding: 20px;
             border-radius: 10px;
-            transform: translateY(-50%);
+            width: 25%;
+            height: 100%;
+            transition: 0.3s ease-in-out;
             z-index: 10;
-            display: none;
         }
 
         .menu a {
@@ -170,6 +152,22 @@
         footer a:hover {
             color: #ff4c8b;
         }
+
+        /* Menü açıldığında sağa kayma efekti */
+        .menu.open {
+            left: 0;
+        }
+
+        /* Hamburger menü ikonu */
+        .menu-icon {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            z-index: 15;
+        }
+
     </style>
 </head>
 <body>
@@ -194,6 +192,10 @@
         <p>Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim.</p>
     </div>
 
+    <!-- Hamburger menü ikonu -->
+    <div class="menu-icon" onclick="toggleMenu()">&#x2022;&#x2022;&#x2022;</div>
+
+    <!-- Menü -->
     <div class="menu" id="menu">
         <a href="zaman-tuneli.html">Zaman Tüneli</a>
         <a href="galeri.html">Fotoğraf Galerisi</a>
@@ -239,6 +241,12 @@
             } else {
                 alert('Yanlış şifre, lütfen tekrar deneyin.');
             }
+        }
+
+        // Menü açma/kapama fonksiyonu
+        function toggleMenu() {
+            const menu = document.getElementById('menu');
+            menu.classList.toggle('open');
         }
     </script>
 </body>
