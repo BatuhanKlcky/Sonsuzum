@@ -212,7 +212,7 @@
             const lastAccess = localStorage.getItem('lastAccess');
             const currentTime = Date.now();
             
-            if (lastAccess && (currentTime - lastAccess) < 500) { // 600000 ms = 10 dakika
+            if (lastAccess && (currentTime - lastAccess) < 600000) { // 600000 ms = 10 dakika
                 // 10 dakika içinde tekrar şifre isteme
                 document.getElementById('passwordContainer').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
