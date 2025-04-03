@@ -3,98 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bize Dair Mesajlar</title>
+    <title>Özel Mesajlar</title>
     <style>
         body {
-            background-color: #fde2e4;
             font-family: 'Arial', sans-serif;
-            text-align: center;
-            padding: 20px;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+            padding: 20px;
+            position: relative;
+        }
+
         h1 {
+            text-align: center;
             color: #ff4d6d;
+            font-size: 1.8em;
+            margin-bottom: 20px;
         }
-        #messages {
-            margin-top: 20px;
-            background-color: #fff;
-            padding: 20px;
+
+        .message-board {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
             border-radius: 10px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
         }
+
         .message {
             background-color: #ffebeb;
             padding: 10px;
-            border-radius: 5px;
+            border-radius: 8px;
             margin-bottom: 10px;
-            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            max-width: 80%;
+            margin-left: auto;
         }
+
+        .message.user {
+            background-color: #ffe1e1;
+        }
+
+        .message.partner {
+            background-color: #f1f6fb;
+            margin-right: auto;
+        }
+
         textarea {
-            width: 80%;
-            height: 100px;
-            border-radius: 10px;
+            width: 100%;
+            height: 80px;
             padding: 10px;
-            border: none;
-            margin-top: 20px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            font-size: 1em;
+            resize: none;
+            margin-bottom: 10px;
+            outline: none;
+            transition: border-color 0.3s ease;
         }
+
+        textarea:focus {
+            border-color: #ff4d6d;
+        }
+
         button {
-            padding: 10px 20px;
+            width: 100%;
+            padding: 12px;
             background-color: #ff4d6d;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
             cursor: pointer;
-            margin-top: 10px;
+            font-size: 1.1em;
         }
+
         button:hover {
             background-color: #ff2a4b;
         }
-    </style>
-</head>
-<body>
-    <h1>Bize Dair Mesajlar</h1>
-    <p>Burada sizinle paylaşılan özel mesajlar yer alacak. Mesaj bırakmak isterseniz aşağıya yazabilirsiniz.</p>
 
-    <div id="messages">
-        <!-- Mesajlar buraya eklenecek -->
-    </div>
-
-    <textarea id="userMessage" placeholder="Mesajınızı buraya yazın..."></textarea>
-    <br>
-    <button onclick="addMessage()">Mesajı Gönder</button>
-
-    <script>
-        // Mesajları localStorage'a kaydediyoruz.
-        function displayMessages() {
-            let messages = JSON.parse(localStorage.getItem('messages')) || [];
-            let messagesContainer = document.getElementById('messages');
-            messagesContainer.innerHTML = ''; // İlk başta içeriği temizle
-
-            // Her bir mesajı ekle
-            messages.forEach(function(message) {
-                let div = document.createElement('div');
-                div.classList.add('message');
-                div.textContent = message;
-                messagesContainer.appendChild(div);
-            });
-        }
-
-        // Kullanıcı yeni bir mesaj eklerken
-        function addMessage() {
-            let userMessage = document.getElementById('userMessage').value;
-            if (userMessage.trim() !== "") {
-                let messages = JSON.parse(localStorage.getItem('messages')) || [];
-                messages.push(userMessage);
-                localStorage.setItem('messages', JSON.stringify(messages));
-                document.getElementById('userMessage').value = ''; // Mesajı yazma kutusunu temizle
-                displayMessages(); // Mesajları tekrar görüntüle
-            }
-        }
-
-        // Sayfa yüklendiğinde mesajları göster
-        displayMessages();
-    </script>
-</body>
-</html>
+        .menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #ff4d6d;
+            color
