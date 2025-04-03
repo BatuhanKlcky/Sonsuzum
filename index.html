@@ -113,6 +113,30 @@
             background-color: #ff4c8b;
         }
 
+        /* Ana içerik için stil */
+        .container {
+            padding: 20px;
+            display: none;
+            position: relative;
+            z-index: 5;
+        }
+
+        h1 {
+            font-size: 3em;
+            color: #fff;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+            line-height: 1.2;
+        }
+
+        p {
+            font-size: 1.5em;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+        }
+
         /* Menü düzeni */
         .menu {
             position: fixed;
@@ -120,19 +144,21 @@
             left: -100%; /* Menü başlangıçta gizli */
             background-color: #ff69b4;
             color: #fff;
-            padding: 20px;
+            padding: 30px;
             border-radius: 10px;
             width: 25%;
             height: 100%;
             transition: 0.3s ease-in-out;
             z-index: 10;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
         }
 
         .menu a {
             display: block;
-            margin: 10px 0;
+            margin: 15px 0;
             text-decoration: none;
             color: white;
+            font-size: 1.2em;
         }
 
         .menu a:hover {
@@ -166,8 +192,49 @@
             font-size: 30px;
             cursor: pointer;
             z-index: 15;
+            color: white;
+            padding: 10px;
         }
 
+        /* Responsive Tasarım - Mobil için */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2em;
+                line-height: 1.4;
+            }
+
+            p {
+                font-size: 1.2em;
+                max-width: 100%;
+            }
+
+            .password-box {
+                width: 80%;
+                padding: 30px;
+            }
+
+            .menu {
+                width: 70%;
+                padding: 20px;
+            }
+
+            .menu-icon {
+                top: 10px;
+                left: 10px;
+                font-size: 28px;
+            }
+        }
+
+        /* Full screen için */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            p {
+                font-size: 1em;
+            }
+        }
     </style>
 </head>
 <body>
@@ -223,31 +290,4 @@
                 document.getElementById('footer').style.display = 'block';
                 document.getElementById('bgMusic').play(); // Şarkıyı başlat
             }
-        };
-
-        function checkPassword() {
-            const inputPassword = document.getElementById('password').value;
-            
-            if (inputPassword === correctPassword) {
-                const currentTime = Date.now();
-                localStorage.setItem('lastAccess', currentTime); // Şifre doğruysa zaman kaydet
-                
-                // Şifre doğruysa, korumayı gizle ve içeriği göster
-                document.getElementById('passwordContainer').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'block';
-                document.getElementById('menu').style.display = 'block';
-                document.getElementById('footer').style.display = 'block';
-                document.getElementById('bgMusic').play(); // Şarkıyı başlat
-            } else {
-                alert('Yanlış şifre, lütfen tekrar deneyin.');
-            }
-        }
-
-        // Menü açma/kapama fonksiyonu
-        function toggleMenu() {
-            const menu = document.getElementById('menu');
-            menu.classList.toggle('open');
-        }
-    </script>
-</body>
-</html>
+       
