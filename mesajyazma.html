@@ -144,15 +144,13 @@
     <div class="container">
         <h1>Özel Mesajlaşma</h1>
 
-        <!-- Menü -->
-        <div class="menu" onclick="window.location.href='index.html'">Ana Sayfaya Dön</div>
-
         <div class="message-board" id="messageBoard">
             <!-- Mesajlar burada görünecek -->
         </div>
 
         <textarea id="messageInput" placeholder="Mesajınızı buraya yazın..."></textarea>
         <button onclick="sendMessage()">Mesajı Gönder</button>
+        <button onclick="clearMessages()">Mesajları Temizle</button> <!-- Mesajları temizle butonu -->
     </div>
 
     <script>
@@ -196,6 +194,15 @@
                 localStorage.setItem('messages', JSON.stringify(messages));
                 document.getElementById('messageInput').value = '';  // Mesaj yazma kutusunu temizle
                 displayMessages(); // Yeni mesajları göster
+            }
+        }
+
+        // Mesajları temizleme fonksiyonu
+        function clearMessages() {
+            if (confirm('Tüm mesajları silmek istediğinizden emin misiniz?')) {
+                messages = [];
+                localStorage.setItem('messages', JSON.stringify(messages)); // Mesajları sıfırla
+                displayMessages(); // Temizlenmiş mesajları göster
             }
         }
 
