@@ -98,7 +98,7 @@
         let score1 = 0;
         let score2 = 0;
 
-        function createBoard(boardId, board, isPlayerBoard) {
+        function createBoard(boardId, board, isPlayerBoard, isPlayerTurn) {
             const boardElement = document.getElementById(boardId);
             boardElement.innerHTML = ''; // Clear previous board
 
@@ -110,18 +110,23 @@
                         cell.classList.add('ship');
                     }
 
-                    cell.addEventListener('click', () => handleCellClick(row, col, board, isPlayerBoard));
+                    cell.addEventListener('click', () => handleCellClick(row, col, board, isPlayerBoard, isPlayerTurn));
 
                     boardElement.appendChild(cell);
                 }
             }
         }
 
-        function handleCellClick(row, col, board, isPlayerBoard) {
+        function handleCellClick(row, col, board, isPlayerBoard, isPlayerTurn) {
             if (gameOver) return;
 
             if (isPlayerBoard) {
                 alert("Bu senin tahta! Hamleni burada yapma.");
+                return;
+            }
+
+            if (!isPlayerTurn) {
+                alert("Şu anda rakibin sırası.");
                 return;
             }
 
@@ -179,8 +184,8 @@
         }
 
         function updateBoard() {
-            createBoard('board1', player1Board, true);
-            createBoard('board2', player2Board, false);
+            createBoard('board1', player1Board, true, currentPlayer === 1);
+            createBoard('board2', player2Board, false, currentPlayer === 2);
         }
 
         function updateTurn() {
