@@ -5,101 +5,123 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yarış Oyunu</title>
     <style>
-        body {
+        body, html {
+            height: 100%;
             margin: 0;
-            padding: 0;
-            text-align: center;
-            background-color: #222;
-            color: white;
             font-family: Arial, sans-serif;
+            overflow: hidden;
+            background-color: #1c1c1c;
         }
-        canvas {
-            background: #444;
+
+        #gameCanvas {
             display: block;
-            margin: auto;
-            border-radius: 10px;
+            margin: 0 auto;
+            background-color: #2f2f2f;
         }
-        .controls {
-            margin-top: 10px;
-        }
-        button {
-            padding: 15px;
-            margin: 5px;
-            font-size: 18px;
-            border: none;
-            border-radius: 8px;
-            background-color: #ff4c8b;
+
+        .scoreboard {
+            position: fixed;
+            top: 10px;
+            left: 10px;
             color: white;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #ff69b4;
+            font-size: 24px;
+            z-index: 10;
         }
     </style>
 </head>
 <body>
-    <h1>Yarış Oyunu</h1>
-    <canvas id="gameCanvas" width="400" height="600"></canvas>
-    <div class="controls">
-        <button onclick="moveLeft()">⬅️</button>
-        <button onclick="moveRight()">➡️</button>
+    <div class="scoreboard">
+        Puan: <span id="score">0</span>
     </div>
+    <canvas id="gameCanvas" width="600" height="800"></canvas>
+
     <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        
-        let car = { x: 175, y: 500, width: 50, height: 80 };
-        let roadLines = [
-            { x: 195, y: 0 },
-            { x: 195, y: 200 },
-            { x: 195, y: 400 }
-        ];
-        
-        function drawCar() {
-            ctx.fillStyle = "red";
-            ctx.fillRect(car.x, car.y, car.width, car.height);
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+
+        const playerWidth = 50;
+        const playerHeight = 80;
+        let playerX = canvas.width / 2 - playerWidth / 2;
+        let playerY = canvas.height - playerHeight - 20;
+        let playerSpeed = 5;
+
+        let obstacles = [];
+        let score = 0;
+
+        document.addEventListener('keydown', movePlayer);
+
+        function movePlayer(event) {
+            if (event.key === "ArrowLeft" && playerX > 0) {
+                playerX -= playerSpeed;
+            }
+            if (event.key === "ArrowRight" && playerX < canvas.width - playerWidth) {
+                playerX += playerSpeed;
+            }
         }
-        
-        function drawRoad() {
-            ctx.fillStyle = "white";
-            roadLines.forEach(line => {
-                ctx.fillRect(line.x, line.y, 10, 50);
+
+        function createObstacle() {
+            const width = Math.random() * (canvas.width / 2);
+            const height = Math.random() * 40 + 40;
+            const x = Math.random() * (canvas.width - width);
+            const speed = Math.random() * 3 + 2;
+            obstacles.push({ x, y: -height, width, height, speed });
+        }
+
+        function updateObstacles() {
+            obstacles.forEach(obstacle => {
+                obstacle.y += obstacle.speed;
             });
-        }
-        
-        function update() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            roadLines.forEach(line => {
-                line.y += 5;
-                if (line.y > canvas.height) {
-                    line.y = -50;
+
+            obstacles = obstacles.filter(obstacle => obstacle.y < canvas.height);
+
+            // Check collision
+            obstacles.forEach(obstacle => {
+                if (playerX < obstacle.x + obstacle.width &&
+                    playerX + playerWidth > obstacle.x &&
+                    playerY < obstacle.y + obstacle.height &&
+                    playerY + playerHeight > obstacle.y) {
+                    alert('Oyun Bitti! Puanınız: ' + score);
+                    resetGame();
                 }
             });
-            
-            drawRoad();
-            drawCar();
-            requestAnimationFrame(update);
         }
-        
-        function moveLeft() {
-            if (car.x > 100) {
-                car.x -= 50;
-            }
+
+        function drawObstacles() {
+            ctx.fillStyle = 'red';
+            obstacles.forEach(obstacle => {
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            });
         }
-        
-        function moveRight() {
-            if (car.x < 250) {
-                car.x += 50;
-            }
+
+        function updateScore() {
+            score += 1;
+            scoreElement.innerText = score;
         }
-        
-        document.addEventListener("keydown", (event) => {
-            if (event.key === "ArrowLeft") moveLeft();
-            if (event.key === "ArrowRight") moveRight();
-        });
-        
-        update();
+
+        function resetGame() {
+            playerX = canvas.width / 2 - playerWidth / 2;
+            playerY = canvas.height - playerHeight - 20;
+            obstacles = [];
+            score = 0;
+            scoreElement.innerText = score;
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            createObstacle();
+            updateObstacles();
+            drawObstacles();
+            updateScore();
+
+            ctx.fillStyle = 'green';
+            ctx.fillRect(playerX, playerY, playerWidth, playerHeight);
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
     </script>
 </body>
 </html>
