@@ -49,10 +49,10 @@
     <h1>Duello Oyunu</h1>
     <canvas id="gameCanvas" width="400" height="400"></canvas>
     <div class="controls">
-        <button onclick="moveLeftPlayer1()">⬅️ (Oyuncu 1)</button>
-        <button onclick="moveRightPlayer1()">➡️ (Oyuncu 1)</button>
-        <button onclick="moveLeftPlayer2()">⬅️ (Oyuncu 2)</button>
-        <button onclick="moveRightPlayer2()">➡️ (Oyuncu 2)</button>
+        <button id="leftPlayer1" onmousedown="moveLeftPlayer1(true)" onmouseup="moveLeftPlayer1(false)">⬅️ (Oyuncu 1)</button>
+        <button id="rightPlayer1" onmousedown="moveRightPlayer1(true)" onmouseup="moveRightPlayer1(false)">➡️ (Oyuncu 1)</button>
+        <button id="leftPlayer2" onmousedown="moveLeftPlayer2(true)" onmouseup="moveLeftPlayer2(false)">⬅️ (Oyuncu 2)</button>
+        <button id="rightPlayer2" onmousedown="moveRightPlayer2(true)" onmouseup="moveRightPlayer2(false)">➡️ (Oyuncu 2)</button>
     </div>
     <div class="score">
         <span>Oyuncu 1: <span id="scorePlayer1">0</span></span>
@@ -70,8 +70,8 @@
         const ctx = canvas.getContext("2d");
 
         // Oyuncuların başlangıç noktaları
-        let player1 = { x: 50, y: 350, width: 50, height: 50, color: 'red' };
-        let player2 = { x: 300, y: 350, width: 50, height: 50, color: 'blue' };
+        let player1 = { x: 50, y: 350, width: 50, height: 50, color: 'red', movingLeft: false, movingRight: false };
+        let player2 = { x: 300, y: 350, width: 50, height: 50, color: 'blue', movingLeft: false, movingRight: false };
         let ball = { x: 200, y: 200, radius: 10, speedX: 2, speedY: 2, color: 'white' };
         
         // Skorlar
@@ -120,28 +120,36 @@
         }
 
         // Oyuncu 1 hareketleri
-        function moveLeftPlayer1() {
-            if (player1.x > 0) {
-                player1.x -= 10;
-            }
+        function moveLeftPlayer1(pressed) {
+            player1.movingLeft = pressed;
         }
 
-        function moveRightPlayer1() {
-            if (player1.x < canvas.width - player1.width) {
-                player1.x += 10;
-            }
+        function moveRightPlayer1(pressed) {
+            player1.movingRight = pressed;
         }
 
         // Oyuncu 2 hareketleri
-        function moveLeftPlayer2() {
-            if (player2.x > 0) {
-                player2.x -= 10;
-            }
+        function moveLeftPlayer2(pressed) {
+            player2.movingLeft = pressed;
         }
 
-        function moveRightPlayer2() {
-            if (player2.x < canvas.width - player2.width) {
-                player2.x += 10;
+        function moveRightPlayer2(pressed) {
+            player2.movingRight = pressed;
+        }
+
+        // Oyuncuların hareketini güncelleme
+        function updatePlayerMovement() {
+            if (player1.movingLeft && player1.x > 0) {
+                player1.x -= 5 + scorePlayer1 * 0.1;  // Skor arttıkça hız artsın
+            }
+            if (player1.movingRight && player1.x < canvas.width - player1.width) {
+                player1.x += 5 + scorePlayer1 * 0.1;
+            }
+            if (player2.movingLeft && player2.x > 0) {
+                player2.x -= 5 + scorePlayer2 * 0.1;
+            }
+            if (player2.movingRight && player2.x < canvas.width - player2.width) {
+                player2.x += 5 + scorePlayer2 * 0.1;
             }
         }
 
@@ -192,6 +200,9 @@
             // Topu ve oyuncuları çizme
             drawBall();
             drawPlayers();
+
+            // Oyuncu hareketlerini güncelleme
+            updatePlayerMovement();
 
             // Topun hareketini güncelleme
             updateBall();
