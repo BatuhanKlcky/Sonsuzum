@@ -55,9 +55,62 @@
             max-height: 90%;
             border-radius: 10px;
         }
+
+        /* Menü Düzeni */
+        .menu {
+            position: fixed;
+            top: 50%;
+            left: 0;
+            background-color: #ff69b4;
+            color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+
+        .menu a {
+            display: block;
+            margin: 10px 0;
+            text-decoration: none;
+            color: white;
+        }
+
+        .menu a:hover {
+            color: #ff4c8b;
+        }
+
+        footer {
+            margin-top: 40px;
+        }
+
+        footer a {
+            text-decoration: none;
+            color: #ff69b4;
+        }
+
+        footer a:hover {
+            color: #ff4c8b;
+        }
     </style>
 </head>
 <body>
+
+    <!-- Şarkıyı otomatik başlatan etiket -->
+    <audio autoplay loop>
+        <source src="https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
+        Tarayıcınız ses dosyasını desteklemiyor.
+    </audio>
+
+    <!-- Menü -->
+    <div class="menu">
+        <a href="index.html">Ana Sayfa</a>
+        <a href="zaman-tuneli.html">Zaman Tüneli</a>
+        <a href="galeri.html">Fotoğraf Galerisi</a>
+        <a href="mesajlar.html">Özel Mesajlar & Şiirler</a>
+    </div>
+
+    <!-- Fotoğraf Galerisi Başlığı -->
     <h1>Fotoğraf Galerisi</h1>
     <div class="gallery">
         <img src="resim1.jpg" onclick="showImage(this.src)">
@@ -87,19 +140,25 @@
         <img src="resim25.JPG" onclick="showImage(this.src)">
         <img src="resim26.JPG" onclick="showImage(this.src)">
         <img src="resim27.jpg" onclick="showImage(this.src)">
-        
     </div>
 
+    <!-- Full Image Gösterme -->
     <div class="full-image" id="fullImage" onclick="closeImage()">
         <img id="expandedImg">
     </div>
 
+    <footer>
+        <p>&copy; 2025 Senin İçin. Tüm hakları saklıdır.</p>
+    </footer>
+
     <script>
+        // Fotoğraf büyütme fonksiyonu
         function showImage(src) {
             document.getElementById('fullImage').style.display = 'flex';
             document.getElementById('expandedImg').src = src;
         }
-        
+
+        // Fotoğrafı kapatma fonksiyonu
         function closeImage() {
             document.getElementById('fullImage').style.display = 'none';
         }
