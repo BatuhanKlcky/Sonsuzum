@@ -25,7 +25,6 @@
             min-height: 100vh; /* Sayfa tam dolmalı */
         }
 
-        /* Header ve container arasındaki boşlukları kaldırıyoruz */
         .container {
             padding: 20px;
         }
@@ -33,7 +32,7 @@
         h1 {
             font-size: 2.5em;
             color: #fff;
-            margin-bottom: 0; /* Altındaki boşluğu sıfırlayalım */
+            margin-bottom: 0;
         }
 
         p {
@@ -41,6 +40,52 @@
             max-width: 600px;
             margin: 20px auto;
             line-height: 1.6;
+        }
+
+        /* Şifre giriş ekranı */
+        .password-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Yarı saydam arka plan */
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden; /* Başlangıçta görünmez */
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .password-modal.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .password-modal input {
+            padding: 10px;
+            font-size: 1.2em;
+            margin-top: 20px;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .password-modal button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            background-color: #ff69b4;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #fff;
+            font-size: 1.2em;
+        }
+
+        .password-modal button:hover {
+            background-color: #ff4c8b;
         }
 
         /* Menü düzeni */
@@ -67,12 +112,10 @@
             color: #ff4c8b;
         }
 
-        /* Sayfanın alt kısmında boşluk kalmasın */
         footer {
             margin-top: 40px;
         }
 
-        /* Arka plan ve yazı renkleri */
         footer a {
             text-decoration: none;
             color: #ff69b4;
@@ -84,18 +127,30 @@
     </style>
 </head>
 <body>
-    <!-- Şarkının doğru şekilde sürekli çalmasını sağlamak -->
+
+    <!-- Şarkı eklenmiş -->
     <audio autoplay loop>
         <source src="https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
         Tarayıcınız ses dosyasını desteklemiyor.
     </audio>
 
-    <div class="container">
+    <!-- Şifre giriş ekranı -->
+    <div class="password-modal" id="passwordModal">
+        <div>
+            <h2>Şifreyi Girin</h2>
+            <input type="password" id="passwordInput" placeholder="Şifrenizi Girin">
+            <button onclick="checkPassword()">Giriş Yap</button>
+        </div>
+    </div>
+
+    <!-- Ana içerik -->
+    <div class="container" id="mainContent" style="display: none;">
         <h1>Bir yıl önce hayatıma girdin ve her şeyi güzelleştirdin.</h1>
         <p>Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim.</p>
     </div>
 
-    <div class="menu">
+    <!-- Menü -->
+    <div class="menu" id="menu" style="display: none;">
         <a href="zaman-tuneli.html">Zaman Tüneli</a>
         <a href="galeri.html">Fotoğraf Galerisi</a>
         <a href="mesajlar.html">Özel Mesajlar & Şiirler</a>
@@ -104,17 +159,26 @@
     <footer>
         <p>&copy; 2025 Senin İçin. Tüm hakları saklıdır.</p>
     </footer>
-    
+
     <script>
-    function checkPassword() {
-        var password = prompt("Lütfen şifreyi girin:");
-        if (password !== "240424") {
-            alert("Hatalı şifre! Tekrar deneyin.");
-            checkPassword();
+        // Şifre kontrol fonksiyonu
+        function checkPassword() {
+            var password = document.getElementById("passwordInput").value;
+            if (password === "240424") {
+                // Şifre doğru girildiğinde modalı kapat ve içeriği göster
+                document.getElementById("passwordModal").classList.remove("active");
+                document.getElementById("mainContent").style.display = "block";
+                document.getElementById("menu").style.display = "block";
+            } else {
+                alert("Yanlış şifre!");
+            }
         }
-    }
-    window.onload = checkPassword;
-</script>
+
+        // Sayfa yüklendiğinde şifre ekranını göster
+        window.onload = function() {
+            document.getElementById("passwordModal").classList.add("active");
+        };
+    </script>
 
 </body>
 </html>
