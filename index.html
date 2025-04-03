@@ -20,9 +20,9 @@
             margin: 0;
             padding: 0;
             font-family: 'Arial', sans-serif;
-            color: #fff; /* Yazıyı beyaz yapmak için */
+            color: #fff;
             text-align: center;
-            min-height: 100vh; /* Sayfa tam dolmalı */
+            min-height: 100vh;
         }
 
         .container {
@@ -42,53 +42,6 @@
             line-height: 1.6;
         }
 
-        /* Şifre giriş ekranı */
-        .password-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7); /* Yarı saydam arka plan */
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            visibility: hidden; /* Başlangıçta görünmez */
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-
-        .password-modal.active {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .password-modal input {
-            padding: 10px;
-            font-size: 1.2em;
-            margin-top: 20px;
-            border: none;
-            border-radius: 5px;
-            outline: none;
-        }
-
-        .password-modal button {
-            padding: 10px 20px;
-            margin-top: 10px;
-            background-color: #ff69b4;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            color: #fff;
-            font-size: 1.2em;
-        }
-
-        .password-modal button:hover {
-            background-color: #ff4c8b;
-        }
-
-        /* Menü düzeni */
         .menu {
             position: fixed;
             top: 50%;
@@ -124,61 +77,107 @@
         footer a:hover {
             color: #ff4c8b;
         }
+
+        .password-container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .password-container input {
+            padding: 10px;
+            margin-top: 10px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .password-container button {
+            padding: 10px;
+            background-color: #ff69b4;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .password-container button:hover {
+            background-color: #ff4c8b;
+        }
     </style>
 </head>
 <body>
+    <!-- Şarkının doğru şekilde sürekli çalmasını sağlamak -->
+    <audio autoplay loop id="bgMusic">
+        <source src="https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
+        Tarayıcınız ses dosyasını desteklemiyor.
+    </audio>
 
-    <!-- Şifre giriş ekranı -->
-    <div class="password-modal" id="passwordModal">
-        <div>
-            <h2>Şifreyi Girin</h2>
-            <input type="password" id="passwordInput" placeholder="Şifrenizi Girin">
-            <button onclick="checkPassword()">Giriş Yap</button>
-        </div>
+    <!-- Şifre giriş alanı -->
+    <div class="password-container" id="passwordContainer">
+        <h2>Şifreyi Girin</h2>
+        <input type="password" id="password" placeholder="Şifre">
+        <button onclick="checkPassword()">Gönder</button>
     </div>
 
     <!-- Ana içerik -->
-    <div class="container" id="mainContent" style="display: none;">
+    <div class="container" id="mainContent" style="display:none;">
         <h1>Bir yıl önce hayatıma girdin ve her şeyi güzelleştirdin.</h1>
         <p>Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim.</p>
     </div>
 
-    <!-- Menü -->
-    <div class="menu" id="menu" style="display: none;">
+    <div class="menu" style="display:none;">
         <a href="zaman-tuneli.html">Zaman Tüneli</a>
         <a href="galeri.html">Fotoğraf Galerisi</a>
         <a href="mesajlar.html">Özel Mesajlar & Şiirler</a>
     </div>
 
-    <footer>
+    <footer style="display:none;">
         <p>&copy; 2025 Senin İçin. Tüm hakları saklıdır.</p>
     </footer>
 
     <script>
-        // Şarkı sesini başlatma fonksiyonu
-        var audio = new Audio("https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/ozdemir-erdogan-ac-kapiyi.mp3");
+        const correctPassword = '240424'; // Doğru şifre
 
-        // Şifre kontrol fonksiyonu
+        // Sayfa yüklendiğinde zaman kontrolü
+        window.onload = function() {
+            const lastAccess = localStorage.getItem('lastAccess');
+            const currentTime = Date.now();
+            
+            if (lastAccess && (currentTime - lastAccess) < 600000) { // 600000 ms = 10 dakika
+                // 10 dakika içinde tekrar şifre isteme
+                document.getElementById('passwordContainer').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                document.querySelector('.menu').style.display = 'block';
+                document.querySelector('footer').style.display = 'block';
+                document.getElementById('bgMusic').play(); // Şarkıyı başlat
+            }
+        };
+
         function checkPassword() {
-            var password = document.getElementById("passwordInput").value;
-            if (password === "240424") {
-                // Şifre doğru girildiğinde modalı kapat ve içeriği göster
-                document.getElementById("passwordModal").classList.remove("active");
-                document.getElementById("mainContent").style.display = "block";
-                document.getElementById("menu").style.display = "block";
+            const inputPassword = document.getElementById('password').value;
+            
+            if (inputPassword === correctPassword) {
+                const currentTime = Date.now();
+                localStorage.setItem('lastAccess', currentTime); // Şifre doğruysa zaman kaydet
                 
-                // Şarkıyı başlat
-                audio.play();
+                // Şifre doğruysa, korumayı gizle ve içeriği göster
+                document.getElementById('passwordContainer').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                document.querySelector('.menu').style.display = 'block';
+                document.querySelector('footer').style.display = 'block';
+                document.getElementById('bgMusic').play(); // Şarkıyı başlat
             } else {
-                alert("Yanlış şifre!");
+                alert('Yanlış şifre, lütfen tekrar deneyin.');
             }
         }
-
-        // Sayfa yüklendiğinde şifre ekranını göster
-        window.onload = function() {
-            document.getElementById("passwordModal").classList.add("active");
-        };
     </script>
-
 </body>
 </html>
