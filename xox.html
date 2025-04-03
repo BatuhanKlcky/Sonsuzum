@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XOX Oyunu</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .game-container {
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            font-weight: bold;
+            background-color: white;
+            border: 2px solid #333;
+            cursor: pointer;
+        }
+        .cell.taken {
+            pointer-events: none;
+        }
+        .reset-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+        }
+        .reset-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>XOX Oyunu</h1>
+        <div class="board" id="board"></div>
+        <button class="reset-btn" onclick="resetGame()">Yeniden Başlat</button>
+        <p id="status"></p>
+    </div>
+    
+    <script>
+        let currentPlayer = "X";
+        let board = ["", "", "", "", "", "", "", "", ""];
+        const boardElement = document.getElementById("board");
+        const statusText = document.getElementById("status");
+        
+        function createBoard() {
+            boardElement.innerHTML = "";
+            board.forEach((cell, index) => {
+                const cellElement = document.createElement("div");
+                cellElement.classList.add("cell");
+                cellElement.textContent = cell;
+                cellElement.addEventListener("click", () => makeMove(index));
+                boardElement.appendChild(cellElement);
+            });
+        }
+        
+        function makeMove(index) {
+            if (board[index] === "") {
+                board[index] = currentPlayer;
+                currentPlayer = currentPlayer === "X" ? "O" : "X";
+                createBoard();
+                checkWinner();
+            }
+        }
+        
+        function checkWinner() {
+            const winningCombinations = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+            
+            for (const combination of winningCombinations) {
+                const [a, b, c] = combination;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    statusText.textContent = `${board[a]} kazandı!`;
+                    document.querySelectorAll(".cell").forEach(cell => cell.classList.add("taken"));
+                    return;
+                }
+            }
+            
+            if (!board.includes("")) {
+                statusText.textContent = "Berabere!";
+            }
+        }
+        
+        function resetGame() {
+            board = ["", "", "", "", "", "", "", "", ""];
+            currentPlayer = "X";
+            statusText.textContent = "";
+            createBoard();
+        }
+        
+        createBoard();
+    </script>
+</body>
+</html>
