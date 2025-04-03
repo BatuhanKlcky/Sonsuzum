@@ -62,6 +62,10 @@
             background-color: #0056b3;
         }
 
+        #scoreboard {
+            margin-top: 20px;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
@@ -76,17 +80,23 @@
         <p id="result"></p>
     </div>
 
+    <div id="scoreboard">
+        <p id="score1">Oyuncu 1: 0</p>
+        <p id="score2">Oyuncu 2: 0</p>
+    </div>
+
     <button id="resetButton">Yeniden Başlat</button>
 
     <script>
         const boardSize = 10;
-        const shipLength = 3;
-
+        const shipLengths = [4, 3, 2, 1]; // 4, 3, 2, 1 uzunluklarında gemiler
         let player1Board = Array(boardSize).fill().map(() => Array(boardSize).fill(0));
         let player2Board = Array(boardSize).fill().map(() => Array(boardSize).fill(0));
 
         let currentPlayer = 1;  // 1: Player 1, 2: Player 2
         let gameOver = false;
+        let score1 = 0;
+        let score2 = 0;
 
         function createBoard(boardId, board, isPlayerBoard) {
             const boardElement = document.getElementById(boardId);
@@ -121,6 +131,7 @@
                 checkForWinner();
                 currentPlayer = currentPlayer === 1 ? 2 : 1;
                 updateTurn();
+                updateScore();
             } else {
                 board[row][col] = -2; // -2 denotes miss
                 updateBoard();
@@ -130,27 +141,29 @@
         }
 
         function createShips(board) {
-            // Randomly place a ship on the board (length 3)
-            let placed = 0;
-            while (placed < 1) {
-                let direction = Math.random() < 0.5 ? 'horizontal' : 'vertical';
-                let row = Math.floor(Math.random() * boardSize);
-                let col = Math.floor(Math.random() * boardSize);
+            // Randomly place a ship for each size in shipLengths
+            shipLengths.forEach(shipLength => {
+                let placed = 0;
+                while (placed < 1) {
+                    let direction = Math.random() < 0.5 ? 'horizontal' : 'vertical';
+                    let row = Math.floor(Math.random() * boardSize);
+                    let col = Math.floor(Math.random() * boardSize);
 
-                if (canPlaceShip(board, row, col, direction)) {
-                    for (let i = 0; i < shipLength; i++) {
-                        if (direction === 'horizontal') {
-                            board[row][col + i] = 1;
-                        } else {
-                            board[row + i][col] = 1;
+                    if (canPlaceShip(board, row, col, direction, shipLength)) {
+                        for (let i = 0; i < shipLength; i++) {
+                            if (direction === 'horizontal') {
+                                board[row][col + i] = 1;
+                            } else {
+                                board[row + i][col] = 1;
+                            }
                         }
+                        placed++;
                     }
-                    placed++;
                 }
-            }
+            });
         }
 
-        function canPlaceShip(board, row, col, direction) {
+        function canPlaceShip(board, row, col, direction, shipLength) {
             if (direction === 'horizontal') {
                 if (col + shipLength > boardSize) return false;
                 for (let i = 0; i < shipLength; i++) {
@@ -173,6 +186,21 @@
         function updateTurn() {
             const turnMessage = currentPlayer === 1 ? "Oyuncu 1 Sırası" : "Oyuncu 2 Sırası";
             document.getElementById('currentPlayer').textContent = turnMessage;
+        }
+
+        function updateScore() {
+            let player1Ships = 0;
+            let player2Ships = 0;
+
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    if (player1Board[row][col] === 1) player1Ships++;
+                    if (player2Board[row][col] === 1) player2Ships++;
+                }
+            }
+
+            document.getElementById('score1').textContent = "Oyuncu 1: " + (shipLengths.reduce((a, b) => a + b) - player1Ships);
+            document.getElementById('score2').textContent = "Oyuncu 2: " + (shipLengths.reduce((a, b) => a + b) - player2Ships);
         }
 
         function checkForWinner() {
