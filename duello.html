@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duello Oyunu</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background-color: #222;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            background: #444;
+            display: block;
+            margin: auto;
+            border-radius: 10px;
+        }
+        .controls {
+            margin-top: 10px;
+        }
+        button {
+            padding: 15px;
+            margin: 5px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            background-color: #ff4c8b;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #ff69b4;
+        }
+    </style>
+</head>
+<body>
+    <h1>Duello Oyunu</h1>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div class="controls">
+        <button onclick="moveLeftPlayer1()">⬅️</button>
+        <button onclick="moveRightPlayer1()">➡️</button>
+        <button onclick="moveLeftPlayer2()">⬅️ (Oyuncu 2)</button>
+        <button onclick="moveRightPlayer2()">➡️ (Oyuncu 2)</button>
+    </div>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Oyuncuların başlangıç noktaları
+        let player1 = { x: 50, y: 350, width: 50, height: 50, color: 'red' };
+        let player2 = { x: 300, y: 350, width: 50, height: 50, color: 'blue' };
+        let ball = { x: 200, y: 200, radius: 10, speedX: 2, speedY: 2, color: 'white' };
+        
+        // Topu çizme
+        function drawBall() {
+            ctx.fillStyle = ball.color;
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Oyuncuları çizme
+        function drawPlayers() {
+            ctx.fillStyle = player1.color;
+            ctx.fillRect(player1.x, player1.y, player1.width, player1.height);
+            
+            ctx.fillStyle = player2.color;
+            ctx.fillRect(player2.x, player2.y, player2.width, player2.height);
+        }
+
+        // Topun hareketini güncelleme
+        function updateBall() {
+            ball.x += ball.speedX;
+            ball.y += ball.speedY;
+
+            // Top, kenarlara çarptığında yön değiştirir
+            if (ball.x <= ball.radius || ball.x >= canvas.width - ball.radius) {
+                ball.speedX = -ball.speedX;
+            }
+            if (ball.y <= ball.radius || ball.y >= canvas.height - ball.radius) {
+                ball.speedY = -ball.speedY;
+            }
+        }
+
+        // Oyuncu 1 hareketleri
+        function moveLeftPlayer1() {
+            if (player1.x > 0) {
+                player1.x -= 10;
+            }
+        }
+
+        function moveRightPlayer1() {
+            if (player1.x < canvas.width - player1.width) {
+                player1.x += 10;
+            }
+        }
+
+        // Oyuncu 2 hareketleri
+        function moveLeftPlayer2() {
+            if (player2.x > 0) {
+                player2.x -= 10;
+            }
+        }
+
+        function moveRightPlayer2() {
+            if (player2.x < canvas.width - player2.width) {
+                player2.x += 10;
+            }
+        }
+
+        // Oyun ekranını güncelleme
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Topu ve oyuncuları çizme
+            drawBall();
+            drawPlayers();
+
+            // Topun hareketini güncelleme
+            updateBall();
+
+            // Eğer top, oyuncuların arasına düşerse
+            if (ball.x > player1.x && ball.x < player1.x + player1.width && ball.y + ball.radius > player1.y) {
+                ball.speedY = -ball.speedY;
+            }
+            if (ball.x > player2.x && ball.x < player2.x + player2.width && ball.y + ball.radius > player2.y) {
+                ball.speedY = -ball.speedY;
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        update();
+    </script>
+</body>
+</html>
