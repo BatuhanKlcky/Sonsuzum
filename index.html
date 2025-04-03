@@ -104,5 +104,17 @@
     <footer>
         <p>&copy; 2025 Senin İçin. Tüm hakları saklıdır.</p>
     </footer>
+    
+    <script>
+    function checkPassword() {
+        var password = prompt("Lütfen şifreyi girin:");
+        if (password !== "240424") {
+            alert("Hatalı şifre! Tekrar deneyin.");
+            checkPassword();
+        }
+    }
+    window.onload = checkPassword;
+</script>
+
 </body>
 </html>
