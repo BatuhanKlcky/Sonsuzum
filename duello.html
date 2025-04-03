@@ -119,7 +119,7 @@
             }
         }
 
-        // Oyuncu 1 hareketleri
+        // Oyuncu 1 hareketleri (A ve D tuşları)
         function moveLeftPlayer1(pressed) {
             player1.movingLeft = pressed;
         }
@@ -128,7 +128,7 @@
             player1.movingRight = pressed;
         }
 
-        // Oyuncu 2 hareketleri
+        // Oyuncu 2 hareketleri (Ok tuşları)
         function moveLeftPlayer2(pressed) {
             player2.movingLeft = pressed;
         }
@@ -226,6 +226,27 @@
             document.getElementById("timer").innerText = `Süre: ${gameTime} saniye`;
             startGame();
         }
+
+        // Klavye kontrolünü ekleyelim
+        document.addEventListener("keydown", (event) => {
+            // Oyuncu 1 için (A ve D tuşları)
+            if (event.key === "a") moveLeftPlayer1(true);
+            if (event.key === "d") moveRightPlayer1(true);
+
+            // Oyuncu 2 için (Ok tuşları)
+            if (event.key === "ArrowLeft") moveLeftPlayer2(true);
+            if (event.key === "ArrowRight") moveRightPlayer2(true);
+        });
+
+        document.addEventListener("keyup", (event) => {
+            // Oyuncu 1 için (A ve D tuşları)
+            if (event.key === "a") moveLeftPlayer1(false);
+            if (event.key === "d") moveRightPlayer1(false);
+
+            // Oyuncu 2 için (Ok tuşları)
+            if (event.key === "ArrowLeft") moveLeftPlayer2(false);
+            if (event.key === "ArrowRight") moveRightPlayer2(false);
+        });
 
         // Oyun başladığında başlat
         startGame();
