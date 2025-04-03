@@ -35,16 +35,35 @@
         button:hover {
             background-color: #ff69b4;
         }
+        .score {
+            font-size: 20px;
+            margin-top: 10px;
+        }
+        .timer {
+            font-size: 20px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
     <h1>Duello Oyunu</h1>
     <canvas id="gameCanvas" width="400" height="400"></canvas>
     <div class="controls">
-        <button onclick="moveLeftPlayer1()">⬅️</button>
-        <button onclick="moveRightPlayer1()">➡️</button>
+        <button onclick="moveLeftPlayer1()">⬅️ (Oyuncu 1)</button>
+        <button onclick="moveRightPlayer1()">➡️ (Oyuncu 1)</button>
         <button onclick="moveLeftPlayer2()">⬅️ (Oyuncu 2)</button>
         <button onclick="moveRightPlayer2()">➡️ (Oyuncu 2)</button>
+    </div>
+    <div class="score">
+        <span>Oyuncu 1: <span id="scorePlayer1">0</span></span>
+        <br>
+        <span>Oyuncu 2: <span id="scorePlayer2">0</span></span>
+    </div>
+    <div class="timer">
+        <span id="timer">Süre: 60 saniye</span>
+    </div>
+    <div>
+        <button onclick="resetGame()">Yeniden Başlat</button>
     </div>
     <script>
         const canvas = document.getElementById("gameCanvas");
@@ -54,6 +73,14 @@
         let player1 = { x: 50, y: 350, width: 50, height: 50, color: 'red' };
         let player2 = { x: 300, y: 350, width: 50, height: 50, color: 'blue' };
         let ball = { x: 200, y: 200, radius: 10, speedX: 2, speedY: 2, color: 'white' };
+        
+        // Skorlar
+        let scorePlayer1 = 0;
+        let scorePlayer2 = 0;
+
+        // Zamanlayıcı
+        let gameTime = 60;
+        let gameInterval;
         
         // Topu çizme
         function drawBall() {
@@ -70,6 +97,12 @@
             
             ctx.fillStyle = player2.color;
             ctx.fillRect(player2.x, player2.y, player2.width, player2.height);
+        }
+
+        // Skorları güncelleme
+        function updateScore() {
+            document.getElementById("scorePlayer1").innerText = scorePlayer1;
+            document.getElementById("scorePlayer2").innerText = scorePlayer2;
         }
 
         // Topun hareketini güncelleme
@@ -112,6 +145,46 @@
             }
         }
 
+        // Topun oyunculara çarpıp puan kazandırmasını kontrol etme
+        function checkCollision() {
+            if (ball.x > player1.x && ball.x < player1.x + player1.width && ball.y + ball.radius > player1.y) {
+                ball.speedY = -ball.speedY;
+                scorePlayer1++;
+                updateScore();
+                increaseBallSpeed();
+            }
+            if (ball.x > player2.x && ball.x < player2.x + player2.width && ball.y + ball.radius > player2.y) {
+                ball.speedY = -ball.speedY;
+                scorePlayer2++;
+                updateScore();
+                increaseBallSpeed();
+            }
+        }
+
+        // Top hızını arttırma
+        function increaseBallSpeed() {
+            ball.speedX *= 1.05;
+            ball.speedY *= 1.05;
+        }
+
+        // Zamanlayıcıyı güncelleme
+        function updateTimer() {
+            if (gameTime > 0) {
+                gameTime--;
+                document.getElementById("timer").innerText = `Süre: ${gameTime} saniye`;
+            } else {
+                clearInterval(gameInterval);
+                alert('Zaman doldu! Oyun bitti.');
+                resetGame();
+            }
+        }
+
+        // Oyun başlatma
+        function startGame() {
+            gameInterval = setInterval(updateTimer, 1000);  // Her saniye zamanlayıcıyı güncelle
+            update();
+        }
+
         // Oyun ekranını güncelleme
         function update() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -123,18 +196,28 @@
             // Topun hareketini güncelleme
             updateBall();
 
-            // Eğer top, oyuncuların arasına düşerse
-            if (ball.x > player1.x && ball.x < player1.x + player1.width && ball.y + ball.radius > player1.y) {
-                ball.speedY = -ball.speedY;
-            }
-            if (ball.x > player2.x && ball.x < player2.x + player2.width && ball.y + ball.radius > player2.y) {
-                ball.speedY = -ball.speedY;
-            }
+            // Çarpışma kontrolü
+            checkCollision();
 
+            // Oyun devam ettiği sürece tekrar çalıştır
             requestAnimationFrame(update);
         }
 
-        update();
+        // Yeniden başlatma fonksiyonu
+        function resetGame() {
+            gameTime = 60;
+            scorePlayer1 = 0;
+            scorePlayer2 = 0;
+            ball = { x: 200, y: 200, radius: 10, speedX: 2, speedY: 2, color: 'white' };
+            player1.x = 50;
+            player2.x = 300;
+            updateScore();
+            document.getElementById("timer").innerText = `Süre: ${gameTime} saniye`;
+            startGame();
+        }
+
+        // Oyun başladığında başlat
+        startGame();
     </script>
 </body>
 </html>
