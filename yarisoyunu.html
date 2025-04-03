@@ -46,7 +46,7 @@
         let playerY = canvas.height - playerHeight - 20;
         let playerSpeed = 5;
 
-        let obstacles = [];
+        let obstacle = null;
         let score = 0;
 
         // Klavye tuşlarıyla hareket
@@ -76,25 +76,27 @@
             ctx.stroke();
         }
 
-        // Engelleri oluşturma
+        // Engel oluşturma
         function createObstacle() {
-            const width = Math.random() * (canvas.width / 2 - 20) + 20;
-            const height = Math.random() * 40 + 40;
-            const x = Math.random() * (canvas.width - width);
-            const speed = Math.random() * 3 + 2;
-            obstacles.push({ x, y: -height, width, height, speed });
+            if (!obstacle) {
+                const width = 50;
+                const height = 30;
+                const x = Math.random() * (canvas.width - width - 120) + 60; // Yol sınırlarına dikkat et
+                obstacle = { x, y: -height, width, height, speed: 3 };
+            }
         }
 
         // Engelleri güncelleme
-        function updateObstacles() {
-            obstacles.forEach(obstacle => {
+        function updateObstacle() {
+            if (obstacle) {
                 obstacle.y += obstacle.speed;
-            });
+                if (obstacle.y > canvas.height) {
+                    obstacle = null; // Engel ekran dışına çıktığında sıfırlanır
+                    score++; // Başarıyla engeli geçince puan artar
+                    scoreElement.innerText = score;
+                }
 
-            obstacles = obstacles.filter(obstacle => obstacle.y < canvas.height);
-
-            // Çarpışma kontrolü
-            obstacles.forEach(obstacle => {
+                // Çarpışma kontrolü
                 if (playerX < obstacle.x + obstacle.width &&
                     playerX + playerWidth > obstacle.x &&
                     playerY < obstacle.y + obstacle.height &&
@@ -102,15 +104,15 @@
                     alert('Oyun Bitti! Puanınız: ' + score);
                     resetGame();
                 }
-            });
+            }
         }
 
         // Engelleri çizme
-        function drawObstacles() {
-            ctx.fillStyle = 'red';
-            obstacles.forEach(obstacle => {
+        function drawObstacle() {
+            if (obstacle) {
+                ctx.fillStyle = 'red';
                 ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-            });
+            }
         }
 
         // Oyuncuyu çizme
@@ -119,17 +121,11 @@
             ctx.fillRect(playerX, playerY, playerWidth, playerHeight);
         }
 
-        // Puanı güncelleme
-        function updateScore() {
-            score += 1;
-            scoreElement.innerText = score;
-        }
-
         // Oyun sıfırlama
         function resetGame() {
             playerX = canvas.width / 2 - playerWidth / 2;
             playerY = canvas.height - playerHeight - 20;
-            obstacles = [];
+            obstacle = null;
             score = 0;
             scoreElement.innerText = score;
         }
@@ -139,14 +135,16 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             drawRoad();
-            createObstacle();
-            updateObstacles();
-            drawObstacles();
+            createObstacle(); // Her döngüde engel kontrolü yapılır
+            updateObstacle();
+            drawObstacle();
             drawPlayer();
-            updateScore();
 
             requestAnimationFrame(gameLoop);
         }
+
+        // Engel oluşturmayı belirli aralıklarla başlat
+        setInterval(createObstacle, 3000); // 3 saniyede bir yeni engel
 
         gameLoop();
     </script>
