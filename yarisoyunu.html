@@ -5,148 +5,152 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yarış Oyunu</title>
     <style>
-        body, html {
-            height: 100%;
+        body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            overflow: hidden;
-            background-color: #1c1c1c;
-        }
-
-        #gameCanvas {
-            display: block;
-            margin: 0 auto;
-            background-color: #2f2f2f;
-        }
-
-        .scoreboard {
-            position: fixed;
-            top: 10px;
-            left: 10px;
+            padding: 0;
+            text-align: center;
+            background-color: #222;
             color: white;
-            font-size: 24px;
-            z-index: 10;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            background: #444;
+            display: block;
+            margin: auto;
+            border-radius: 10px;
+        }
+        .controls {
+            margin-top: 10px;
+        }
+        button {
+            padding: 15px;
+            margin: 5px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            background-color: #ff4c8b;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #ff69b4;
         }
     </style>
 </head>
 <body>
-    <div class="scoreboard">
-        Puan: <span id="score">0</span>
+    <h1>Yarış Oyunu</h1>
+    <canvas id="gameCanvas" width="400" height="600"></canvas>
+    <div class="controls">
+        <button onclick="moveLeft()">⬅️</button>
+        <button onclick="moveRight()">➡️</button>
     </div>
-    <canvas id="gameCanvas" width="600" height="800"></canvas>
-
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const scoreElement = document.getElementById('score');
-
-        const playerWidth = 50;
-        const playerHeight = 80;
-        let playerX = canvas.width / 2 - playerWidth / 2;
-        let playerY = canvas.height - playerHeight - 20;
-        let playerSpeed = 5;
-
-        let obstacle = null;
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        
+        let car = { x: 175, y: 500, width: 50, height: 80 };
+        let roadLines = [
+            { x: 195, y: 0 },
+            { x: 195, y: 200 },
+            { x: 195, y: 400 }
+        ];
+        let obstacles = [];
         let score = 0;
-
-        // Klavye tuşlarıyla hareket
-        document.addEventListener('keydown', movePlayer);
-
-        function movePlayer(event) {
-            if (event.key === "ArrowLeft" && playerX > 60) { // Yol sınırı
-                playerX -= playerSpeed;
-            }
-            if (event.key === "ArrowRight" && playerX < canvas.width - playerWidth - 60) { // Yol sınırı
-                playerX += playerSpeed;
-            }
+        
+        function drawCar() {
+            ctx.fillStyle = "red";
+            ctx.fillRect(car.x, car.y, car.width, car.height);
         }
-
-        // Yol çizimi
+        
         function drawRoad() {
-            ctx.fillStyle = '#333';
-            ctx.fillRect(0, 0, canvas.width, canvas.height); // Yol arka planı
-
-            // Yol çizgileri
-            ctx.strokeStyle = 'white';
-            ctx.lineWidth = 10;
-            ctx.setLineDash([20, 20]);
-            ctx.beginPath();
-            ctx.moveTo(canvas.width / 2, 0);
-            ctx.lineTo(canvas.width / 2, canvas.height);
-            ctx.stroke();
+            ctx.fillStyle = "white";
+            roadLines.forEach(line => {
+                ctx.fillRect(line.x, line.y, 10, 50);
+            });
         }
-
-        // Engel oluşturma
+        
         function createObstacle() {
-            if (!obstacle) {
-                const width = 50;
-                const height = 30;
-                const x = Math.random() * (canvas.width - width - 120) + 60; // Yol sınırlarına dikkat et
-                obstacle = { x, y: -height, width, height, speed: 3 };
-            }
+            const x = Math.floor(Math.random() * 3) * 100 + 100; // Engellerin x koordinatları
+            const width = 50;
+            const height = 30;
+            obstacles.push({ x, y: -height, width, height });
         }
-
-        // Engelleri güncelleme
-        function updateObstacle() {
-            if (obstacle) {
-                obstacle.y += obstacle.speed;
+        
+        function drawObstacles() {
+            ctx.fillStyle = "green";
+            obstacles.forEach(obstacle => {
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            });
+        }
+        
+        function updateObstacles() {
+            obstacles.forEach(obstacle => {
+                obstacle.y += 5; // Engellerin hızla yukarı hareket etmesi
                 if (obstacle.y > canvas.height) {
-                    obstacle = null; // Engel ekran dışına çıktığında sıfırlanır
-                    score++; // Başarıyla engeli geçince puan artar
-                    scoreElement.innerText = score;
+                    obstacles.splice(obstacles.indexOf(obstacle), 1); // Ekrandan çıktığında engeli sil
+                    score++; // Puanı arttır
                 }
-
-                // Çarpışma kontrolü
-                if (playerX < obstacle.x + obstacle.width &&
-                    playerX + playerWidth > obstacle.x &&
-                    playerY < obstacle.y + obstacle.height &&
-                    playerY + playerHeight > obstacle.y) {
-                    alert('Oyun Bitti! Puanınız: ' + score);
+            });
+        }
+        
+        function checkCollisions() {
+            obstacles.forEach(obstacle => {
+                if (car.x < obstacle.x + obstacle.width &&
+                    car.x + car.width > obstacle.x &&
+                    car.y < obstacle.y + obstacle.height &&
+                    car.y + car.height > obstacle.y) {
+                    alert("Oyun Bitti! Puanınız: " + score);
                     resetGame();
                 }
-            }
+            });
         }
-
-        // Engelleri çizme
-        function drawObstacle() {
-            if (obstacle) {
-                ctx.fillStyle = 'red';
-                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-            }
-        }
-
-        // Oyun karakterini (araba) çizme
-        function drawPlayer() {
-            ctx.fillStyle = 'green';
-            ctx.fillRect(playerX, playerY, playerWidth, playerHeight);
-        }
-
-        // Oyun sıfırlama
-        function resetGame() {
-            playerX = canvas.width / 2 - playerWidth / 2;
-            playerY = canvas.height - playerHeight - 20;
-            obstacle = null;
-            score = 0;
-            scoreElement.innerText = score;
-        }
-
-        // Oyun döngüsü
-        function gameLoop() {
+        
+        function update() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+            
+            roadLines.forEach(line => {
+                line.y += 5;
+                if (line.y > canvas.height) {
+                    line.y = -50;
+                }
+            });
+            
             drawRoad();
-            createObstacle(); // Her döngüde engel kontrolü yapılır
-            updateObstacle();
-            drawObstacle();
-            drawPlayer();
-
-            requestAnimationFrame(gameLoop);
+            drawCar();
+            drawObstacles();
+            updateObstacles();
+            checkCollisions();
+            
+            requestAnimationFrame(update);
         }
+        
+        function moveLeft() {
+            if (car.x > 100) {
+                car.x -= 50;
+            }
+        }
+        
+        function moveRight() {
+            if (car.x < 250) {
+                car.x += 50;
+            }
+        }
+        
+        function resetGame() {
+            car = { x: 175, y: 500, width: 50, height: 80 };
+            obstacles = [];
+            score = 0;
+        }
+        
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowLeft") moveLeft();
+            if (event.key === "ArrowRight") moveRight();
+        });
+        
+        // Engelleri belirli aralıklarla oluştur
+        setInterval(createObstacle, 2000); // 2 saniyede bir engel oluştur
 
-        // Engel oluşturmayı belirli aralıklarla başlat
-        setInterval(createObstacle, 3000); // 3 saniyede bir yeni engel
-
-        gameLoop();
+        update();
     </script>
 </body>
 </html>
