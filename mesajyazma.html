@@ -89,7 +89,7 @@
             border: 1px solid #ddd;
             font-size: 1em;
             resize: none;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             outline: none;
             transition: border-color 0.3s ease;
         }
@@ -107,10 +107,13 @@
             border-radius: 10px;
             cursor: pointer;
             font-size: 1.1em;
+            transition: transform 0.3s ease;
+            margin-bottom: 15px; /* Butonlar arasını açmak için */
         }
 
         button:hover {
             background-color: #ff2a4b;
+            transform: scale(1.05); /* Butona tıklanabilirlik efekti */
         }
 
         .menu {
@@ -119,9 +122,11 @@
             left: 20px;
             background-color: #ff4d6d;
             color: #fff;
-            padding: 10px 20px;
+            padding: 12px 20px;
             border-radius: 10px;
             cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
         }
 
         .menu:hover {
