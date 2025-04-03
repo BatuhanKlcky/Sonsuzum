@@ -4,17 +4,81 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fotoğraf Galerisi</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #fde2e4; /* Pastel pembe arka plan */
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #ff4d6d;
+        }
+
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .gallery img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            transition: transform 0.3s ease-in-out;
+            cursor: pointer;
+        }
+
+        .gallery img:hover {
+            transform: scale(1.1);
+        }
+
+        .full-image {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .full-image img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Fotoğraf Galerisi</h1>
-        <p>Birlikte çektiğimiz fotoğrafları buraya ekliyoruz.</p>
-        <!-- Fotoğraflarınızı buraya ekleyebilirsiniz -->
+    <h1>Fotoğraf Galerisi</h1>
+    <div class="gallery">
+        <img src="resim1.jpg" onclick="showImage(this.src)">
+        <img src="resim2.jpg" onclick="showImage(this.src)">
+        <img src="resim3.jpg" onclick="showImage(this.src)">
+        <img src="resim4.jpg" onclick="showImage(this.src)">
     </div>
 
-    <footer>
-        <a href="index.html">Ana Sayfa</a>
-    </footer>
+    <div class="full-image" id="fullImage" onclick="closeImage()">
+        <img id="expandedImg">
+    </div>
+
+    <script>
+        function showImage(src) {
+            document.getElementById('fullImage').style.display = 'flex';
+            document.getElementById('expandedImg').src = src;
+        }
+        
+        function closeImage() {
+            document.getElementById('fullImage').style.display = 'none';
+        }
+    </script>
 </body>
 </html>
