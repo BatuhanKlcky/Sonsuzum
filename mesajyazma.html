@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bize Dair Mesajlar</title>
+    <style>
+        body {
+            background-color: #fde2e4;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #ff4d6d;
+        }
+        #messages {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .message {
+            background-color: #ffebeb;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        textarea {
+            width: 80%;
+            height: 100px;
+            border-radius: 10px;
+            padding: 10px;
+            border: none;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #ff4d6d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #ff2a4b;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bize Dair Mesajlar</h1>
+    <p>Burada sizinle paylaşılan özel mesajlar yer alacak. Mesaj bırakmak isterseniz aşağıya yazabilirsiniz.</p>
+
+    <div id="messages">
+        <!-- Mesajlar buraya eklenecek -->
+    </div>
+
+    <textarea id="userMessage" placeholder="Mesajınızı buraya yazın..."></textarea>
+    <br>
+    <button onclick="addMessage()">Mesajı Gönder</button>
+
+    <script>
+        // Mesajları localStorage'a kaydediyoruz.
+        function displayMessages() {
+            let messages = JSON.parse(localStorage.getItem('messages')) || [];
+            let messagesContainer = document.getElementById('messages');
+            messagesContainer.innerHTML = ''; // İlk başta içeriği temizle
+
+            // Her bir mesajı ekle
+            messages.forEach(function(message) {
+                let div = document.createElement('div');
+                div.classList.add('message');
+                div.textContent = message;
+                messagesContainer.appendChild(div);
+            });
+        }
+
+        // Kullanıcı yeni bir mesaj eklerken
+        function addMessage() {
+            let userMessage = document.getElementById('userMessage').value;
+            if (userMessage.trim() !== "") {
+                let messages = JSON.parse(localStorage.getItem('messages')) || [];
+                messages.push(userMessage);
+                localStorage.setItem('messages', JSON.stringify(messages));
+                document.getElementById('userMessage').value = ''; // Mesajı yazma kutusunu temizle
+                displayMessages(); // Mesajları tekrar görüntüle
+            }
+        }
+
+        // Sayfa yüklendiğinde mesajları göster
+        displayMessages();
+    </script>
+</body>
+</html>
