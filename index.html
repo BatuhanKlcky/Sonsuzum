@@ -290,4 +290,25 @@
                 document.getElementById('footer').style.display = 'block';
                 document.getElementById('bgMusic').play(); // Şarkıyı başlat
             }
-       
+        }
+
+        function checkPassword() {
+            const inputPassword = document.getElementById('password').value;
+            if (inputPassword === correctPassword) {
+                localStorage.setItem('lastAccess', Date.now());
+                document.getElementById('passwordContainer').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                document.getElementById('menu').style.display = 'block';
+                document.getElementById('footer').style.display = 'block';
+                document.getElementById('bgMusic').play(); // Şarkıyı başlat
+            } else {
+                alert('Yanlış şifre. Lütfen tekrar deneyin.');
+            }
+        }
+
+        function toggleMenu() {
+            document.getElementById('menu').classList.toggle('open');
+        }
+    </script>
+</body>
+</html>
