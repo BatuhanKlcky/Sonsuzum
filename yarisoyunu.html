@@ -49,25 +49,43 @@
         let obstacles = [];
         let score = 0;
 
+        // Klavye tuşlarıyla hareket
         document.addEventListener('keydown', movePlayer);
 
         function movePlayer(event) {
-            if (event.key === "ArrowLeft" && playerX > 0) {
+            if (event.key === "ArrowLeft" && playerX > 60) { // Yol sınırı
                 playerX -= playerSpeed;
             }
-            if (event.key === "ArrowRight" && playerX < canvas.width - playerWidth) {
+            if (event.key === "ArrowRight" && playerX < canvas.width - playerWidth - 60) { // Yol sınırı
                 playerX += playerSpeed;
             }
         }
 
+        // Yol çizimi
+        function drawRoad() {
+            ctx.fillStyle = '#333';
+            ctx.fillRect(0, 0, canvas.width, canvas.height); // Yol arka planı
+
+            // Yol çizgileri
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 10;
+            ctx.setLineDash([20, 20]);
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, 0);
+            ctx.lineTo(canvas.width / 2, canvas.height);
+            ctx.stroke();
+        }
+
+        // Engelleri oluşturma
         function createObstacle() {
-            const width = Math.random() * (canvas.width / 2);
+            const width = Math.random() * (canvas.width / 2 - 20) + 20;
             const height = Math.random() * 40 + 40;
             const x = Math.random() * (canvas.width - width);
             const speed = Math.random() * 3 + 2;
             obstacles.push({ x, y: -height, width, height, speed });
         }
 
+        // Engelleri güncelleme
         function updateObstacles() {
             obstacles.forEach(obstacle => {
                 obstacle.y += obstacle.speed;
@@ -75,7 +93,7 @@
 
             obstacles = obstacles.filter(obstacle => obstacle.y < canvas.height);
 
-            // Check collision
+            // Çarpışma kontrolü
             obstacles.forEach(obstacle => {
                 if (playerX < obstacle.x + obstacle.width &&
                     playerX + playerWidth > obstacle.x &&
@@ -87,6 +105,7 @@
             });
         }
 
+        // Engelleri çizme
         function drawObstacles() {
             ctx.fillStyle = 'red';
             obstacles.forEach(obstacle => {
@@ -94,11 +113,19 @@
             });
         }
 
+        // Oyuncuyu çizme
+        function drawPlayer() {
+            ctx.fillStyle = 'green';
+            ctx.fillRect(playerX, playerY, playerWidth, playerHeight);
+        }
+
+        // Puanı güncelleme
         function updateScore() {
             score += 1;
             scoreElement.innerText = score;
         }
 
+        // Oyun sıfırlama
         function resetGame() {
             playerX = canvas.width / 2 - playerWidth / 2;
             playerY = canvas.height - playerHeight - 20;
@@ -107,16 +134,16 @@
             scoreElement.innerText = score;
         }
 
+        // Oyun döngüsü
         function gameLoop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            drawRoad();
             createObstacle();
             updateObstacles();
             drawObstacles();
+            drawPlayer();
             updateScore();
-
-            ctx.fillStyle = 'green';
-            ctx.fillRect(playerX, playerY, playerWidth, playerHeight);
 
             requestAnimationFrame(gameLoop);
         }
