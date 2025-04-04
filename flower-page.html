@@ -1,116 +1,114 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Çiçek Evrilme Animasyonu</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-image: url('https://sdmntprsouthcentralus.oaiusercontent.com/files/00000000-f560-51f7-9387-c6a82e37211d/raw?se=2025-04-04T19%3A36%3A15Z&sp=r&sv=2024-08-04&sr=b&scid=fbc45fd6-9851-565e-ae68-deef0259794d&skoid=fa7966e7-f8ea-483c-919a-13acfd61d696&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-04-04T09%3A06%3A27Z&ske=2025-04-05T09%3A06%3A27Z&sks=b&skv=2024-08-04&sig=qUQ%2B%2BUwVtRba3/uvcWTVzRWLXD1XOv6XbyiFBM1k1f8%3D');
-      background-size: cover;
-      background-position: center;
-      height: 100vh;
-      overflow: hidden;
-      position: relative;
-    }
+import { useEffect, useState } from "react";
 
-    .flower {
-      position: absolute;
-      width: 50px;
-      height: 50px;
-      opacity: 0;
-      pointer-events: none;
-      transition: all 0.3s ease;
-    }
+export default function FlowerField() {
+  const [flowers, setFlowers] = useState([]);
 
-    .flower.active {
-      opacity: 1;
-      animation: bloom 1s ease-out forwards;
-    }
+  useEffect(() => {
+    const createFlower = (x, y) => {
+      const flower = {
+        id: Date.now() + Math.random(),
+        x,
+        y,
+        size: Math.random() * 20 + 20,
+        emoji: ["🌸", "🌼", "🌷", "🌻"][Math.floor(Math.random() * 4)],
+      };
+      setFlowers((prev) => [...prev, flower]);
 
-    @keyframes bloom {
-      0% {
-        transform: scale(0) rotate(45deg);
-        opacity: 0.5;
-      }
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
-
-    @keyframes transformFlower {
-      0% {
-        transform: scale(1);
-      }
-      100% {
-        transform: scale(2);
-      }
-    }
-
-    .flower.transformed {
-      animation: transformFlower 1s forwards;
-    }
-
-    .flower.transformed2 {
-      transition: transform 0.5s;
-      transform: scale(0);
-      opacity: 0;
-    }
-  </style>
-</head>
-<body>
-  <script>
-    // Çiçek görsellerini belirleyelim
-    const flowers = [
-      'https://th.bing.com/th/id/OIG3.yOSbYjzZmpSwO4QnKeZ0?pid=ImgGn', // Birinci çiçek
-      'https://th.bing.com/th/id/OIG3.fl6W9foUiMH9xuiHwHXP?pid=ImgGn'  // İkinci çiçek
-    ];
-
-    // Çiçek oluşturma fonksiyonu
-    function createFlower(x, y) {
-      const flower = document.createElement('img');
-      flower.src = flowers[0]; // Başlangıçta birinci çiçek
-      flower.classList.add('flower');
-      flower.style.left = `${x - 25}px`;
-      flower.style.top = `${y - 25}px`;
-
-      // Çiçeği sayfada göster
-      document.body.appendChild(flower);
-
-      // Çiçek animasyonunu başlat
       setTimeout(() => {
-        flower.classList.add('active');
-      }, 10);
-
-      // 3 saniye sonra çiçek büyüyecek ve ikinci çiçekle değişecek
-      setTimeout(() => {
-        flower.classList.add('transformed');
-        setTimeout(() => {
-          flower.src = flowers[1]; // İkinci çiçek görseli
-          flower.classList.add('transformed2');
-        }, 1000);
+        setFlowers((prev) => prev.filter((f) => f.id !== flower.id));
       }, 3000);
+    };
 
-      // 6 saniye sonra çiçeği kaldır
-      setTimeout(() => {
-        document.body.removeChild(flower);
-      }, 6000);
-    }
-
-    // Mouse tıklama ile çiçek ekleme
-    document.addEventListener('click', (e) => {
-      createFlower(e.clientX, e.clientY);
-    });
-
-    // Dokunmatik ekranla tıklama ile çiçek ekleme
-    document.addEventListener('touchstart', (e) => {
-      for (let i = 0; i < e.touches.length; i++) {
-        createFlower(e.touches[i].clientX, e.touches[i].clientY);
+    const handleMove = (e) => {
+      if (e.touches) {
+        for (let i = 0; i < e.touches.length; i++) {
+          const touch = e.touches[i];
+          createFlower(touch.clientX, touch.clientY);
+        }
+      } else {
+        createFlower(e.clientX, e.clientY);
       }
-    });
-  </script>
-</body>
-</html>
+    };
+
+    window.addEventListener("mousemove", handleMove);
+    window.addEventListener("touchmove", handleMove);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("touchmove", handleMove);
+    };
+  }, []);
+
+  return (
+    <div className="absolute inset-0 pointer-events-none z-50">
+      {flowers.map((f) => (
+        <div
+          key={f.id}
+          className="absolute animate-flower-pop select-none"
+          style={{
+            left: f.x,
+            top: f.y,
+            fontSize: `${f.size}px`,
+            transform: "translate(-50%, -50%)",
+            filter: "drop-shadow(0 0 4px rgba(255, 192, 203, 0.7))",
+          }}
+        >
+          {f.emoji}
+        </div>
+      ))}
+      <div className="falling-elements">
+        {Array.from({ length: 15 }).map((_, i) => (
+          <div key={i} className="leaf">🍃</div>
+        ))}
+      </div>
+
+      <style jsx>{`
+        @keyframes flower-pop {
+          0% {
+            transform: scale(0);
+            opacity: 0.8;
+          }
+          50% {
+            transform: scale(1.4);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(1);
+            opacity: 0;
+          }
+        }
+        .animate-flower-pop {
+          animation: flower-pop 3s ease-out forwards;
+        }
+
+        .falling-elements {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+          z-index: 0;
+          pointer-events: none;
+        }
+        .leaf {
+          position: absolute;
+          top: -10%;
+          left: ${Math.random() * 100}%;
+          font-size: 20px;
+          animation: fall linear infinite;
+          animation-duration: ${Math.random() * 5 + 5}s;
+        }
+
+        @keyframes fall {
+          0% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 0.8;
+          }
+          100% {
+            transform: translateY(110vh) rotate(360deg);
+            opacity: 0;
+          }
+        }
+      `}</style>
+    </div>
+  );
+}
