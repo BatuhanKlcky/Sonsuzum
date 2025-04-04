@@ -5,64 +5,73 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Çiçek Tarlası Efekti</title>
   <style>
-    /* Arka plan Çimenler */
+    /* Sayfa Arka Planı */
     body {
-      background-image: url('https://example.com/grass-background.jpg'); /* Çimen görseli */
+      background-image: url('https://example.com/grass-background.jpg'); /* Çimen Görseli */
       background-size: cover;
-      height: 100vh;
+      background-position: center;
       margin: 0;
       overflow: hidden;
+      height: 100vh;
       position: relative;
     }
 
-    /* Çiçek görselleri ve animasyonu */
+    /* Çiçeklerin Animasyonu */
     .flower {
       position: absolute;
-      animation: flower-pop 3s ease-out forwards;
+      width: 50px;
+      height: 50px;
       pointer-events: none;
-      z-index: 100;
+      opacity: 0;
+      animation: flower-animation 3s ease-out forwards;
+      z-index: 10;
     }
 
-    /* Çiçeklerin büyüme animasyonu */
-    @keyframes flower-pop {
+    @keyframes flower-animation {
       0% {
-        transform: scale(0);
-        opacity: 0.8;
+        transform: scale(0) rotate(45deg);
+        opacity: 0.5;
       }
-      50% {
-        transform: scale(1.4);
+      40% {
+        transform: scale(1.2);
         opacity: 1;
       }
       100% {
-        transform: scale(1);
+        transform: scale(1) rotate(0);
         opacity: 0;
       }
     }
 
-    /* Düşen yaprak animasyonu */
+    /* Yaprakların Rüzgarla Savrulma Animasyonu */
     .leaf {
       position: absolute;
+      opacity: 0.8;
       animation: leaf-fall 5s linear infinite;
-      z-index: 50;
       pointer-events: none;
+      z-index: 5;
     }
 
-    /* Yaprakların düşme animasyonu */
     @keyframes leaf-fall {
       0% {
         transform: translateY(0) rotate(0deg);
         opacity: 0.8;
       }
       100% {
-        transform: translateY(110vh) rotate(360deg);
+        transform: translateY(100vh) rotate(360deg);
         opacity: 0;
       }
+    }
+
+    /* Çiçek Sayfa Üstünde Dönerken Öne Çıkması */
+    .flower-front {
+      z-index: 50;
+      opacity: 1;
     }
   </style>
 </head>
 <body>
   <script>
-    // Mouse hareketlerine göre çiçekler oluşturma
+    // Mouse hareketlerine göre çiçekler ekleniyor
     document.addEventListener("mousemove", (e) => {
       createFlower(e.clientX, e.clientY);
     });
@@ -74,14 +83,14 @@
       }
     });
 
-    // Çiçek oluşturma fonksiyonu
+    // Çiçek ve yaprak ekleme fonksiyonu
     function createFlower(x, y) {
       const flower = document.createElement("img");
-      flower.src = "https://example.com/flower.png"; // Çiçek görselinin URL'si
+      flower.src = "https://example.com/flower.png"; // Çiçek görseli
       flower.classList.add("flower");
-      flower.style.left = `${x - 30}px`; // Çiçeğin konumunu belirleyelim
-      flower.style.top = `${y - 30}px`;
-      flower.style.width = `${Math.random() * 40 + 30}px`; // Rastgele boyut
+      flower.style.left = `${x - 25}px`;
+      flower.style.top = `${y - 25}px`;
+      flower.style.width = `${Math.random() * 40 + 30}px`;
       flower.style.height = `${Math.random() * 40 + 30}px`;
       document.body.appendChild(flower);
 
@@ -91,18 +100,18 @@
       }, 3000);
     }
 
-    // Düşen yaprakları ekleyelim
+    // Yaprak düşüşü fonksiyonu
     setInterval(() => {
       const leaf = document.createElement("img");
-      leaf.src = "https://example.com/leaf.png"; // Yaprak görselinin URL'si
+      leaf.src = "https://example.com/leaf.png"; // Yaprak görseli
       leaf.classList.add("leaf");
       leaf.style.left = `${Math.random() * window.innerWidth}px`;
       leaf.style.top = "-10%";
-      leaf.style.width = "30px";
-      leaf.style.height = "30px";
+      leaf.style.width = `${Math.random() * 20 + 20}px`;
+      leaf.style.height = `${Math.random() * 20 + 20}px`;
       document.body.appendChild(leaf);
 
-      // 5 saniye sonra yaprağı sil
+      // Yaprağı 5 saniye sonra sil
       setTimeout(() => {
         document.body.removeChild(leaf);
       }, 5000);
