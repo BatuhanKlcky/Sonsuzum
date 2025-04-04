@@ -24,8 +24,10 @@
             bottom: 0;
             width: 100%;
             height: 30%;
-            background: url('https://i.imgur.com/J5ORQ1x.png') repeat-x;
-            background-size: auto 100%;
+            background-color: #8BC34A;
+            background-image: 
+                linear-gradient(to bottom, transparent 95%, rgba(0,0,0,0.1) 100%),
+                radial-gradient(ellipse at center, rgba(104,159,56,0.5) 0%, rgba(76,175,80,0.5) 100%);
         }
 
         .flower {
@@ -45,7 +47,7 @@
             box-shadow: 0 0 5px rgba(0,100,0,0.3);
         }
 
-        .petals {
+        .flower-head {
             position: absolute;
             bottom: 0;
             left: 50%;
@@ -55,20 +57,21 @@
 
         .petal {
             position: absolute;
-            border-radius: 50%;
-            background-size: cover;
+            border-radius: 50% 50% 0 0;
+            transform-origin: bottom center;
         }
 
         .center {
             position: absolute;
             border-radius: 50%;
+            background: radial-gradient(circle, #FFEB3B, #FFC107);
             transform: translate(-50%, -50%);
-            background-size: cover;
         }
 
         .leaf {
             position: absolute;
-            background-size: cover;
+            border-radius: 50% 50% 50% 0;
+            background: linear-gradient(135deg, #8BC34A, #689F38);
             transform-origin: bottom left;
         }
 
@@ -124,11 +127,11 @@
             position: absolute;
             width: 40px;
             height: 40px;
-            background-image: url('https://i.imgur.com/6RDNzQw.png');
-            background-size: contain;
-            background-repeat: no-repeat;
             z-index: 20;
             animation: float 8s infinite ease-in-out;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path fill="%23FF9800" d="M50,20c0,0-15-10-30,0s15,30,30,30s15-30,30-30S50,20,50,20z"/><path fill="%23FF5722" d="M45,25c0,0-10-5-20,0s10,20,20,20s10-20,20-20S45,25,45,25z"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
         }
 
         @keyframes float {
@@ -187,31 +190,37 @@
         const flowerTypes = [
             {
                 name: "Papatya",
-                petalImg: "https://i.imgur.com/5Z3Jd9P.png",
-                centerImg: "https://i.imgur.com/JrQBUhF.png",
-                leafImg: "https://i.imgur.com/8xYKwWQ.png",
-                colors: { stem: "#4CAF50", center: "#FFEB3B" }
+                petalColor: "#FFFFFF",
+                centerColor: "#FFEB3B",
+                leafColor: "#8BC34A",
+                petalCount: 12,
+                petalShape: "50% 50% 0 0"
             },
             {
                 name: "Gül",
-                petalImg: "https://i.imgur.com/LvzXf3j.png",
-                centerImg: "https://i.imgur.com/JrQBUhF.png",
-                leafImg: "https://i.imgur.com/8xYKwWQ.png",
-                colors: { stem: "#388E3C", center: "#E91E63" }
+                petalColor: "#FF4081",
+                centerColor: "#FF9800",
+                leafColor: "#4CAF50",
+                petalCount: 24,
+                petalShape: "50% 50% 0 0",
+                petalLayers: 3
             },
             {
-                name: "Lavanta",
-                petalImg: "https://i.imgur.com/qpNzL5w.png",
-                centerImg: "https://i.imgur.com/JrQBUhF.png",
-                leafImg: "https://i.imgur.com/8xYKwWQ.png",
-                colors: { stem: "#689F38", center: "#9C27B0" }
+                name: "Lale",
+                petalColor: "#CE93D8",
+                centerColor: "#9C27B0",
+                leafColor: "#689F38",
+                petalCount: 6,
+                petalShape: "50% 50% 20% 20%"
             },
             {
                 name: "Karanfil",
-                petalImg: "https://i.imgur.com/7GJYVtD.png",
-                centerImg: "https://i.imgur.com/JrQBUhF.png",
-                leafImg: "https://i.imgur.com/8xYKwWQ.png",
-                colors: { stem: "#8BC34A", center: "#FF5722" }
+                petalColor: "#FF8A65",
+                centerColor: "#FF5722",
+                leafColor: "#7CB342",
+                petalCount: 8,
+                petalShape: "50% 50% 30% 30%",
+                petalRuffled: true
             }
         ];
 
@@ -249,14 +258,13 @@
             
             const flowerType = flowerTypes[Math.floor(Math.random() * flowerTypes.length)];
             const stemHeight = Math.random() * 60 + 80;
-            const flowerSize = Math.random() * 15 + 25;
-            const petalCount = Math.floor(Math.random() * 4) + 5;
+            const flowerSize = Math.random() * 20 + 30;
             
             // Sap
             const stem = document.createElement('div');
             stem.className = 'stem';
             stem.style.height = `${stemHeight}px`;
-            stem.style.background = `linear-gradient(to top, ${flowerType.colors.stem}, #8BC34A)`;
+            stem.style.background = `linear-gradient(to top, ${flowerType.leafColor}, #8BC34A)`;
             flower.appendChild(stem);
             
             // Yapraklar
@@ -268,46 +276,67 @@
                 leaf.style.bottom = `${Math.random() * stemHeight * 0.6 + 10}px`;
                 leaf.style.left = `${i === 0 ? '45%' : '55%'}`;
                 leaf.style.transform = `rotate(${i === 0 ? '-30deg' : '30deg'}) scaleX(${i === 0 ? 1 : -1})`;
-                leaf.style.backgroundImage = `url(${flowerType.leafImg})`;
+                leaf.style.backgroundColor = flowerType.leafColor;
                 flower.appendChild(leaf);
             }
             
-            // Taç yapraklar
-            const petals = document.createElement('div');
-            petals.className = 'petals';
-            petals.style.width = `${flowerSize}px`;
-            petals.style.height = `${flowerSize}px`;
-            petals.style.bottom = `${stemHeight}px`;
+            // Çiçek başı
+            const flowerHead = document.createElement('div');
+            flowerHead.className = 'flower-head';
+            flowerHead.style.width = `${flowerSize}px`;
+            flowerHead.style.height = `${flowerSize}px`;
+            flowerHead.style.bottom = `${stemHeight}px`;
             
-            for (let i = 0; i < petalCount; i++) {
-                const petal = document.createElement('div');
-                petal.className = 'petal';
-                petal.style.width = `${flowerSize * 0.7}px`;
-                petal.style.height = `${flowerSize * 0.7}px`;
-                petal.style.backgroundImage = `url(${flowerType.petalImg})`;
+            // Taç yapraklar
+            const petalCount = flowerType.petalCount || 8;
+            const petalLayers = flowerType.petalLayers || 1;
+            
+            for (let layer = 0; layer < petalLayers; layer++) {
+                const layerSize = flowerSize * (1 - layer * 0.2);
+                const layerOffset = layer * 5;
                 
-                const angle = (i * 360 / petalCount);
-                const distance = flowerSize * 0.4;
-                const xPos = Math.cos(angle * Math.PI / 180) * distance;
-                const yPos = Math.sin(angle * Math.PI / 180) * distance;
-                
-                petal.style.left = `${flowerSize * 0.5 + xPos - flowerSize * 0.35}px`;
-                petal.style.top = `${flowerSize * 0.5 + yPos - flowerSize * 0.35}px`;
-                petal.style.transform = `rotate(${angle}deg)`;
-                petals.appendChild(petal);
+                for (let i = 0; i < petalCount; i++) {
+                    const petal = document.createElement('div');
+                    petal.className = 'petal';
+                    petal.style.width = `${layerSize * 0.5}px`;
+                    petal.style.height = `${layerSize * 0.5}px`;
+                    petal.style.backgroundColor = flowerType.petalColor;
+                    petal.style.borderRadius = flowerType.petalShape;
+                    petal.style.opacity = 1 - (layer * 0.3);
+                    
+                    const angle = (i * 360 / petalCount);
+                    const distance = layerSize * 0.4;
+                    const xPos = Math.cos(angle * Math.PI / 180) * distance;
+                    const yPos = Math.sin(angle * Math.PI / 180) * distance;
+                    
+                    petal.style.left = `${flowerSize * 0.5 + xPos - layerSize * 0.25}px`;
+                    petal.style.top = `${flowerSize * 0.5 + yPos - layerSize * 0.25 + layerOffset}px`;
+                    petal.style.transform = `rotate(${angle}deg)`;
+                    
+                    if (flowerType.petalRuffled) {
+                        petal.style.borderRadius = '50%';
+                        petal.style.boxShadow = `inset 0 0 10px ${shadeColor(flowerType.petalColor, -20)}`;
+                    }
+                    
+                    flowerHead.appendChild(petal);
+                }
             }
             
             // Orta kısım
             const center = document.createElement('div');
             center.className = 'center';
-            center.style.width = `${flowerSize * 0.4}px`;
-            center.style.height = `${flowerSize * 0.4}px`;
-            center.style.backgroundImage = `url(${flowerType.centerImg})`;
+            center.style.width = `${flowerSize * 0.3}px`;
+            center.style.height = `${flowerSize * 0.3}px`;
+            center.style.backgroundColor = flowerType.centerColor;
             center.style.left = `${flowerSize * 0.5}px`;
             center.style.top = `${flowerSize * 0.5}px`;
-            petals.appendChild(center);
             
-            flower.appendChild(petals);
+            if (flowerType.name === "Papatya") {
+                center.style.background = `radial-gradient(circle, ${flowerType.centerColor}, ${shadeColor(flowerType.centerColor, -30)})`;
+            }
+            
+            flowerHead.appendChild(center);
+            flower.appendChild(flowerHead);
             document.body.appendChild(flower);
             
             // Rüzgar efekti
@@ -339,6 +368,31 @@
                 const tooltip = document.getElementById('flowerTooltip');
                 if (tooltip) tooltip.remove();
             });
+        }
+
+        // Renk koyulaştırma fonksiyonu
+        function shadeColor(color, percent) {
+            let R = parseInt(color.substring(1,3), 16);
+            let G = parseInt(color.substring(3,5), 16);
+            let B = parseInt(color.substring(5,7), 16);
+
+            R = parseInt(R * (100 + percent) / 100);
+            G = parseInt(G * (100 + percent) / 100);
+            B = parseInt(B * (100 + percent) / 100);
+
+            R = (R<255)?R:255;  
+            G = (G<255)?G:255;  
+            B = (B<255)?B:255;  
+
+            R = Math.round(R);
+            G = Math.round(G);
+            B = Math.round(B);
+
+            const RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
+            const GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
+            const BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
+
+            return "#"+RR+GG+BB;
         }
 
         // Tıklama olayı
