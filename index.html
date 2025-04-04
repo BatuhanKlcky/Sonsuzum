@@ -196,34 +196,6 @@
             padding: 10px;
         }
 
-        /* Kalp animasyonu */
-        .heart {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            font-size: 40px;
-            color: #ff69b4;
-            animation: heartbeat 1s infinite;
-        }
-
-        @keyframes heartbeat {
-            0% {
-                transform: scale(1);
-            }
-            25% {
-                transform: scale(1.1);
-            }
-            50% {
-                transform: scale(1);
-            }
-            75% {
-                transform: scale(1.1);
-            }
-            100% {
-                transform: scale(1);
-            }
-        }
-
         /* Responsive Tasarım - Mobil için */
         @media (max-width: 768px) {
             h1 {
@@ -263,6 +235,35 @@
                 font-size: 1em;
             }
         }
+
+        /* Kalp animasyonu */
+        @keyframes heartBeat {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .heart {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background-color: #ff69b4;
+            clip-path: polygon(50% 0%, 0% 40%, 50% 100%, 100% 40%);
+            animation: heartBeat 1s infinite;
+            z-index: 30;
+        }
+
     </style>
 </head>
 <body>
@@ -292,4 +293,58 @@
 
     <!-- Menü -->
     <div class="menu" id="menu">
-        <a href="zaman-tuneli.html">Zaman Tüneli</a
+        <a href="zaman-tuneli.html">Zaman Tüneli</a>
+        <a href="galeri.html">Fotoğraf Galerisi</a>
+        <a href="mesajlar.html">Özel Mesajlar & Şiirler</a>
+        <a href="flower-page.html">Çiçek Yeri </a>
+        <a href="xox.html">XOX Oyunu</a>
+        <a href="yarisoyunu.html">Yarış Oyunu</a>
+        <a href="duello.html">Düello</a>
+    </div>
+
+    <footer id="footer">
+        <p>&copy; 2025 Senin İçin. Tüm Sevgim sende saklıdır.</p>
+    </footer>
+
+    <script>
+        const correctPassword = '240424'; // Doğru şifre
+
+        // Sayfa yüklendiğinde zaman kontrolü
+        window.onload = function() {
+            const lastAccess = localStorage.getItem('lastAccess');
+            const currentTime = Date.now();
+            
+            if (lastAccess && (currentTime - lastAccess) < 600000) { // 600000 ms = 10 dakika
+                // 10 dakika içinde tekrar şifre isteme
+                document.getElementById('passwordContainer').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                document.getElementById('menu').style.display = 'block';
+                document.getElementById('footer').style.display = 'block';
+                document.getElementById('bgMusic').play(); // Şarkıyı başlat
+            }
+        }
+
+        function checkPassword() {
+            const inputPassword = document.getElementById('password').value;
+            if (inputPassword === correctPassword) {
+                localStorage.setItem('lastAccess', Date.now());
+                document.getElementById('passwordContainer').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                document.getElementById('menu').style.display = 'block';
+                document.getElementById('footer').style.display = 'block';
+                document.getElementById('bgMusic').play(); // Şarkıyı başlat
+            } else {
+                alert('Yanlış şifre. Lütfen tekrar deneyin.');
+            }
+        }
+
+        function toggleMenu() {
+            document.getElementById('menu').classList.toggle('open');
+        }
+    </script>
+
+    <!-- Kalp animasyonu -->
+    <div class="heart"></div>
+
+</body>
+</html>
