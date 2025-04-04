@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Çiçek Animasyonu</title>
+  <title>Çiçek Evrilme Animasyonu</title>
   <style>
     body {
       margin: 0;
       padding: 0;
-      background-image: url('https://sdmntprsouthcentralus.oaiusercontent.com/files/00000000-f560-51f7-9387-c6a82e37211d/raw?se=2025-04-04T19%3A36%3A15Z&sp=r&sv=2024-08-04&sr=b&scid=fbc45fd6-9851-565e-ae68-deef0259794d&skoid=fa7966e7-f8ea-483c-919a-13acfd61d696&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-04-04T09%3A06%3A27Z&ske=2025-04-05T09%3A06%3A27Z&sks=b&skv=2024-08-04&sig=qUQ%2B%2BUwVtRba3/uvcWTVzRWLXD1XOv6XbyiFBM1k1f8%3D'); /* Çimen arka planını buraya ekleyin */
+      background-image: url('https://sdmntprsouthcentralus.oaiusercontent.com/files/00000000-f560-51f7-9387-c6a82e37211d/raw?se=2025-04-04T19%3A36%3A15Z&sp=r&sv=2024-08-04&sr=b&scid=fbc45fd6-9851-565e-ae68-deef0259794d&skoid=fa7966e7-f8ea-483c-919a-13acfd61d696&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-04-04T09%3A06%3A27Z&ske=2025-04-05T09%3A06%3A27Z&sks=b&skv=2024-08-04&sig=qUQ%2B%2BUwVtRba3/uvcWTVzRWLXD1XOv6XbyiFBM1k1f8%3D'); /* Çimen görselini arka plan olarak ekleyin */
       background-size: cover;
       background-position: center;
       height: 100vh;
@@ -25,14 +25,15 @@
       transition: all 0.3s ease;
     }
 
+    .flower.active {
+      opacity: 1;
+      animation: bloom 1s ease-out forwards;
+    }
+
     @keyframes bloom {
       0% {
         transform: scale(0) rotate(45deg);
         opacity: 0.5;
-      }
-      40% {
-        transform: scale(1.2);
-        opacity: 1;
       }
       100% {
         transform: scale(1);
@@ -40,24 +41,42 @@
       }
     }
 
-    .flower.active {
-      animation: bloom 2s ease-out forwards;
+    /* Büyüme ve dönüşüm animasyonu */
+    @keyframes transformFlower {
+      0% {
+        transform: scale(1);
+      }
+      100% {
+        transform: scale(2); /* Çiçek büyümesi */
+      }
+    }
+
+    .flower.transformed {
+      animation: transformFlower 1s forwards;
+    }
+
+    .flower.transformed2 {
+      transition: transform 0.5s;
+      transform: scale(0);
+      opacity: 0;
     }
   </style>
 </head>
 <body>
   <script>
+    // Çiçek görsellerini belirleyelim
+    const flowers = [
+      'https://th.bing.com/th/id/OIG3.yOSbYjzZmpSwO4QnKeZ0?pid=ImgGn', // Birinci çiçek
+      'https://th.bing.com/th/id/OIG3.fl6W9foUiMH9xuiHwHXP?pid=ImgGn'  // İkinci çiçek
+    ];
+
     // Çiçek oluşturma fonksiyonu
     function createFlower(x, y) {
       const flower = document.createElement('img');
-      flower.src = 'path_to_your_flower_image.png';  // Pembe çiçek görselini buraya ekleyin
+      flower.src = flowers[0]; // Başlangıçta birinci çiçek
       flower.classList.add('flower');
       flower.style.left = `${x - 25}px`; // Orta noktada olmasını sağlar
       flower.style.top = `${y - 25}px`;  // Orta noktada olmasını sağlar
-
-      // Rastgele boyut
-      flower.style.width = `${Math.random() * 30 + 30}px`;
-      flower.style.height = `${Math.random() * 30 + 30}px`;
 
       // Çiçeği sayfada göster
       document.body.appendChild(flower);
@@ -67,10 +86,20 @@
         flower.classList.add('active');
       }, 10);
 
-      // 3 saniye sonra çiçeği kaldır
+      // 3 saniye sonra çiçek büyüyecek ve ikinci çiçekle değişecek
+      setTimeout(() => {
+        flower.classList.add('transformed');
+        // 3 saniye sonra ikinci çiçek geçişi
+        setTimeout(() => {
+          flower.src = flowers[1]; // İkinci çiçek görseli
+          flower.classList.add('transformed2');
+        }, 1000);
+      }, 3000);
+
+      // 6 saniye sonra çiçeği kaldır
       setTimeout(() => {
         document.body.removeChild(flower);
-      }, 3000);
+      }, 6000);
     }
 
     // Mouse tıklama ile çiçek ekleme
