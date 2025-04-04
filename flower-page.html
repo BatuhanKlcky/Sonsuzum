@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Çiçek Tarlası Efekti</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Çiçek tarlası efektini burada başlatıyoruz -->
+  <script>
+    document.addEventListener("mousemove", (e) => {
+      createFlower(e.clientX, e.clientY);
+    });
+
+    document.addEventListener("touchmove", (e) => {
+      for (let i = 0; i < e.touches.length; i++) {
+        createFlower(e.touches[i].clientX, e.touches[i].clientY);
+      }
+    });
+
+    const flowers = [];
+
+    function createFlower(x, y) {
+      const flower = document.createElement("div");
+      flower.textContent = "🌸";
+      flower.style.position = "absolute";
+      flower.style.left = `${x}px`;
+      flower.style.top = `${y}px`;
+      flower.style.fontSize = `${Math.random() * 20 + 20}px`;
+      flower.style.transform = "translate(-50%, -50%)";
+      flower.style.animation = "flower-pop 3s ease-out forwards";
+      document.body.appendChild(flower);
+
+      flowers.push(flower);
+      setTimeout(() => {
+        document.body.removeChild(flower);
+      }, 3000);
+    }
+
+    // Falling leaf animation
+    setInterval(() => {
+      const leaf = document.createElement("div");
+      leaf.textContent = "🍃";
+      leaf.style.position = "absolute";
+      leaf.style.left = `${Math.random() * window.innerWidth}px`;
+      leaf.style.top = "-10%";
+      leaf.style.fontSize = "20px";
+      leaf.style.animation = "fall 5s linear infinite";
+      document.body.appendChild(leaf);
+
+      setTimeout(() => {
+        document.body.removeChild(leaf);
+      }, 5000);
+    }, 1000);
+  </script>
+
+  <style>
+    @keyframes flower-pop {
+      0% {
+        transform: scale(0);
+        opacity: 0.8;
+      }
+      50% {
+        transform: scale(1.4);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 0;
+      }
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(110vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+  </style>
+
+</body>
+</html>
