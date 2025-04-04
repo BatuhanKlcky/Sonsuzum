@@ -4,59 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Çiçek Tarlası Efekti</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-  <!-- Çiçek tarlası efektini burada başlatıyoruz -->
-  <script>
-    document.addEventListener("mousemove", (e) => {
-      createFlower(e.clientX, e.clientY);
-    });
-
-    document.addEventListener("touchmove", (e) => {
-      for (let i = 0; i < e.touches.length; i++) {
-        createFlower(e.touches[i].clientX, e.touches[i].clientY);
-      }
-    });
-
-    const flowers = [];
-
-    function createFlower(x, y) {
-      const flower = document.createElement("div");
-      flower.textContent = "🌸";
-      flower.style.position = "absolute";
-      flower.style.left = `${x}px`;
-      flower.style.top = `${y}px`;
-      flower.style.fontSize = `${Math.random() * 20 + 20}px`;
-      flower.style.transform = "translate(-50%, -50%)";
-      flower.style.animation = "flower-pop 3s ease-out forwards";
-      document.body.appendChild(flower);
-
-      flowers.push(flower);
-      setTimeout(() => {
-        document.body.removeChild(flower);
-      }, 3000);
+  <style>
+    /* Arka plan çimen görseli */
+    body {
+      margin: 0;
+      padding: 0;
+      background-image: url('https://th.bing.com/th/id/OIG2.T6TbzJqpxMXEA_UAg71i?pid=ImgGn'); /* Çimen görseli linki buraya */
+      background-size: cover;
+      background-position: center;
+      height: 100vh;
+      overflow: hidden;
     }
 
-    // Falling leaf animation
-    setInterval(() => {
-      const leaf = document.createElement("div");
-      leaf.textContent = "🍃";
-      leaf.style.position = "absolute";
-      leaf.style.left = `${Math.random() * window.innerWidth}px`;
-      leaf.style.top = "-10%";
-      leaf.style.fontSize = "20px";
-      leaf.style.animation = "fall 5s linear infinite";
-      document.body.appendChild(leaf);
-
-      setTimeout(() => {
-        document.body.removeChild(leaf);
-      }, 5000);
-    }, 1000);
-  </script>
-
-  <style>
+    /* Çiçek pop-up animasyonu */
     @keyframes flower-pop {
       0% {
         transform: scale(0);
@@ -72,6 +32,7 @@
       }
     }
 
+    /* Düşen yaprak animasyonu */
     @keyframes fall {
       0% {
         transform: translateY(0) rotate(0deg);
@@ -82,7 +43,70 @@
         opacity: 0;
       }
     }
+
+    /* Çiçeklerin stilini ayarlıyoruz */
+    .flower {
+      position: absolute;
+      font-size: 20px;
+      transform: translate(-50%, -50%);
+      animation: flower-pop 3s ease-out forwards;
+    }
+
+    /* Düşen yapraklar için stil */
+    .leaf {
+      position: absolute;
+      font-size: 20px;
+      animation: fall 5s linear infinite;
+    }
   </style>
+</head>
+<body>
+
+  <!-- Çiçek tarlası efektini burada başlatıyoruz -->
+  <script>
+    // Çiçek eklemek için mouse hareketi ve dokunmatik ekran hareketi dinleyicileri
+    document.addEventListener("mousemove", (e) => {
+      createFlower(e.clientX, e.clientY);
+    });
+
+    document.addEventListener("touchmove", (e) => {
+      for (let i = 0; i < e.touches.length; i++) {
+        createFlower(e.touches[i].clientX, e.touches[i].clientY);
+      }
+    });
+
+    const flowers = [];
+
+    // Çiçek oluşturma fonksiyonu
+    function createFlower(x, y) {
+      const flower = document.createElement("div");
+      flower.textContent = "🌸";
+      flower.classList.add("flower");
+      flower.style.left = `${x}px`;
+      flower.style.top = `${y}px`;
+      flower.style.fontSize = `${Math.random() * 20 + 20}px`;
+      document.body.appendChild(flower);
+
+      flowers.push(flower);
+      setTimeout(() => {
+        document.body.removeChild(flower);
+      }, 3000);
+    }
+
+    // Düşen yaprak animasyonu
+    setInterval(() => {
+      const leaf = document.createElement("div");
+      leaf.textContent = "🍃";
+      leaf.classList.add("leaf");
+      leaf.style.left = `${Math.random() * window.innerWidth}px`;
+      leaf.style.top = "-10%";
+      document.body.appendChild(leaf);
+
+      setTimeout(() => {
+        document.body.removeChild(leaf);
+      }, 5000);
+    }, 1000);
+  </script>
 
 </body>
 </html>
