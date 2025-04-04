@@ -1,112 +1,299 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Çiçek Tarlası Efekti</title>
-  <style>
-    /* Arka plan çimen görseli */
-    body {
-      margin: 0;
-      padding: 0;
-      background-image: url('https://th.bing.com/th/id/OIG2.T6TbzJqpxMXEA_UAg71i?pid=ImgGn'); /* Çimen görseli linki buraya */
-      background-size: cover;
-      background-position: center;
-      height: 100vh;
-      overflow: hidden;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Çiçek Tarlası</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    /* Çiçek pop-up animasyonu */
-    @keyframes flower-pop {
-      0% {
-        transform: scale(0);
-        opacity: 0.8;
-      }
-      50% {
-        transform: scale(1.4);
-        opacity: 1;
-      }
-      100% {
-        transform: scale(1);
-        opacity: 0;
-      }
-    }
+        body {
+            background: linear-gradient(to bottom, #87CEEB, #E0F7FA);
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23ff69b4" d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.42,0-8-3.58-8-8s3.58-8,8-8s8,3.58,8,8S16.42,20,12,20z"/><path fill="%23ff69b4" d="M12,17c1.1,0,2-0.9,2-2s-0.9-2-2-2s-2,0.9-2,2S10.9,17,12,17z"/></svg>'), auto;
+        }
 
-    /* Düşen yaprak animasyonu */
-    @keyframes fall {
-      0% {
-        transform: translateY(0) rotate(0deg);
-        opacity: 0.8;
-      }
-      100% {
-        transform: translateY(110vh) rotate(360deg);
-        opacity: 0;
-      }
-    }
+        .ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 20%;
+            background: linear-gradient(to bottom, #8BC34A, #689F38);
+        }
 
-    /* Çiçeklerin stilini ayarlıyoruz */
-    .flower {
-      position: absolute;
-      font-size: 20px;
-      transform: translate(-50%, -50%);
-      animation: flower-pop 3s ease-out forwards;
-    }
+        .flower {
+            position: absolute;
+            transform-origin: bottom center;
+            animation: grow 2s ease-out forwards;
+        }
 
-    /* Düşen yapraklar için stil */
-    .leaf {
-      position: absolute;
-      font-size: 20px;
-      animation: fall 5s linear infinite;
-    }
-  </style>
+        .stem {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 4px;
+            background: linear-gradient(to top, #388E3C, #8BC34A);
+            transform: translateX(-50%);
+        }
+
+        .petals {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .petal {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, #FFEB3B, #FFC107);
+        }
+
+        .center {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, #FF9800, #F57C00);
+            transform: translate(-50%, -50%);
+        }
+
+        .leaf {
+            position: absolute;
+            border-radius: 50% 0;
+            background: linear-gradient(to right, #8BC34A, #689F38);
+            transform-origin: bottom left;
+        }
+
+        .title {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+
+        .counter {
+            position: absolute;
+            top: 70px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-size: 1.5em;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+
+        @keyframes grow {
+            0% {
+                transform: scale(0);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: float 15s infinite ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 1.8em;
+            }
+            .counter {
+                font-size: 1.2em;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="title">Çiçek Tarlası</div>
+    <div class="counter">Çiçek Sayısı: <span id="flowerCount">0</span></div>
+    <div class="ground"></div>
 
-  <!-- Çiçek tarlası efektini burada başlatıyoruz -->
-  <script>
-    // Çiçek eklemek için mouse hareketi ve dokunmatik ekran hareketi dinleyicileri
-    document.addEventListener("mousemove", (e) => {
-      createFlower(e.clientX, e.clientY);
-    });
+    <script>
+        let flowerCount = 0;
+        const flowerColors = [
+            { petals: '#FFC0CB', center: '#FF69B4' },  // Pembe
+            { petals: '#FFD700', center: '#FFA500' },  // Sarı
+            { petals: '#ADD8E6', center: '#1E90FF' },  // Mavi
+            { petals: '#98FB98', center: '#3CB371' },  // Yeşil
+            { petals: '#FFB6C1', center: '#FF1493' }   // Açık pembe
+        ];
 
-    document.addEventListener("touchmove", (e) => {
-      for (let i = 0; i < e.touches.length; i++) {
-        createFlower(e.touches[i].clientX, e.touches[i].clientY);
-      }
-    });
+        // Bulutlar oluştur
+        function createClouds() {
+            for (let i = 0; i < 5; i++) {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
+                
+                const size = Math.random() * 100 + 50;
+                const left = Math.random() * 100;
+                const top = Math.random() * 30;
+                const animationDuration = Math.random() * 10 + 10;
+                
+                cloud.style.width = `${size}px`;
+                cloud.style.height = `${size * 0.6}px`;
+                cloud.style.left = `${left}%`;
+                cloud.style.top = `${top}%`;
+                cloud.style.animationDuration = `${animationDuration}s`;
+                
+                document.body.appendChild(cloud);
+                
+                // Bulut için ekstra parçalar
+                for (let j = 0; j < 3; j++) {
+                    const cloudPart = document.createElement('div');
+                    cloudPart.className = 'cloud';
+                    cloudPart.style.width = `${size * 0.6}px`;
+                    cloudPart.style.height = `${size * 0.4}px`;
+                    cloudPart.style.left = `${Math.random() * 30 - 15}px`;
+                    cloudPart.style.top = `${Math.random() * 20 - 10}px`;
+                    cloud.appendChild(cloudPart);
+                }
+            }
+        }
 
-    const flowers = [];
+        // Çiçek oluştur
+        function createFlower(x, y) {
+            flowerCount++;
+            document.getElementById('flowerCount').textContent = flowerCount;
+            
+            const flower = document.createElement('div');
+            flower.className = 'flower';
+            flower.style.left = `${x}px`;
+            flower.style.bottom = `${window.innerHeight - y}px`;
+            
+            const color = flowerColors[Math.floor(Math.random() * flowerColors.length)];
+            const stemHeight = Math.random() * 80 + 100;
+            const flowerSize = Math.random() * 20 + 30;
+            const petalCount = Math.floor(Math.random() * 5) + 5;
+            
+            // Sap
+            const stem = document.createElement('div');
+            stem.className = 'stem';
+            stem.style.height = `${stemHeight}px`;
+            flower.appendChild(stem);
+            
+            // Yapraklar
+            for (let i = 0; i < 2; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'leaf';
+                leaf.style.width = `${Math.random() * 20 + 20}px`;
+                leaf.style.height = `${Math.random() * 10 + 10}px`;
+                leaf.style.bottom = `${Math.random() * stemHeight * 0.7}px`;
+                leaf.style.left = `${i === 0 ? '50%' : '40%'}`;
+                leaf.style.transform = `rotate(${i === 0 ? '-30deg' : '30deg'})`;
+                flower.appendChild(leaf);
+            }
+            
+            // Taç yapraklar
+            const petals = document.createElement('div');
+            petals.className = 'petals';
+            petals.style.width = `${flowerSize}px`;
+            petals.style.height = `${flowerSize}px`;
+            petals.style.bottom = `${stemHeight}px`;
+            
+            for (let i = 0; i < petalCount; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                petal.style.width = `${flowerSize * 0.6}px`;
+                petal.style.height = `${flowerSize * 0.6}px`;
+                petal.style.background = `radial-gradient(circle, ${color.petals}, ${color.center})`;
+                
+                const angle = (i * 360 / petalCount);
+                const distance = flowerSize * 0.4;
+                const x = Math.cos(angle * Math.PI / 180) * distance;
+                const y = Math.sin(angle * Math.PI / 180) * distance;
+                
+                petal.style.left = `${flowerSize * 0.5 + x - flowerSize * 0.3}px`;
+                petal.style.top = `${flowerSize * 0.5 + y - flowerSize * 0.3}px`;
+                petals.appendChild(petal);
+            }
+            
+            // Orta kısım
+            const center = document.createElement('div');
+            center.className = 'center';
+            center.style.width = `${flowerSize * 0.4}px`;
+            center.style.height = `${flowerSize * 0.4}px`;
+            center.style.background = `radial-gradient(circle, ${color.center}, ${color.petals})`;
+            center.style.left = `${flowerSize * 0.5}px`;
+            center.style.top = `${flowerSize * 0.5}px`;
+            petals.appendChild(center);
+            
+            flower.appendChild(petals);
+            document.body.appendChild(flower);
+            
+            // Rüzgar efekti
+            setInterval(() => {
+                const sway = Math.sin(Date.now() / 1000 + x) * 5;
+                flower.style.transform = `rotate(${sway}deg)`;
+            }, 50);
+        }
 
-    // Çiçek oluşturma fonksiyonu
-    function createFlower(x, y) {
-      const flower = document.createElement("div");
-      flower.textContent = "🌸";
-      flower.classList.add("flower");
-      flower.style.left = `${x}px`;
-      flower.style.top = `${y}px`;
-      flower.style.fontSize = `${Math.random() * 20 + 20}px`;
-      document.body.appendChild(flower);
+        // Tıklama olayı
+        document.addEventListener('click', (e) => {
+            createFlower(e.clientX, e.clientY);
+            
+            // Tıklama animasyonu
+            const clickEffect = document.createElement('div');
+            clickEffect.style.position = 'absolute';
+            clickEffect.style.left = `${e.clientX - 15}px`;
+            clickEffect.style.top = `${e.clientY - 15}px`;
+            clickEffect.style.width = '30px';
+            clickEffect.style.height = '30px';
+            clickEffect.style.borderRadius = '50%';
+            clickEffect.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+            clickEffect.style.pointerEvents = 'none';
+            clickEffect.style.animation = 'growAndFade 1s forwards';
+            
+            document.body.appendChild(clickEffect);
+            
+            setTimeout(() => {
+                document.body.removeChild(clickEffect);
+            }, 1000);
+        });
 
-      flowers.push(flower);
-      setTimeout(() => {
-        document.body.removeChild(flower);
-      }, 3000);
-    }
+        // CSS animasyonu ekle
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes growAndFade {
+                0% {
+                    transform: scale(0);
+                    opacity: 0.7;
+                }
+                100% {
+                    transform: scale(3);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
 
-    // Düşen yaprak animasyonu
-    setInterval(() => {
-      const leaf = document.createElement("div");
-      leaf.textContent = "🍃";
-      leaf.classList.add("leaf");
-      leaf.style.left = `${Math.random() * window.innerWidth}px`;
-      leaf.style.top = "-10%";
-      document.body.appendChild(leaf);
-
-      setTimeout(() => {
-        document.body.removeChild(leaf);
-      }, 5000);
-    }, 1000);
-  </script>
-
+        // Sayfa yüklendiğinde bulutları oluştur
+        window.onload = createClouds;
+    </script>
 </body>
 </html>
