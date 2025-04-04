@@ -4,59 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Çiçek Tarlası Efekti</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-  <!-- Çiçek tarlası efektini burada başlatıyoruz -->
-  <script>
-    document.addEventListener("mousemove", (e) => {
-      createFlower(e.clientX, e.clientY);
-    });
-
-    document.addEventListener("touchmove", (e) => {
-      for (let i = 0; i < e.touches.length; i++) {
-        createFlower(e.touches[i].clientX, e.touches[i].clientY);
-      }
-    });
-
-    const flowers = [];
-
-    function createFlower(x, y) {
-      const flower = document.createElement("div");
-      flower.textContent = "🌸";
-      flower.style.position = "absolute";
-      flower.style.left = `${x}px`;
-      flower.style.top = `${y}px`;
-      flower.style.fontSize = `${Math.random() * 20 + 20}px`;
-      flower.style.transform = "translate(-50%, -50%)";
-      flower.style.animation = "flower-pop 3s ease-out forwards";
-      document.body.appendChild(flower);
-
-      flowers.push(flower);
-      setTimeout(() => {
-        document.body.removeChild(flower);
-      }, 3000);
+  <style>
+    /* Arka plan Çimenler */
+    body {
+      background-image: url('https://example.com/grass-background.jpg'); /* Çimen görseli */
+      background-size: cover;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+      position: relative;
     }
 
-    // Falling leaf animation
-    setInterval(() => {
-      const leaf = document.createElement("div");
-      leaf.textContent = "🍃";
-      leaf.style.position = "absolute";
-      leaf.style.left = `${Math.random() * window.innerWidth}px`;
-      leaf.style.top = "-10%";
-      leaf.style.fontSize = "20px";
-      leaf.style.animation = "fall 5s linear infinite";
-      document.body.appendChild(leaf);
+    /* Çiçek görselleri ve animasyonu */
+    .flower {
+      position: absolute;
+      animation: flower-pop 3s ease-out forwards;
+      pointer-events: none;
+      z-index: 100;
+    }
 
-      setTimeout(() => {
-        document.body.removeChild(leaf);
-      }, 5000);
-    }, 1000);
-  </script>
-
-  <style>
+    /* Çiçeklerin büyüme animasyonu */
     @keyframes flower-pop {
       0% {
         transform: scale(0);
@@ -72,7 +39,16 @@
       }
     }
 
-    @keyframes fall {
+    /* Düşen yaprak animasyonu */
+    .leaf {
+      position: absolute;
+      animation: leaf-fall 5s linear infinite;
+      z-index: 50;
+      pointer-events: none;
+    }
+
+    /* Yaprakların düşme animasyonu */
+    @keyframes leaf-fall {
       0% {
         transform: translateY(0) rotate(0deg);
         opacity: 0.8;
@@ -83,6 +59,54 @@
       }
     }
   </style>
+</head>
+<body>
+  <script>
+    // Mouse hareketlerine göre çiçekler oluşturma
+    document.addEventListener("mousemove", (e) => {
+      createFlower(e.clientX, e.clientY);
+    });
 
+    // Dokunmatik cihazlar için
+    document.addEventListener("touchmove", (e) => {
+      for (let i = 0; i < e.touches.length; i++) {
+        createFlower(e.touches[i].clientX, e.touches[i].clientY);
+      }
+    });
+
+    // Çiçek oluşturma fonksiyonu
+    function createFlower(x, y) {
+      const flower = document.createElement("img");
+      flower.src = "https://example.com/flower.png"; // Çiçek görselinin URL'si
+      flower.classList.add("flower");
+      flower.style.left = `${x - 30}px`; // Çiçeğin konumunu belirleyelim
+      flower.style.top = `${y - 30}px`;
+      flower.style.width = `${Math.random() * 40 + 30}px`; // Rastgele boyut
+      flower.style.height = `${Math.random() * 40 + 30}px`;
+      document.body.appendChild(flower);
+
+      // 3 saniye sonra çiçeği sil
+      setTimeout(() => {
+        document.body.removeChild(flower);
+      }, 3000);
+    }
+
+    // Düşen yaprakları ekleyelim
+    setInterval(() => {
+      const leaf = document.createElement("img");
+      leaf.src = "https://example.com/leaf.png"; // Yaprak görselinin URL'si
+      leaf.classList.add("leaf");
+      leaf.style.left = `${Math.random() * window.innerWidth}px`;
+      leaf.style.top = "-10%";
+      leaf.style.width = "30px";
+      leaf.style.height = "30px";
+      document.body.appendChild(leaf);
+
+      // 5 saniye sonra yaprağı sil
+      setTimeout(() => {
+        document.body.removeChild(leaf);
+      }, 5000);
+    }, 1000);
+  </script>
 </body>
 </html>
