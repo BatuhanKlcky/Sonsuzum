@@ -3,31 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Çiçek Tarlası Efekti</title>
+  <title>Çiçek Animasyonu</title>
   <style>
-    /* Sayfa Arka Planı */
     body {
-      background-image: url('https://example.com/grass-background.jpg'); /* Çimen Görseli */
+      margin: 0;
+      padding: 0;
+      background-image: url('https://sdmntprsouthcentralus.oaiusercontent.com/files/00000000-f560-51f7-9387-c6a82e37211d/raw?se=2025-04-04T19%3A36%3A15Z&sp=r&sv=2024-08-04&sr=b&scid=fbc45fd6-9851-565e-ae68-deef0259794d&skoid=fa7966e7-f8ea-483c-919a-13acfd61d696&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-04-04T09%3A06%3A27Z&ske=2025-04-05T09%3A06%3A27Z&sks=b&skv=2024-08-04&sig=qUQ%2B%2BUwVtRba3/uvcWTVzRWLXD1XOv6XbyiFBM1k1f8%3D'); /* Çimen arka planını buraya ekleyin */
       background-size: cover;
       background-position: center;
-      margin: 0;
-      overflow: hidden;
       height: 100vh;
+      overflow: hidden;
       position: relative;
     }
 
-    /* Çiçeklerin Animasyonu */
     .flower {
       position: absolute;
       width: 50px;
       height: 50px;
-      pointer-events: none;
       opacity: 0;
-      animation: flower-animation 3s ease-out forwards;
-      z-index: 10;
+      pointer-events: none;
+      transition: all 0.3s ease;
     }
 
-    @keyframes flower-animation {
+    @keyframes bloom {
       0% {
         transform: scale(0) rotate(45deg);
         opacity: 0.5;
@@ -37,85 +35,54 @@
         opacity: 1;
       }
       100% {
-        transform: scale(1) rotate(0);
-        opacity: 0;
+        transform: scale(1);
+        opacity: 1;
       }
     }
 
-    /* Yaprakların Rüzgarla Savrulma Animasyonu */
-    .leaf {
-      position: absolute;
-      opacity: 0.8;
-      animation: leaf-fall 5s linear infinite;
-      pointer-events: none;
-      z-index: 5;
-    }
-
-    @keyframes leaf-fall {
-      0% {
-        transform: translateY(0) rotate(0deg);
-        opacity: 0.8;
-      }
-      100% {
-        transform: translateY(100vh) rotate(360deg);
-        opacity: 0;
-      }
-    }
-
-    /* Çiçek Sayfa Üstünde Dönerken Öne Çıkması */
-    .flower-front {
-      z-index: 50;
-      opacity: 1;
+    .flower.active {
+      animation: bloom 2s ease-out forwards;
     }
   </style>
 </head>
 <body>
   <script>
-    // Mouse hareketlerine göre çiçekler ekleniyor
-    document.addEventListener("mousemove", (e) => {
-      createFlower(e.clientX, e.clientY);
-    });
-
-    // Dokunmatik cihazlar için
-    document.addEventListener("touchmove", (e) => {
-      for (let i = 0; i < e.touches.length; i++) {
-        createFlower(e.touches[i].clientX, e.touches[i].clientY);
-      }
-    });
-
-    // Çiçek ve yaprak ekleme fonksiyonu
+    // Çiçek oluşturma fonksiyonu
     function createFlower(x, y) {
-      const flower = document.createElement("img");
-      flower.src = "https://example.com/flower.png"; // Çiçek görseli
-      flower.classList.add("flower");
-      flower.style.left = `${x - 25}px`;
-      flower.style.top = `${y - 25}px`;
-      flower.style.width = `${Math.random() * 40 + 30}px`;
-      flower.style.height = `${Math.random() * 40 + 30}px`;
+      const flower = document.createElement('img');
+      flower.src = 'path_to_your_flower_image.png';  // Pembe çiçek görselini buraya ekleyin
+      flower.classList.add('flower');
+      flower.style.left = `${x - 25}px`; // Orta noktada olmasını sağlar
+      flower.style.top = `${y - 25}px`;  // Orta noktada olmasını sağlar
+
+      // Rastgele boyut
+      flower.style.width = `${Math.random() * 30 + 30}px`;
+      flower.style.height = `${Math.random() * 30 + 30}px`;
+
+      // Çiçeği sayfada göster
       document.body.appendChild(flower);
 
-      // 3 saniye sonra çiçeği sil
+      // Çiçek animasyonunu başlat
+      setTimeout(() => {
+        flower.classList.add('active');
+      }, 10);
+
+      // 3 saniye sonra çiçeği kaldır
       setTimeout(() => {
         document.body.removeChild(flower);
       }, 3000);
     }
 
-    // Yaprak düşüşü fonksiyonu
-    setInterval(() => {
-      const leaf = document.createElement("img");
-      leaf.src = "https://example.com/leaf.png"; // Yaprak görseli
-      leaf.classList.add("leaf");
-      leaf.style.left = `${Math.random() * window.innerWidth}px`;
-      leaf.style.top = "-10%";
-      leaf.style.width = `${Math.random() * 20 + 20}px`;
-      leaf.style.height = `${Math.random() * 20 + 20}px`;
-      document.body.appendChild(leaf);
+    // Mouse veya dokunmatik hareketle çiçek ekleme
+    document.addEventListener('mousemove', (e) => {
+      createFlower(e.clientX, e.clientY);
+    });
 
-      // Yaprağı 5 saniye sonra sil
-      setTimeout(() => {
-        document.body.removeChild(leaf);
-      }, 5000);
-    }, 1000);
+    document.addEventListener('touchmove', (e) => {
+      for (let i = 0; i < e.touches.length; i++) {
+        createFlower(e.touches[i].clientX, e.touches[i].clientY);
+      }
+    });
   </script>
 </body>
 </html>
