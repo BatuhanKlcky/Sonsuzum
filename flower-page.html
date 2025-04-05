@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Çiçek Tarlası </title>
+    <title>Çiçek ve Rüzgar Efekti</title>
     <style>
         body {
             margin: 0;
@@ -45,16 +45,16 @@
             transform: translate(-50%, -50%);
         }
 
-        .butterfly {
+        .bee {
             position: absolute;
             width: 30px;
             height: 30px;
             background: url('https://img.icons8.com/ios/50/000000/butterfly.png') no-repeat center center;
             background-size: contain;
-            animation: butterflyAnimation 5s ease-in-out infinite;
+            animation: beeAnimation 5s ease-in-out infinite;
         }
 
-        @keyframes butterflyAnimation {
+        @keyframes beeAnimation {
             0% {
                 transform: translateX(-50px) translateY(-50px) rotate(0);
             }
@@ -182,7 +182,7 @@
         // Arı animasyonu
         function createBee() {
             const bee = document.createElement('div');
-            bee.className = 'butterfly';
+            bee.className = 'bee';
             bee.style.left = `${Math.random() * window.innerWidth}px`;
             bee.style.top = `${Math.random() * window.innerHeight}px`;
             document.body.appendChild(bee);
