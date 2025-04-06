@@ -1,0 +1,79 @@
+<!DOCTYPE html><html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sevgilini Kurtar: Gizemli Aşk</title>
+  <style>
+    body {
+      font-family: 'Georgia', serif;
+      background: linear-gradient(#2c3e50, #bdc3c7);
+      color: #fff;
+      padding: 30px;
+      text-align: center;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: rgba(0,0,0,0.6);
+      padding: 20px;
+      border-radius: 15px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Sevgilini Kurtar: Gizemli Aşk</h1>
+    <p id="story">Sevgilin gizemli bir güç tarafından kaçırıldı. Geri getirmek için karanlık ormanın derinliklerine mi ineceksin, yoksa eski bir büyücünün izini mi süreceksin?</p>
+    <div id="choices">
+      <button onclick="choose('orman')">Karanlık Orman</button>
+      <button onclick="choose('buyucu')">Eski Büyücü</button>
+    </div>
+  </div>  <script>
+    function choose(option) {
+      let story = document.getElementById('story');
+      let choices = document.getElementById('choices');
+
+      if(option === 'orman') {
+        story.innerHTML = "Ormanın derinliklerinde seni bekleyen karanlık bir figür var. Gölgeler fısıldıyor: 'Sevgiyle mi geldin yoksa cesaretle mi?'";
+        choices.innerHTML = `
+          <button onclick="choose('sevgi')">Sevgiyle</button>
+          <button onclick="choose('cesaret')">Cesaretle</button>
+        `;
+      } else if(option === 'buyucu') {
+        story.innerHTML = "Büyücü seni karşılıyor: 'Sevdiğini kurtarmak istiyorsan, kalbinin derinliklerini açmalısın. Aşk bir anahtardır.' diyor.";
+        choices.innerHTML = `
+          <button onclick="choose('anahtar')">Aşk Anahtarı</button>
+          <button onclick="choose('sorular')">Büyücünün Soruları</button>
+        `;
+      } else if(option === 'sevgi') {
+        story.innerHTML = "Gölgeler huzur buluyor. Figür bir geçit açıyor ve fısıldıyor: 'Aşk, karanlığı bile aydınlatır. Doğru yoldasın.'";
+        choices.innerHTML = `<button onclick="choose('son')">Geçide Gir</button>`;
+      } else if(option === 'cesaret') {
+        story.innerHTML = "Gölgeler seni sarıyor. Cesaretin hayranlık uyandırsa da, aşk olmadan geçit açılmıyor. Tekrar denemelisin.";
+        choices.innerHTML = `<button onclick="choose('orman')">Geri Dön</button>`;
+      } else if(option === 'anahtar') {
+        story.innerHTML = "Büyücü sana kalp şeklinde ışıldayan bir anahtar veriyor. 'Bu, sevdiğinle arandaki bağı temsil eder.'";
+        choices.innerHTML = `<button onclick="choose('son')">Geçide Doğru İlerle</button>`;
+      } else if(option === 'sorular') {
+        story.innerHTML = "Büyücü üç gizemli soru soruyor. Cevaplarını kalbinle vermelisin. Ancak yanlış cevap, seni geçmişine hapseder.";
+        choices.innerHTML = `<button onclick="choose('buyucu')">Yeniden Dene</button>`;
+      } else if(option === 'son') {
+        story.innerHTML = "Geçitten geçiyorsun. Bir ışık huzmesi içinde sevgilini görüyorsun. Onun gözleri senin cesaretini ve aşkını takdirle izliyor. Artık birliktesiniz.";
+        choices.innerHTML = `<p><strong>SON - Aşkınız karanlığı aydınlattı.</strong></p>`;
+      }
+    }
+  </script></body>
+</html>
