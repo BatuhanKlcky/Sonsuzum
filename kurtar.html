@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senin İçin - Macera Başlıyor</title>
+    <style>
+        /* RESET & TEMEL STİLLER */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            background-color: #000;
+            color: #fff;
+        }
+        
+        /* OYUN CONTAINER */
+        #gameContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        /* OYUN MENÜSÜ */
+        #gameMenu {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(255, 105, 180, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        #menuToggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 90;
+            background: #ff69b4;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* MOBİL UYUMLULUK */
+        @media (max-width: 768px) {
+            #gameMenu {
+                width: 80%;
+                left: 10%;
+                top: 10px;
+            }
+            
+            .mobile-controls {
+                position: fixed;
+                bottom: 20px;
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                z-index: 50;
+            }
+            
+            .control-btn {
+                background: rgba(255, 105, 180, 0.5);
+                color: white;
+                border: none;
+                width: 60px;
+                height: 60px;
+                margin: 0 10px;
+                border-radius: 50%;
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Oyun Canvas'ı için container -->
+    <div id="gameContainer"></div>
+    
+    <!-- Menü Toggle Butonu -->
+    <button id="menuToggle">☰</button>
+    
+    <!-- Oyun Menüsü -->
+    <div id="gameMenu">
+        <h3 style="margin-bottom: 15px; color: white;">Macera Menüsü</h3>
+        <button onclick="changeScene('forest')" style="display: block; width: 100%; padding: 8px; margin-bottom: 8px; background: white; border: none; border-radius: 5px; color: #ff69b4;">Orman Sahnesi</button>
+        <button onclick="changeScene('village')" style="display: block; width: 100%; padding: 8px; margin-bottom: 8px; background: white; border: none; border-radius: 5px; color: #ff69b4;">Köy Sahnesi</button>
+        <button onclick="window.location.href='index.html'" style="display: block; width: 100%; padding: 8px; background: #ff4c8b; border: none; border-radius: 5px; color: white;">Ana Sayfaya Dön</button>
+    </div>
+    
+    <!-- Mobil Kontroller (isteğe bağlı) -->
+    <div class="mobile-controls">
+        <button class="control-btn" id="moveLeft">←</button>
+        <button class="control-btn" id="moveUp">↑</button>
+        <button class="control-btn" id="moveDown">↓</button>
+        <button class="control-btn" id="moveRight">→</button>
+    </div>
+
+    <!-- PixiJS ve Oyun Scriptleri -->
+    <script src="https://pixijs.download/v8.9.1/pixi.js"></script>
+    <script src="kurtar.js"></script>
+    
+    <script>
+        // Menü Toggle Fonksiyonu
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            const menu = document.getElementById('gameMenu');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        });
+        
+        // Mobil Kontroller
+        if (window.innerWidth <= 768px) {
+            setupMobileControls();
+        }
+        
+        function setupMobileControls() {
+            const controls = {
+                ArrowLeft: document.getElementById('moveLeft'),
+                ArrowUp: document.getElementById('moveUp'),
+                ArrowDown: document.getElementById('moveDown'),
+                ArrowRight: document.getElementById('moveRight')
+            };
+            
+            Object.entries(controls).forEach(([key, btn]) => {
+                btn.addEventListener('touchstart', () => simulateKeyPress(key, true));
+                btn.addEventListener('touchend', () => simulateKeyPress(key, false));
+                btn.addEventListener('mousedown', () => simulateKeyPress(key, true));
+                btn.addEventListener('mouseup', () => simulateKeyPress(key, false));
+            });
+        }
+        
+        function simulateKeyPress(key, isPressed) {
+            const event = new KeyboardEvent(isPressed ? 'keydown' : 'keyup', { key });
+            window.dispatchEvent(event);
+        }
+    </script>
+</body>
+</html>
