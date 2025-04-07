@@ -113,9 +113,9 @@
     </div>
 
     <!-- PixiJS ve Oyun Scriptleri -->
-<div id="gameContainer"></div>
-<script src="https://pixijs.download/v8.9.1/pixi.js"></script>
-<script src="kurtar.js"></script>
+    <script src="https://pixijs.download/v8.9.1/pixi.min.js"></script>
+    <script src="kurtar.js"></script>
+    
     <script>
         // Menü Toggle Fonksiyonu
         document.getElementById('menuToggle').addEventListener('click', function() {
@@ -124,23 +124,6 @@
         });
         
         // Mobil Kontroller
-// Mobil kontrolü için en iyi uygulama
-function handleMobileLayout() {
-    const breakpoint = 768;
-    const isMobile = window.innerWidth <= breakpoint;
-
-    if (isMobile) {
-        document.body.classList.add('mobile-view');
-        console.log("Mobil optimizasyon aktif");
-    } else {
-        document.body.classList.remove('mobile-view');
-    }
-}
-
-// Sayfa yüklendiğinde ve boyut değiştiğinde çalıştır
-window.addEventListener('load', handleMobileLayout);
-window.addEventListener('resize', handleMobileLayout);
-        
         function setupMobileControls() {
             const controls = {
                 ArrowLeft: document.getElementById('moveLeft'),
@@ -150,17 +133,48 @@ window.addEventListener('resize', handleMobileLayout);
             };
             
             Object.entries(controls).forEach(([key, btn]) => {
-                btn.addEventListener('touchstart', () => simulateKeyPress(key, true));
-                btn.addEventListener('touchend', () => simulateKeyPress(key, false));
-                btn.addEventListener('mousedown', () => simulateKeyPress(key, true));
-                btn.addEventListener('mouseup', () => simulateKeyPress(key, false));
+                if (btn) {
+                    btn.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        simulateKeyPress(key, true);
+                    });
+                    btn.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                        simulateKeyPress(key, false);
+                    });
+                    btn.addEventListener('mousedown', () => simulateKeyPress(key, true));
+                    btn.addEventListener('mouseup', () => simulateKeyPress(key, false));
+                    btn.addEventListener('mouseleave', () => simulateKeyPress(key, false));
+                }
             });
         }
         
         function simulateKeyPress(key, isPressed) {
-            const event = new KeyboardEvent(isPressed ? 'keydown' : 'keyup', { key });
+            const event = new KeyboardEvent(isPressed ? 'keydown' : 'keyup', { 
+                key: key,
+                bubbles: true,
+                cancelable: true
+            });
             window.dispatchEvent(event);
         }
+
+        // Mobil düzen kontrolü
+        function handleMobileLayout() {
+            const breakpoint = 768;
+            const isMobile = window.innerWidth <= breakpoint;
+            const mobileControls = document.querySelector('.mobile-controls');
+            
+            if (mobileControls) {
+                mobileControls.style.display = isMobile ? 'flex' : 'none';
+            }
+        }
+
+        // Sayfa yüklendiğinde ve boyut değiştiğinde çalıştır
+        window.addEventListener('load', function() {
+            handleMobileLayout();
+            setupMobileControls();
+        });
+        window.addEventListener('resize', handleMobileLayout);
     </script>
 </body>
 </html>
