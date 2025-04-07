@@ -1,4 +1,4 @@
-// kurtar.js - PixiJS v8.9.1 Tam Uyumlu Son Sürüm (DÜZENLENMİŞ)
+// kurtar.js - PixiJS v8.9.1 Tam Uyumlu Son Sürüm
 
 // Oyun değişkenleri
 let app;
@@ -11,14 +11,34 @@ const gameState = {
     memoriesFound: 0
 };
 
+// Hata ekranı (bağımsız versiyon)
+function showErrorScreen() {
+    const errorDiv = document.createElement('div');
+    errorDiv.style.position = 'fixed';
+    errorDiv.style.top = '0';
+    errorDiv.style.left = '0';
+    errorDiv.style.width = '100%';
+    errorDiv.style.height = '100%';
+    errorDiv.style.backgroundColor = 'black';
+    errorDiv.style.color = 'red';
+    errorDiv.style.display = 'flex';
+    errorDiv.style.justifyContent = 'center';
+    errorDiv.style.alignItems = 'center';
+    errorDiv.style.zIndex = '9999';
+    errorDiv.innerHTML = '<h1>Oyun yüklenirken hata oluştu!<br>Lütfen sayfayı yenileyin.</h1>';
+    document.body.appendChild(errorDiv);
+}
+
 // Ana oyun başlatma fonksiyonu
 async function initGame() {
     try {
-        // 1. PixiJS uygulamasını yeni v8 formatında oluştur
-        app = new PIXI.Application({
+        // 1. PixiJS uygulamasını oluştur
+        app = new PIXI.Application();
+        await app.init({
             resizeTo: window,
             background: 0x0d1c2e,
-            antialias: true
+            antialias: true,
+            preference: 'webgl'
         });
 
         // 2. Canvas'ı gameContainer'a ekle
@@ -46,10 +66,10 @@ async function initGame() {
     }
 }
 
-// Asset yükleme fonksiyonu (düzeltilmiş)
+// Asset yükleme fonksiyonu (güncellenmiş)
 async function loadAssets() {
     try {
-        // Asset listesi (örnek URL'ler - gerçek dosya yollarınızla değiştirin)
+        // Asset listesi (projenizdeki gerçek dosya yolları)
         const assets = [
             { alias: 'character', src: 'assets/images/character.png' },
             { alias: 'forest_bg', src: 'assets/images/forest-bg.jpg' },
@@ -58,9 +78,10 @@ async function loadAssets() {
             { alias: 'chest', src: 'assets/images/chest.png' }
         ];
 
-        // Assetleri PIXI.Assets ile yükle
-        await PIXI.Assets.load(assets);
-        
+        // Asset manifestini yükle
+        await PIXI.Assets.init({ manifest: { bundles: [{ name: 'main', assets }] });
+        await PIXI.Assets.loadBundle('main');
+
     } catch (error) {
         console.error("Asset yükleme hatası:", error);
         throw error;
@@ -101,7 +122,7 @@ function setupControls() {
     });
 }
 
-/********************** SAHNE OLUŞTURMA (GÜNCELLENMİŞ) **********************/
+/********************** SAHNE OLUŞTURMA **********************/
 
 // 1. ORMAN SAHNESİ
 function createForestScene() {
@@ -262,29 +283,6 @@ function showMessage(text, callback) {
             callback();
         }, 3000);
     }
-}
-
-/********************** HATA YÖNETİMİi **********************/
-
-function showErrorScreen() {
-    const errorScreen = new PIXI.Graphics()
-        .rect(0, 0, app.screen.width, app.screen.height)
-        .fill(0x000000);
-    
-    const errorText = new PIXI.Text({
-        text: 'Oyun yüklenirken hata oluştu!\nLütfen sayfayı yenileyin.',
-        style: {
-            fontFamily: 'Arial',
-            fontSize: 24,
-            fill: 0xff0000,
-            align: 'center'
-        }
-    });
-    errorText.anchor.set(0.5);
-    errorText.position.set(app.screen.width / 2, app.screen.height / 2);
-    
-    errorScreen.addChild(errorText);
-    app.stage.addChild(errorScreen);
 }
 
 // Global sahne değiştirme fonksiyonu
