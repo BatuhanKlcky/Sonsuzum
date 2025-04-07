@@ -52,11 +52,11 @@ async function loadAssets() {
     try {
         // Asset listesi (kendi dosya yollarınızı ekleyin)
         const assets = [
-            { name: 'character', url: 'assets/images/character.png' },
-            { name: 'forest_bg', url: 'assets/images/forest-bg.jpg' },
-            { name: 'clue', url: 'assets/immages/clue.png' },
-            { name: 'village_bg', url: 'assets/images/village-bg.jpg' },
-            { name: 'chest', url: 'assets/images/chest.png' }
+            { name: 'character', url: 'blob:https://imgur.com/a30e5999-b829-4390-8b6a-3b5618ca6d03' },
+            { name: 'forest_bg', url: 'blob:https://imgur.com/21624394-cce6-4e09-9f7d-064adf74cad4' },
+            { name: 'clue', url: 'blob:https://imgur.com/20aebe55-9cef-44b9-ad3f-33a8d1deb526' },
+            { name: 'village_bg', url: 'blob:https://imgur.com/b387c63e-b4a9-4506-b9b3-9372e207a545' },
+            { name: 'chest', url: 'blob:https://imgur.com/a44699b3-8dff-4db1-ac53-1ef0458399e3' }
         ];
 
         // Assetleri teker teker yükle
