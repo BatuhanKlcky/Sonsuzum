@@ -52,11 +52,11 @@ async function loadAssets() {
     try {
         // Asset listesi (kendi dosya yollarınızı ekleyin)
         const assets = [
-            { name: 'character', url: 'assets/character.png' },
-            { name: 'forest_bg', url: 'assets/forest-bg.jpg' },
-            { name: 'clue', url: 'assets/clue.png' },
-            { name: 'village_bg', url: 'assets/village-bg.jpg' },
-            { name: 'chest', url: 'assets/chest.png' }
+            { name: 'character', url: 'assets/images/character.png' },
+            { name: 'forest_bg', url: 'assets/images/forest-bg.jpg' },
+            { name: 'clue', url: 'assets/immages/clue.png' },
+            { name: 'village_bg', url: 'assets/images/village-bg.jpg' },
+            { name: 'chest', url: 'assets/images/chest.png' }
         ];
 
         // Assetleri teker teker yükle
