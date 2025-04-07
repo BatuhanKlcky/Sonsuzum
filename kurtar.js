@@ -1,6 +1,6 @@
-// kurtar.js - PixiJS v8.9.1 Tam Uyumlu Son Sürüm
+// kurtar.js
 
-// Oyun değişkenleri
+// Oyun 
 let app;
 let character;
 let scenes = {};
