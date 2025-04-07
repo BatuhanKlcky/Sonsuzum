@@ -124,9 +124,22 @@
         });
         
         // Mobil Kontroller
-        if (window.innerWidth <= 768px) {
-            setupMobileControls();
-        }
+// Mobil kontrolü için en iyi uygulama
+function handleMobileLayout() {
+    const breakpoint = 768;
+    const isMobile = window.innerWidth <= breakpoint;
+
+    if (isMobile) {
+        document.body.classList.add('mobile-view');
+        console.log("Mobil optimizasyon aktif");
+    } else {
+        document.body.classList.remove('mobile-view');
+    }
+}
+
+// Sayfa yüklendiğinde ve boyut değiştiğinde çalıştır
+window.addEventListener('load', handleMobileLayout);
+window.addEventListener('resize', handleMobileLayout);
         
         function setupMobileControls() {
             const controls = {
