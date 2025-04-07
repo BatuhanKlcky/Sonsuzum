@@ -1,162 +1,235 @@
-// game.js - Romantik Macera Oyunu
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. PIXI UYGULAMASINI BAŞLAT
-    const app = new PIXI.Application({
-        width: 1024,
-        height: 768,
-        backgroundColor: 0x0d1c2e,
-        antialias: true,
-        resolution: window.devicePixelRatio || 1
+// kurtar.js - Romantik Macera Oyunu
+let app;
+let character;
+let currentScene;
+const scenes = {};
+const gameState = {
+    collectedClues: 0,
+    hasKey: false,
+    memoriesFound: 0
+};
+
+// Oyunu Başlat
+function initGame() {
+    app = new PIXI.Application({
+        view: document.getElementById('gameContainer'),
+        width: window.innerWidth,
+        height: window.innerHeight,
+        backgroundColor: 0x000000,
+        antialias: true
     });
-    document.body.appendChild(app.view);
 
-    // 2. OYUN DEĞİŞKENLERİ
-    let currentScene = 'forest';
-    let character, clues = [];
-    const scenes = {};
-    const keys = {};
-
-    // 3. ASSET YÜKLEME
-    async function loadAssets() {
-        try {
-            // Gerçek assetlerinizle değiştirin
-            await PIXI.Assets.load([
-                { alias: 'character', src: 'assets/images/cd7b9c21-0d30-4b66-8856-6347c6d2e50b.png' },
-                { alias: 'forest_bg', src: 'assets/images/forest-bg.jpg' },
-                { alias: 'clue', src: 'assets/clue.png' }
-            ]);
-            initGame();
-        } catch (err) {
-            console.error("Asset yükleme hatası:", err);
-            // Placeholder grafiklerle devam et
-            createPlaceholderAssets();
-        }
-    }
-
-    // 4. SAHNE OLUŞTURMA - ORMAN (1. Sahne)
-    function createForestScene() {
-        const scene = new PIXI.Container();
-        
-        // Arkaplan
-        const bg = PIXI.Sprite.from('forest_bg');
-        bg.width = app.screen.width;
-        bg.height = app.screen.height;
-        scene.addChild(bg);
-
-        // Sis efekti
-        const fog = new PIXI.Graphics();
-        fog.beginFill(0xaaaaaa, 0.4);
-        fog.drawRect(0, 0, app.screen.width, app.screen.height);
-        scene.addChild(fog);
-
-        // Karakter
-        character = PIXI.Sprite.from('character');
-        character.anchor.set(0.5);
-        character.x = 200;
-        character.y = app.screen.height / 2;
-        character.scale.set(0.8);
-        scene.addChild(character);
-
-        // İzler (3 adet)
-        for (let i = 0; i < 3; i++) {
-            const clue = PIXI.Sprite.from('clue');
-            clue.anchor.set(0.5);
-            clue.x = 400 + i * 150;
-            clue.y = 300 + Math.sin(i) * 100;
-            clue.interactive = true;
-            clue.on('pointerdown', () => collectClue(clue));
-            scene.addChild(clue);
-            clues.push(clue);
-        }
-
-        // Gizemli mesaj
-        const message = new PIXI.Text('"Onu geri istiyorsan, beni bul..."', {
-            fontFamily: 'Arial',
-            fontSize: 28,
-            fill: 0xf8f8f8,
-            stroke: 0x0a0a0a,
-            strokeThickness: 4
-        });
-        message.position.set(50, 50);
-        scene.addChild(message);
-
-        return scene;
-    }
-
-    // 5. OYUN MEKANİKLERİ
-    function collectClue(clue) {
-        clue.visible = false;
-        clues = clues.filter(c => c !== clue);
-        
-        if (clues.length === 0) {
-            const victoryText = new PIXI.Text('Tüm izleri topladın!', {
-                fontFamily: 'Arial',
-                fontSize: 32,
-                fill: 0x4fe34f
-            });
-            victoryText.anchor.set(0.5);
-            victoryText.position.set(app.screen.width / 2, 100);
-            app.stage.addChild(victoryText);
-            
-            // 3 saniye sonra mesajı kaldır
-            setTimeout(() => app.stage.removeChild(victoryText), 3000);
-        }
-    }
-
-    // 6. KONTROLLER
-    function setupControls() {
-        window.addEventListener('keydown', (e) => keys[e.key] = true);
-        window.addEventListener('keyup', (e) => keys[e.key] = false);
-        
-        app.ticker.add(() => {
-            if (!character) return;
-            
-            if (keys['ArrowLeft'] || keys['a']) character.x -= 5;
-            if (keys['ArrowRight'] || keys['d']) character.x += 5;
-            if (keys['ArrowUp'] || keys['w']) character.y -= 5;
-            if (keys['ArrowDown'] || keys['s']) character.y += 5;
-            
-            // Sınır kontrolü
-            character.x = Math.max(50, Math.min(character.x, app.screen.width - 50));
-            character.y = Math.max(50, Math.min(character.y, app.screen.height - 50));
-        });
-    }
-
-    // 7. PLACEHOLDER ASSETLER (Opsiyonel)
-    function createPlaceholderAssets() {
-        // Kırmızı kare karakter
-        character = new PIXI.Graphics();
-        character.beginFill(0xff3333);
-        character.drawRect(0, 0, 50, 50);
-        character.endFill();
-        character.position.set(200, 400);
-        app.stage.addChild(character);
-        
-        // Yeşil daire ipuçları
-        for (let i = 0; i < 3; i++) {
-            const clue = new PIXI.Graphics();
-            clue.beginFill(0x33ff33);
-            clue.drawCircle(0, 0, 20);
-            clue.endFill();
-            clue.x = 400 + i * 150;
-            clue.y = 300 + Math.sin(i) * 100;
-            clue.interactive = true;
-            clue.on('pointerdown', () => collectClue(clue));
-            app.stage.addChild(clue);
-            clues.push(clue);
-        }
-    }
-
-    // 8. OYUNU BAŞLAT
-    function initGame() {
-        scenes.forest = createForestScene();
-        app.stage.addChild(scenes.forest);
+    // Assetleri yükle
+    loadAssets().then(() => {
+        createScenes();
+        changeScene('forest');
         setupControls();
-        
-        // Debug bilgisi
-        console.log('Oyun başlatıldı!');
+    });
+
+    // Yeniden boyutlandırma
+    window.addEventListener('resize', () => {
+        app.renderer.resize(window.innerWidth, window.innerHeight);
+    });
+}
+
+// Asset Yükleme
+async function loadAssets() {
+    // Gerçek assetlerinizi buraya ekleyin
+    await PIXI.Assets.load([
+        { alias: 'character', src: 'assets/character.png' },
+        { alias: 'forest_bg', src: 'assets/forest-bg.jpg' },
+        { alias: 'clue', src: 'assets/clue.png' },
+        { alias: 'village_bg', src: 'assets/village-bg.jpg' }
+    ]);
+}
+
+// Tüm sahneleri oluştur
+function createScenes() {
+    scenes.forest = createForestScene();
+    scenes.village = createVillageScene();
+    scenes.maze = createMazeScene();
+    scenes.tower = createTowerScene();
+}
+
+// Kontrolleri ayarla
+function setupControls() {
+    const keys = {};
+    window.addEventListener('keydown', (e) => keys[e.key] = true);
+    window.addEventListener('keyup', (e) => keys[e.key] = false);
+
+    app.ticker.add(() => {
+        if (!character) return;
+
+        // Hareket kontrolü
+        if (keys['ArrowLeft'] || keys['a']) character.x -= 5;
+        if (keys['ArrowRight'] || keys['d']) character.x += 5;
+        if (keys['ArrowUp'] || keys['w']) character.y -= 5;
+        if (keys['ArrowDown'] || keys['s']) character.y += 5;
+    });
+}
+
+// Sahne değiştirme
+function changeScene(sceneName) {
+    if (currentScene) app.stage.removeChild(currentScene);
+    currentScene = scenes[sceneName];
+    app.stage.addChild(currentScene);
+}
+
+/********************** SAHNELER **********************/
+
+// 1. ORMAN SAHNESİ
+function createForestScene() {
+    const scene = new PIXI.Container();
+
+    // Arkaplan
+    const bg = PIXI.Sprite.from('forest_bg');
+    bg.width = app.screen.width;
+    bg.height = app.screen.height;
+    scene.addChild(bg);
+
+    // Karakter
+    character = PIXI.Sprite.from('character');
+    character.anchor.set(0.5);
+    character.x = 100;
+    character.y = app.screen.height / 2;
+    scene.addChild(character);
+
+    // İzler (3 adet)
+    for (let i = 0; i < 3; i++) {
+        const clue = createClue(400 + i * 150, 300 + (i % 2 === 0 ? -50 : 50));
+        scene.addChild(clue);
     }
 
-    // 9. ASSET YÜKLEMEYİ BAŞLAT
-    loadAssets();
-});
+    // Gizemli mesaj
+    const message = new PIXI.Text('"Onu geri istiyorsan, beni bul..."', {
+        fontFamily: 'Arial',
+        fontSize: 24,
+        fill: 0xffffff,
+        stroke: 0x000000,
+        strokeThickness: 4
+    });
+    message.position.set(50, 50);
+    scene.addChild(message);
+
+    return scene;
+}
+
+// 2. KÖY SAHNESİ
+function createVillageScene() {
+    const scene = new PIXI.Container();
+    
+    // Arkaplan
+    const bg = PIXI.Sprite.from('village_bg');
+    bg.width = app.screen.width;
+    bg.height = app.screen.height;
+    scene.addChild(bg);
+
+    // Sandık
+    const chest = new PIXI.Graphics()
+        .beginFill(0x8B4513)
+        .drawRect(0, 0, 80, 60);
+    chest.position.set(500, 400);
+    chest.interactive = true;
+    chest.on('pointerdown', openChest);
+    scene.addChild(chest);
+
+    return scene;
+}
+
+// 3. ZAMAN LABİRENTİ
+function createMazeScene() {
+    const scene = new PIXI.Container();
+    // Labirent kodu buraya...
+    return scene;
+}
+
+// 4. KULE SAHNESİ
+function createTowerScene() {
+    const scene = new PIXI.Container();
+    // Kule kodu buraya...
+    return scene;
+}
+
+/********************** OYUN MEKANİKLERİ **********************/
+
+function createClue(x, y) {
+    const clue = PIXI.Sprite.from('clue');
+    clue.anchor.set(0.5);
+    clue.position.set(x, y);
+    clue.interactive = true;
+    clue.on('pointerdown', () => collectClue(clue));
+    return clue;
+}
+
+function collectClue(clue) {
+    clue.visible = false;
+    gameState.collectedClues++;
+    
+    if (gameState.collectedClues === 3) {
+        showMessage('Tüm izleri topladın! Köye gitmelisin...', () => {
+            changeScene('village');
+        });
+    }
+}
+
+function openChest() {
+    if (gameState.collectedClues >= 3) {
+        gameState.hasKey = true;
+        showMessage('Bir anahtar buldun! Zaman labirentine git...', () => {
+            changeScene('maze');
+        });
+    } else {
+        showMessage('Daha fazla ipucuna ihtiyacım var...');
+    }
+}
+
+function showMessage(text, callback) {
+    const msg = new PIXI.Text(text, {
+        fontFamily: 'Arial',
+        fontSize: 24,
+        fill: 0xffffff,
+        align: 'center'
+    });
+    msg.anchor.set(0.5);
+    msg.position.set(app.screen.width / 2, 100);
+    app.stage.addChild(msg);
+    
+    if (callback) {
+        setTimeout(() => {
+            app.stage.removeChild(msg);
+            callback();
+        }, 3000);
+    }
+}
+
+/********************** SONLAR **********************/
+
+function showGoodEnding() {
+    const ending = new PIXI.Container();
+    
+    const bg = new PIXI.Graphics()
+        .beginFill(0x4a4a8a)
+        .drawRect(0, 0, app.screen.width, app.screen.height);
+    ending.addChild(bg);
+    
+    const text = new PIXI.Text('"Hiçbir lanet, kalbimin sana olan bağlılığını silemez."', {
+        fontFamily: 'Arial',
+        fontSize: 32,
+        fill: 0xffffff,
+        align: 'center',
+        wordWrap: true,
+        wordWrapWidth: app.screen.width - 100
+    });
+    text.anchor.set(0.5);
+    text.position.set(app.screen.width / 2, app.screen.height / 2);
+    ending.addChild(text);
+    
+    app.stage.addChild(ending);
+}
+
+function showBadEnding() {
+    // Kötü son için benzer implementasyon
+}
+
+// Oyunu başlat
+document.addEventListener('DOMContentLoaded', initGame);
