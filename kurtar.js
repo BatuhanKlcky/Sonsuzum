@@ -264,7 +264,7 @@ function showMessage(text, callback) {
     }
 }
 
-/********************** HATA YÖNETİMİ **********************/
+/********************** HATA YÖNETİMİi **********************/
 
 function showErrorScreen() {
     const errorScreen = new PIXI.Graphics()
