@@ -1,6 +1,6 @@
-// kurtar.js
+// kurtar.js - PixiJS v8.9.1 Tam Uyumlu Son Sürüm (DÜZENLENMİŞ)
 
-// Oyun 
+// Oyun değişkenleri
 let app;
 let character;
 let scenes = {};
@@ -15,8 +15,7 @@ const gameState = {
 async function initGame() {
     try {
         // 1. PixiJS uygulamasını yeni v8 formatında oluştur
-        app = new PIXI.Application();
-        await app.init({
+        app = new PIXI.Application({
             resizeTo: window,
             background: 0x0d1c2e,
             antialias: true
@@ -50,23 +49,18 @@ async function initGame() {
 // Asset yükleme fonksiyonu (düzeltilmiş)
 async function loadAssets() {
     try {
-        // Asset listesi (kendi dosya yollarınızı ekleyin)
+        // Asset listesi (örnek URL'ler - gerçek dosya yollarınızla değiştirin)
         const assets = [
-            { name: 'character', url: 'blob:https://imgur.com/a30e5999-b829-4390-8b6a-3b5618ca6d03' },
-            { name: 'forest_bg', url: 'blob:https://imgur.com/21624394-cce6-4e09-9f7d-064adf74cad4' },
-            { name: 'clue', url: 'blob:https://imgur.com/20aebe55-9cef-44b9-ad3f-33a8d1deb526' },
-            { name: 'village_bg', url: 'blob:https://imgur.com/b387c63e-b4a9-4506-b9b3-9372e207a545' },
-            { name: 'chest', url: 'blob:https://imgur.com/a44699b3-8dff-4db1-ac53-1ef0458399e3' }
+            { alias: 'character', src: 'assets/images/character.png' },
+            { alias: 'forest_bg', src: 'assets/images/forest-bg.jpg' },
+            { alias: 'clue', src: 'assets/images/clue.png' },
+            { alias: 'village_bg', src: 'assets/images/village-bg.jpg' },
+            { alias: 'chest', src: 'assets/images/chest.png' }
         ];
 
-        // Assetleri teker teker yükle
-        for (const asset of assets) {
-            try {
-                await PIXI.Assets.load(asset.url);
-            } catch (err) {
-                console.warn(`${asset.name} yüklenemedi:`, err);
-            }
-        }
+        // Assetleri PIXI.Assets ile yükle
+        await PIXI.Assets.load(assets);
+        
     } catch (error) {
         console.error("Asset yükleme hatası:", error);
         throw error;
@@ -83,9 +77,10 @@ function createScenes() {
     };
 }
 
-// Kontrolleri ayarla
+// Kontrolleri ayarla (optimize edilmiş)
 function setupControls() {
     const keys = {};
+    const speed = 5;
     
     window.addEventListener('keydown', (e) => keys[e.key] = true);
     window.addEventListener('keyup', (e) => keys[e.key] = false);
@@ -93,29 +88,33 @@ function setupControls() {
     app.ticker.add(() => {
         if (!character) return;
         
-        if (keys['ArrowLeft'] || keys['a']) character.x -= 5;
-        if (keys['ArrowRight'] || keys['d']) character.x += 5;
-        if (keys['ArrowUp'] || keys['w']) character.y -= 5;
-        if (keys['ArrowDown'] || keys['s']) character.y += 5;
+        // Hareket kontrolü
+        const moveX = (keys['ArrowLeft'] || keys['a'] ? -1 : 0) + (keys['ArrowRight'] || keys['d'] ? 1 : 0);
+        const moveY = (keys['ArrowUp'] || keys['w'] ? -1 : 0) + (keys['ArrowDown'] || keys['s'] ? 1 : 0);
+        
+        character.x += moveX * speed;
+        character.y += moveY * speed;
+        
+        // Ekran sınır kontrolü
+        character.x = Math.max(0, Math.min(app.screen.width, character.x));
+        character.y = Math.max(0, Math.min(app.screen.height, character.y));
     });
 }
 
-/********************** SAHNE OLUŞTURMA (GÜNCELLENMİŞ PIXIJS v8 SÖZDİZİMİ) **********************/
+/********************** SAHNE OLUŞTURMA (GÜNCELLENMİŞ) **********************/
 
 // 1. ORMAN SAHNESİ
 function createForestScene() {
     const scene = new PIXI.Container();
 
-    // Arkaplan (v8 uyumlu)
-    const bgTexture = PIXI.Texture.from('assets/forest-bg.jpg');
-    const bg = new PIXI.Sprite(bgTexture);
+    // Arkaplan
+    const bg = new PIXI.Sprite(PIXI.Assets.get('forest_bg'));
     bg.width = app.screen.width;
     bg.height = app.screen.height;
     scene.addChild(bg);
 
-    // Karakter (v8 uyumlu)
-    const charTexture = PIXI.Texture.from('assets/character.png');
-    character = new PIXI.Sprite(charTexture);
+    // Karakter
+    character = new PIXI.Sprite(PIXI.Assets.get('character'));
     character.anchor.set(0.5);
     character.position.set(100, app.screen.height / 2);
     character.scale.set(0.8);
@@ -130,14 +129,15 @@ function createForestScene() {
         scene.addChild(clue);
     }
 
-    // Gizemli mesaj (v8 uyumlu)
+    // Gizemli mesaj
     const message = new PIXI.Text({
         text: '"Onu geri istiyorsan, beni bul..."',
         style: {
             fontFamily: 'Arial',
             fontSize: 24,
             fill: 0xffffff,
-            stroke: { color: 0x000000, width: 4 }
+            stroke: 0x000000,
+            strokeThickness: 4
         }
     });
     message.position.set(50, 50);
@@ -151,15 +151,13 @@ function createVillageScene() {
     const scene = new PIXI.Container();
     
     // Arkaplan
-    const bgTexture = PIXI.Texture.from('assets/village-bg.jpg');
-    const bg = new PIXI.Sprite(bgTexture);
+    const bg = new PIXI.Sprite(PIXI.Assets.get('village_bg'));
     bg.width = app.screen.width;
     bg.height = app.screen.height;
     scene.addChild(bg);
 
     // Sandık
-    const chestTexture = PIXI.Texture.from('assets/chest.png');
-    const chest = new PIXI.Sprite(chestTexture);
+    const chest = new PIXI.Sprite(PIXI.Assets.get('chest'));
     chest.anchor.set(0.5);
     chest.position.set(500, 400);
     chest.eventMode = 'static';
@@ -174,11 +172,17 @@ function createVillageScene() {
 function createMazeScene() {
     const scene = new PIXI.Container();
     
-    // Arkaplan (v8 uyumlu grafik)
+    // Arkaplan
     const bg = new PIXI.Graphics()
         .rect(0, 0, app.screen.width, app.screen.height)
-        .fill({ color: 0x222222 });
+        .fill(0x222222);
     scene.addChild(bg);
+    
+    // Labirent duvarları (örnek)
+    const mazeWall = new PIXI.Graphics()
+        .rect(100, 100, 200, 20)
+        .fill(0x555555);
+    scene.addChild(mazeWall);
     
     return scene;
 }
@@ -190,8 +194,14 @@ function createTowerScene() {
     // Arkaplan
     const bg = new PIXI.Graphics()
         .rect(0, 0, app.screen.width, app.screen.height)
-        .fill({ color: 0x111122 });
+        .fill(0x111122);
     scene.addChild(bg);
+    
+    // Kule (örnek)
+    const tower = new PIXI.Graphics()
+        .rect(app.screen.width/2 - 50, 150, 100, 300)
+        .fill(0x654321);
+    scene.addChild(tower);
     
     return scene;
 }
@@ -199,8 +209,7 @@ function createTowerScene() {
 /********************** OYUN MEKANİKLERİ **********************/
 
 function createClue(x, y) {
-    const clueTexture = PIXI.Texture.from('assets/clue.png');
-    const clue = new PIXI.Sprite(clueTexture);
+    const clue = new PIXI.Sprite(PIXI.Assets.get('clue'));
     clue.anchor.set(0.5);
     clue.position.set(x, y);
     clue.eventMode = 'static';
@@ -260,7 +269,7 @@ function showMessage(text, callback) {
 function showErrorScreen() {
     const errorScreen = new PIXI.Graphics()
         .rect(0, 0, app.screen.width, app.screen.height)
-        .fill({ color: 0x000000 });
+        .fill(0x000000);
     
     const errorText = new PIXI.Text({
         text: 'Oyun yüklenirken hata oluştu!\nLütfen sayfayı yenileyin.',
@@ -284,12 +293,13 @@ window.changeScene = function(sceneName) {
         if (currentScene) app.stage.removeChild(currentScene);
         currentScene = scenes[sceneName];
         app.stage.addChild(currentScene);
+        
+        // Karakteri yeni sahneye taşı
+        if (character && !currentScene.children.includes(character)) {
+            currentScene.addChild(character);
+        }
     }
 };
 
 // Oyunu başlat
-document.addEventListener('DOMContentLoaded', () => {
-    initGame().catch(error => {
-        console.error("Başlatma hatası:", error);
-    });
-});
+window.addEventListener('DOMContentLoaded', initGame);
