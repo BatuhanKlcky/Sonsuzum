@@ -217,6 +217,26 @@
             transition: all 0.3s ease;
         }
 
+        /* Sayaç hareketi */
+        .counter {
+            position: fixed;
+            bottom: 20px;
+            right: 70px; /* Pixel kalbin hemen solunda */
+            font-size: 1.2em;
+            color: white;
+            font-weight: bold;
+            animation: moveLeft 1s infinite linear;
+        }
+
+        @keyframes moveLeft {
+            0% {
+                right: 70px;
+            }
+            100% {
+                right: 100%;
+            }
+        }
+
         /* Responsive Tasarım - Mobil için */
         @media (max-width: 768px) {
             h1 {
@@ -288,8 +308,10 @@
     <div class="container" id="mainContent">
         <h1>Bir yıl önce hayatıma girdin ve her şeyi güzelleştirdin.</h1>
         <p>Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim.</p>
-        <p id="loveCounter"></p> <!-- Sayaç burada görünecek -->
     </div>
+
+    <!-- Sayaç -->
+    <div class="counter" id="loveCounter"></div>
 
     <!-- Hamburger menü ikonu -->
     <div class="menu-icon" onclick="toggleMenu()">&#x2022;&#x2022;&#x2022;</div>
