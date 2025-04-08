@@ -412,8 +412,32 @@
             });
         }
     </script>
+<p id="loveCounter"></p>
+<script>
+    const startDate = new Date('2024-04-02'); // İlişkinizin başladığı tarih
+    const today = new Date();
+    const diffTime = Math.abs(today - startDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-     <script src="https://pixijs.download/v8.9.1/pixi.js"></script>
-    <script src="kurtar.js"></script>
+    document.getElementById('loveCounter').innerText = `Seninle tam ${diffDays} gündür birlikteyiz. 💗`;
+
+    <button onclick="showRandomMessage()" style="margin-top: 20px; padding: 10px 20px; border-radius: 20px; background-color: #ff69b4; border: none; color: white; font-size: 1em;">Bana Ne Söyledin?</button>
+<p id="randomMsg" style="margin-top: 15px;"></p>
+
+<script>
+    const messages = [
+        "Bugün seni çok özledim…",
+        "Senin yanındayken zaman duruyor gibi.",
+        "Hayatımda olduğun için çok mutluyum.",
+        "Seni tanıdığım gün, hayatımın dönüm noktasıydı."
+    ];
+
+    function showRandomMessage() {
+        const msg = messages[Math.floor(Math.random() * messages.length)];
+        document.getElementById('randomMsg').innerText = msg;
+    }
+</script>
+
+</script>
 </body>
 </html>
