@@ -78,8 +78,19 @@ async function loadAssets() {
             { alias: 'chest', src: 'assets/images/chest.png' }
         ];
 
-        // Asset manifestini yükle
-        await PIXI.Assets.init({ manifest: { bundles: [{ name: 'main', assets }] });
+                // Asset manifestini yükle
+        await PIXI.Assets.init({ 
+            manifest: { 
+                bundles: [
+                    { 
+                        name: 'main', 
+                        assets: assets 
+                    }
+                ] 
+            } 
+        });
+        
+        // Assetleri yükle
         await PIXI.Assets.loadBundle('main');
 
     } catch (error) {
