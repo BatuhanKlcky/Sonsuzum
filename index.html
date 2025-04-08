@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Senin İçin</title>
+
     <style>
         /* Genel boşlukları sıfırlayalım */
         * {
@@ -287,6 +288,7 @@
     <div class="container" id="mainContent">
         <h1>Bir yıl önce hayatıma girdin ve her şeyi güzelleştirdin.</h1>
         <p>Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim.</p>
+        <p id="loveCounter"></p> <!-- Sayaç burada görünecek -->
     </div>
 
     <!-- Hamburger menü ikonu -->
@@ -313,6 +315,14 @@
     <script>
         const correctPassword = '240424'; // Doğru şifre
 
+        // Sayaç kodu
+        const startDate = new Date('2024-04-24'); // Çıkma tarihini belirt
+        const today = new Date();
+        const diffTime = Math.abs(today - startDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        document.getElementById('loveCounter').innerText = `Birlikte geçirdiğimiz ${diffDays} özel günümüz var. 💖`;
+
         // Sayfa yüklendiğinde zaman kontrolü
         window.onload = function() {
             const lastAccess = localStorage.getItem('lastAccess');
@@ -326,13 +336,16 @@
                 document.getElementById('footer').style.display = 'block';
                 document.getElementById('pixelHeart').style.display = 'block';
                 document.getElementById('bgMusic').play(); // Şarkıyı başlat
-                createPixelHeart();
+            } else {
+                // Şifreyi göster
+                document.getElementById('passwordContainer').style.display = 'flex';
             }
-        }
+        };
 
+        // Şifreyi kontrol et
         function checkPassword() {
-            const inputPassword = document.getElementById('password').value;
-            if (inputPassword === correctPassword) {
+            const password = document.getElementById('password').value;
+            if (password === correctPassword) {
                 localStorage.setItem('lastAccess', Date.now());
                 document.getElementById('passwordContainer').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
@@ -340,104 +353,15 @@
                 document.getElementById('footer').style.display = 'block';
                 document.getElementById('pixelHeart').style.display = 'block';
                 document.getElementById('bgMusic').play(); // Şarkıyı başlat
-                createPixelHeart();
             } else {
-                alert('Yanlış şifre. Lütfen tekrar deneyin.');
+                alert('Şifre yanlış!');
             }
         }
 
+        // Menü açma/kapama
         function toggleMenu() {
             document.getElementById('menu').classList.toggle('open');
         }
-
-        // Pixel Kalp oluşturma ve animasyon
-        function createPixelHeart() {
-            const heart = document.getElementById('pixelHeart');
-            heart.innerHTML = '';
-            
-            // Pixel kalp şekli (5x5 grid)
-            const heartShape = [
-                [0, 1, 0, 1, 0],
-                [1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 1],
-                [0, 1, 1, 1, 0],
-                [0, 0, 1, 0, 0]
-            ];
-            
-            // Pixel'leri oluştur
-            for (let y = 0; y < 5; y++) {
-                for (let x = 0; x < 5; x++) {
-                    if (heartShape[y][x] === 1) {
-                        const pixel = document.createElement('div');
-                        pixel.className = 'pixel';
-                        pixel.style.left = (x * 8) + 'px';
-                        pixel.style.top = (y * 8) + 'px';
-                        
-                        // Rastgele animasyon gecikmesi
-                        pixel.style.transitionDelay = (Math.random() * 0.5) + 's';
-                        
-                        heart.appendChild(pixel);
-                    }
-                }
-            }
-            
-            // Animasyon için rastgele hareket
-            setInterval(() => {
-                const pixels = document.querySelectorAll('.pixel');
-                pixels.forEach(pixel => {
-                    // Küçük rastgele hareketler
-                    const moveX = (Math.random() - 0.5) * 10;
-                    const moveY = (Math.random() - 0.5) * 10;
-                    
-                    pixel.style.transform = `translate(${moveX}px, ${moveY}px)`;
-                    
-                    // Rastgele renk değişimi
-                    const hue = Math.floor(Math.random() * 30) + 330; // Pembe tonları
-                    pixel.style.backgroundColor = `hsl(${hue}, 100%, 70%)`;
-                });
-            }, 1000);
-            
-            // Tıklama efekti
-            heart.addEventListener('click', () => {
-                const pixels = document.querySelectorAll('.pixel');
-                pixels.forEach(pixel => {
-                    pixel.style.transform = 'translate(0, -20px) scale(1.5)';
-                    pixel.style.opacity = '0.7';
-                    
-                    setTimeout(() => {
-                        pixel.style.transform = 'translate(0, 0) scale(1)';
-                        pixel.style.opacity = '1';
-                    }, 300);
-                });
-            });
-        }
     </script>
-<p id="loveCounter"></p>
-<script>
-    const startDate = new Date('2024-04-02'); // İlişkinizin başladığı tarih
-    const today = new Date();
-    const diffTime = Math.abs(today - startDate);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    document.getElementById('loveCounter').innerText = `Seninle tam ${diffDays} gündür birlikteyiz. 💗`;
-
-    <button onclick="showRandomMessage()" style="margin-top: 20px; padding: 10px 20px; border-radius: 20px; background-color: #ff69b4; border: none; color: white; font-size: 1em;">Bana Ne Söyledin?</button>
-<p id="randomMsg" style="margin-top: 15px;"></p>
-
-<script>
-    const messages = [
-        "Bugün seni çok özledim…",
-        "Senin yanındayken zaman duruyor gibi.",
-        "Hayatımda olduğun için çok mutluyum.",
-        "Seni tanıdığım gün, hayatımın dönüm noktasıydı."
-    ];
-
-    function showRandomMessage() {
-        const msg = messages[Math.floor(Math.random() * messages.length)];
-        document.getElementById('randomMsg').innerText = msg;
-    }
-</script>
-
-</script>
 </body>
 </html>
