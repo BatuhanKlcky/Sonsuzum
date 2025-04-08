@@ -398,6 +398,35 @@
         }
     </script>
 
+    <!-- Sayaç -->
+<div class="counter" id="counter">
+    0 <!-- Başlangıç sayısı -->
+</div>
+
+<style>
+    /* Sayaç */
+    .counter {
+        position: fixed;
+        bottom: 20px;  /* Sayfanın en altına yakın */
+        left: 50%;
+        transform: translateX(-50%);  /* Yatayda ortalar */
+        color: #fff;
+        font-size: 2em;
+        font-weight: bold;
+        z-index: 100;
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+    }
+</style>
+
+<script>
+    // Sayaç için zamanlayıcı fonksiyonu
+    let counter = 0;
+    setInterval(function() {
+        counter++;
+        document.getElementById('counter').innerText = counter;
+    }, 1000); // Her saniyede bir sayaç 1 artar
+</script>
+
      <script src="https://pixijs.download/v8.9.1/pixi.js"></script>
     <script src="kurtar.js"></script>
 </body>
