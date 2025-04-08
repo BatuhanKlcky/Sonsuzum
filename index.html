@@ -6,7 +6,7 @@
     <title>Senin İçin</title>
 
     <style>
-        /* Genel boşlukları sıfırlayalım */
+        /* Genel stil ayarları */
         * {
             margin: 0;
             padding: 0;
@@ -26,116 +26,73 @@
             min-height: 100vh;
         }
 
-        /* Şifre giriş alanının modern tasarımı */
-        .password-container {
+        /* Sayaç ve animasyonlar */
+        .counter {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8); /* Buğulu arka plan */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 20;
-            animation: fadeIn 0.5s ease-out; /* Giriş animasyonu */
+            bottom: 20px;
+            right: 70px; /* Pixel kalbin hemen solunda */
+            font-size: 1.2em;
+            color: white;
+            font-weight: bold;
+            animation: moveLeft 1s infinite linear;
         }
 
-        /* Şifre giriş kutusu tasarımı */
-        .password-box {
-            background: linear-gradient(135deg, #ff4c8b, #ff69b4); /* Şık renk geçişi */
-            padding: 40px;
-            border-radius: 15px;
-            text-align: center;
-            width: 320px;
-            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
-            transform: scale(1);
-            animation: scaleUp 0.3s ease-in-out forwards; /* Animasyon ekledim */
-        }
-
-        /* Animasyonlar */
-        @keyframes fadeIn {
+        @keyframes moveLeft {
             0% {
-                opacity: 0;
+                right: 70px;
             }
             100% {
-                opacity: 1;
+                right: 100%;
             }
         }
 
-        @keyframes scaleUp {
+        /* Pixel Kalp için stil */
+        .pixel-heart {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 80px;
+            height: 80px;
+            background-color: #ff4c8b;
+            clip-path: polygon(50% 0%, 0% 35%, 0% 100%, 50% 85%, 100% 100%, 100% 35%);
+            animation: pulse 1.5s ease-in-out infinite;
+            cursor: pointer;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        /* Kalbin animasyonu */
+        @keyframes pulse {
             0% {
-                transform: scale(0.8);
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
             }
             100% {
                 transform: scale(1);
             }
         }
 
-        .password-box h2 {
-            font-size: 1.5em;
-            margin-bottom: 20px;
+        .pixel-heart:hover {
+            transform: scale(1.2);
+        }
+
+        /* Kalp üzerine gelindiğinde yazıyı gösterme */
+        .heart-text {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.2em;
             color: white;
             font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        .password-box input {
-            padding: 15px;
-            width: 100%;
-            margin-top: 15px;
-            border-radius: 25px;
-            border: none;
-            background-color: white;
-            font-size: 1em;
-            color: #333;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .password-box input:focus {
-            outline: none;
-            box-shadow: 0 0 10px #ff69b4;
-            border: 2px solid #ff69b4;
-        }
-
-        .password-box button {
-            padding: 15px;
-            background-color: #ff69b4;
-            border: none;
-            color: white;
-            font-size: 1.1em;
-            border-radius: 25px;
-            width: 100%;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: background-color 0.3s;
-        }
-
-        .password-box button:hover {
-            background-color: #ff4c8b;
-        }
-
-        /* Ana içerik için stil */
-        .container {
-            padding: 20px;
-            display: none;
-            position: relative;
-            z-index: 5;
-        }
-
-        h1 {
-            font-size: 3em;
-            color: #fff;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
-            line-height: 1.2;
-        }
-
-        p {
-            font-size: 1.5em;
-            max-width: 800px;
-            margin: 0 auto;
-            line-height: 1.8;
-            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+        .pixel-heart:hover .heart-text {
+            opacity: 1;
         }
 
         /* Menü düzeni */
@@ -180,11 +137,6 @@
             color: #ff4c8b;
         }
 
-        /* Menü açıldığında sağa kayma efekti */
-        .menu.open {
-            left: 0;
-        }
-
         /* Hamburger menü ikonu */
         .menu-icon {
             position: fixed;
@@ -195,46 +147,6 @@
             z-index: 15;
             color: white;
             padding: 10px;
-        }
-
-        /* Pixel Kalp */
-        .pixel-heart {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
-            z-index: 100;
-            cursor: pointer;
-            display: none;
-        }
-
-        .pixel {
-            width: 8px;
-            height: 8px;
-            background-color: #ff4c8b;
-            position: absolute;
-            transition: all 0.3s ease;
-        }
-
-        /* Sayaç hareketi */
-        .counter {
-            position: fixed;
-            bottom: 20px;
-            right: 70px; /* Pixel kalbin hemen solunda */
-            font-size: 1.2em;
-            color: white;
-            font-weight: bold;
-            animation: moveLeft 1s infinite linear;
-        }
-
-        @keyframes moveLeft {
-            0% {
-                right: 70px;
-            }
-            100% {
-                right: 100%;
-            }
         }
 
         /* Responsive Tasarım - Mobil için */
@@ -266,13 +178,12 @@
             }
 
             .pixel-heart {
-                width: 30px;
-                height: 30px;
+                width: 60px;
+                height: 60px;
             }
 
-            .pixel {
-                width: 6px;
-                height: 6px;
+            .heart-text {
+                font-size: 1em;
             }
         }
 
@@ -294,15 +205,6 @@
         <source src="https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
         Tarayıcınız ses dosyasını desteklemiyor.
     </audio>
-
-    <!-- Şifre giriş alanı -->
-    <div class="password-container" id="passwordContainer">
-        <div class="password-box">
-            <h2>Şifreyi Girin</h2>
-            <input type="password" id="password" placeholder="Şifre">
-            <button onclick="checkPassword()">Gönder</button>
-        </div>
-    </div>
 
     <!-- Ana içerik -->
     <div class="container" id="mainContent">
@@ -332,11 +234,11 @@
     </footer>
 
     <!-- Pixel Kalp -->
-    <div class="pixel-heart" id="pixelHeart"></div>
+    <div class="pixel-heart" id="pixelHeart">
+        <div class="heart-text">B KALP D</div>
+    </div>
 
     <script>
-        const correctPassword = '240424'; // Doğru şifre
-
         // Sayaç kodu
         const startDate = new Date('2024-04-24'); // Çıkma tarihini belirt
         const today = new Date();
@@ -344,41 +246,6 @@
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
         document.getElementById('loveCounter').innerText = `Birlikte geçirdiğimiz ${diffDays} özel günümüz var. 💖`;
-
-        // Sayfa yüklendiğinde zaman kontrolü
-        window.onload = function() {
-            const lastAccess = localStorage.getItem('lastAccess');
-            const currentTime = Date.now();
-            
-            if (lastAccess && (currentTime - lastAccess) < 600000) { // 600000 ms = 10 dakika
-                // 10 dakika içinde tekrar şifre isteme
-                document.getElementById('passwordContainer').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'block';
-                document.getElementById('menu').style.display = 'block';
-                document.getElementById('footer').style.display = 'block';
-                document.getElementById('pixelHeart').style.display = 'block';
-                document.getElementById('bgMusic').play(); // Şarkıyı başlat
-            } else {
-                // Şifreyi göster
-                document.getElementById('passwordContainer').style.display = 'flex';
-            }
-        };
-
-        // Şifreyi kontrol et
-        function checkPassword() {
-            const password = document.getElementById('password').value;
-            if (password === correctPassword) {
-                localStorage.setItem('lastAccess', Date.now());
-                document.getElementById('passwordContainer').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'block';
-                document.getElementById('menu').style.display = 'block';
-                document.getElementById('footer').style.display = 'block';
-                document.getElementById('pixelHeart').style.display = 'block';
-                document.getElementById('bgMusic').play(); // Şarkıyı başlat
-            } else {
-                alert('Şifre yanlış!');
-            }
-        }
 
         // Menü açma/kapama
         function toggleMenu() {
