@@ -1,132 +1,141 @@
-// kurtar.js - Dinamik Haritalı Güncel Sürüm
+// Oyun Başlatıcı ve Yükleyici
+let app, player, tileMap = [], tileSize = 32;
+const mapWidth = 30, mapHeight = 20;
+let keys = {};
 
-// 1. GEREKLİ ARAÇLAR
-const SimplexNoise = class {
-    constructor() { /* Gürültü fonksiyonu implementasyonu */ }
-    noise2D(x, y) { /* Perlin gürültü hesabı */ }
-};
-
-// 2. ANA OYUN DEĞİŞKENLERİ
-let app, character, dynamicMap;
 const gameState = {
     collectedClues: 0,
     hasKey: false,
     memoriesFound: 0,
-    exploredTiles: []
+    currentScene: 'forest',
+    scenes: {}
 };
 
-// 3. DİNAMİK HARİTA SINIFI (Yeni eklenen)
-class DynamicMap {
-    constructor() {
-        this.container = new PIXI.Container();
-        this.gridSize = 64;
-        this.mapWidth = 25;
-        this.mapHeight = 15;
-        this.tileTypes = {
-            ground: { color: 0x6a8c5e, walkable: true },
-            water: { color: 0x4a8bb5, walkable: false },
-            obstacle: { color: 0x5a4a3a, walkable: false }
-        };
-        this.generateMap();
-    }
-
-    generateMap() {
-        const noise = new SimplexNoise();
-        for (let y = 0; y < this.mapHeight; y++) {
-            for (let x = 0; x < this.mapWidth; x++) {
-                const value = noise.noise2D(x/8, y/8);
-                const tileType = value > 0.2 ? 'ground' : 
-                                value > -0.3 ? 'water' : 'obstacle';
-                this.createTile(x, y, tileType);
-            }
-        }
-        this.addDecorations();
-    }
-
-    createTile(x, y, type) {
-        const tile = new PIXI.Graphics()
-            .rect(0, 0, this.gridSize, this.gridSize)
-            .fill(this.tileTypes[type].color);
-        
-        tile.position.set(x * this.gridSize, y * this.gridSize);
-        tile.interactive = true;
-        tile.on('pointerdown', () => this.handleTileClick(x, y, type));
-        this.container.addChild(tile);
-    }
-
-    addDecorations() {
-        // ... dekorasyon ekleme kodu ...
-    }
-
-    handleTileClick(x, y, type) {
-        if (!this.tileTypes[type].walkable) {
-            showMessage("Bu alana gidilemez!");
-        } else {
-            character.targetPosition = { x: x * this.gridSize + this.gridSize/2, 
-                                       y: y * this.gridSize + this.gridSize/2 };
-        }
-    }
-}
-
-// 4. OYUN BAŞLATMA
-async function initGame() {
+window.addEventListener('DOMContentLoaded', async () => {
     app = new PIXI.Application();
-    await app.init({ resizeTo: window, background: 0x0d1c2e });
-    
-    document.getElementById('gameContainer').appendChild(app.canvas);
-    
-    // Dinamik harita oluştur
-    dynamicMap = new DynamicMap();
-    app.stage.addChild(dynamicMap.container);
-    
-    // Karakter oluştur
-    character = new PIXI.Sprite(PIXI.Texture.WHITE);
-    character.tint = 0xff0000;
-    character.anchor.set(0.5);
-    character.width = character.height = 30;
-    character.position.set(400, 300);
-    dynamicMap.container.addChild(character);
-    
-    // Kontrolleri ayarla
+    await app.init({ width: tileSize * mapWidth, height: tileSize * mapHeight, background: '#1d1f2b' });
+    document.body.appendChild(app.canvas);
+    await loadAssets();
+    setupMap();
+    createPlayer();
     setupControls();
+    setupGameLoop();
+});
+
+// Asset Yükleme
+async function loadAssets() {
+    await PIXI.Assets.init({
+        manifest: {
+            bundles: [{
+                name: 'main',
+                assets: [
+                    { alias: 'character', src: 'assets/images/character.png' },
+                    { alias: 'chest', src: 'assets/images/chest.png' },
+                    { alias: 'clue', src: 'assets/images/clue.png' },
+                    { alias: 'key', src: 'assets/images/key.png' },
+                    { alias: 'tile_grass', src: 'assets/tiles/grass.png' },
+                    { alias: 'tile_stone', src: 'assets/tiles/stone.png' },
+                    { alias: 'tile_door', src: 'assets/tiles/door.png' }
+                ]
+            }]
+        }
+    });
+    await PIXI.Assets.loadBundle('main');
 }
 
-// 5. KONTROL SİSTEMİ (Güncellendi)
+// Harita Oluşturma
+function setupMap() {
+    for (let y = 0; y < mapHeight; y++) {
+        tileMap[y] = [];
+        for (let x = 0; x < mapWidth; x++) {
+            const tileSprite = new PIXI.Sprite(PIXI.Assets.get('tile_grass'));
+            tileSprite.x = x * tileSize;
+            tileSprite.y = y * tileSize;
+            tileSprite.width = tileSize;
+            tileSprite.height = tileSize;
+            tileMap[y][x] = tileSprite;
+            app.stage.addChild(tileSprite);
+        }
+    }
+
+    // Örnek engel & ipuçları
+    const stone = new PIXI.Sprite(PIXI.Assets.get('tile_stone'));
+    stone.x = 10 * tileSize;
+    stone.y = 10 * tileSize;
+    stone.width = tileSize;
+    stone.height = tileSize;
+    app.stage.addChild(stone);
+
+    const clue = new PIXI.Sprite(PIXI.Assets.get('clue'));
+    clue.x = 5 * tileSize;
+    clue.y = 5 * tileSize;
+    clue.width = tileSize;
+    clue.height = tileSize;
+    clue.eventMode = 'static';
+    clue.cursor = 'pointer';
+    clue.on('pointerdown', () => {
+        clue.visible = false;
+        gameState.collectedClues++;
+        showMessage("Bir ipucu buldun! Toplam: " + gameState.collectedClues);
+    });
+    app.stage.addChild(clue);
+}
+
+// Karakter Oluşturma
+function createPlayer() {
+    player = new PIXI.Sprite(PIXI.Assets.get('character'));
+    player.x = 2 * tileSize;
+    player.y = 2 * tileSize;
+    player.width = tileSize;
+    player.height = tileSize;
+    app.stage.addChild(player);
+}
+
+// Kontroller
 function setupControls() {
-    const keys = {};
     window.addEventListener('keydown', (e) => keys[e.key] = true);
     window.addEventListener('keyup', (e) => keys[e.key] = false);
-    
+}
+
+// Oyun Döngüsü
+function setupGameLoop() {
+    const speed = 2;
     app.ticker.add(() => {
-        // Hareket mantığı
-        const speed = 3;
-        if (keys.ArrowUp) character.y -= speed;
-        if (keys.ArrowDown) character.y += speed;
-        if (keys.ArrowLeft) character.x -= speed;
-        if (keys.ArrowRight) character.x += speed;
-        
-        // Harita sınır kontrolü
-        character.x = Math.max(30, Math.min(dynamicMap.mapWidth * dynamicMap.gridSize - 30, character.x));
-        character.y = Math.max(30, Math.min(dynamicMap.mapHeight * dynamicMap.gridSize - 30, character.y));
-        
-        // Keşif kontrolü
-        checkExploration();
+        let dx = 0, dy = 0;
+        if (keys['ArrowLeft'] || keys['a']) dx = -speed;
+        if (keys['ArrowRight'] || keys['d']) dx = speed;
+        if (keys['ArrowUp'] || keys['w']) dy = -speed;
+        if (keys['ArrowDown'] || keys['s']) dy = speed;
+
+        const newX = player.x + dx;
+        const newY = player.y + dy;
+
+        const tile = getTileAt(newX, newY);
+        if (tile) {
+            player.x = newX;
+            player.y = newY;
+        }
     });
 }
 
-// 6. KEŞİF MEKANİĞİ
-function checkExploration() {
-    const tileX = Math.floor(character.x / dynamicMap.gridSize);
-    const tileY = Math.floor(character.y / dynamicMap.gridSize);
-    const tileId = `${tileX},${tileY}`;
-    
-    if (!gameState.exploredTiles.includes(tileId)) {
-        gameState.exploredTiles.push(tileId);
-        if (Math.random() > 0.7) spawnClue(tileX, tileY);
-    }
+// Harita İçinde Koordinat Kontrolü
+function getTileAt(x, y) {
+    const col = Math.floor(x / tileSize);
+    const row = Math.floor(y / tileSize);
+    if (row < 0 || col < 0 || row >= mapHeight || col >= mapWidth) return null;
+    return tileMap[row][col];
 }
 
-// 7. DİĞER FONKSİYONLAR (showMessage, changeScene vb.) aynı kalacak
-
-// Oyunu başlat
-window.addEventListener('DOMContentLoaded', initGame);
+// Mesaj Gösterici
+function showMessage(text) {
+    const msg = new PIXI.Text(text, {
+        fontSize: 18,
+        fill: 0xffffff,
+        stroke: 0x000000,
+        strokeThickness: 4
+    });
+    msg.x = 10;
+    msg.y = 10;
+    app.stage.addChild(msg);
+    setTimeout(() => app.stage.removeChild(msg), 3000);
+}
