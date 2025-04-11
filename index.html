@@ -1,206 +1,346 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bir Yıllık Aşkımız</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #f8e1f4, #ffe6e6);
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senin İçin</title>
+    <style>
+        /* Genel boşlukları sıfırlayalım */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    #lockscreen {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
-    }
+        body {
+            background-image: url('https://i.imgur.com/iwhcNjJ.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            color: #fff;
+            text-align: center;
+            min-height: 100vh;
+        }
 
-    #mainContent {
-      display: none;
-      padding: 40px;
-      text-align: center;
-      animation: fadeIn 2s ease-in-out;
-    }
+        /* Şifre giriş alanının modern tasarımı */
+        .password-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8); /* Buğulu arka plan */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            animation: fadeIn 0.5s ease-out; /* Giriş animasyonu */
+        }
 
-    .heart {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
+        /* Şifre giriş kutusu tasarımı */
+        .password-box {
+            background: linear-gradient(135deg, #ff4c8b, #ff69b4); /* Şık renk geçişi */
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            width: 320px;
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+            transform: scale(1);
+            animation: scaleUp 0.3s ease-in-out forwards; /* Animasyon ekledim */
+        }
 
-    .heart:hover {
-      transform: scale(1.05);
-    }
+        /* Animasyonlar */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
 
-    .pixel-heart {
-      display: grid;
-      grid-template-columns: repeat(5, 20px);
-      grid-template-rows: repeat(5, 20px);
-      gap: 2px;
-    }
+        @keyframes scaleUp {
+            0% {
+                transform: scale(0.8);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
 
-    .pixel {
-      width: 20px;
-      height: 20px;
-      background-color: #ff69b4;
-      border-radius: 3px;
-      transition: box-shadow 0.3s ease;
-    }
+        .password-box h2 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: white;
+            font-weight: bold;
+        }
 
-    .pixel-heart:hover .pixel {
-      box-shadow: 0 0 5px #fff;
-    }
+        .password-box input {
+            padding: 15px;
+            width: 100%;
+            margin-top: 15px;
+            border-radius: 25px;
+            border: none;
+            background-color: white;
+            font-size: 1em;
+            color: #333;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
 
-    .pixel.transparent {
-      background-color: transparent;
-    }
+        .password-box input:focus {
+            outline: none;
+            box-shadow: 0 0 10px #ff69b4;
+            border: 2px solid #ff69b4;
+        }
 
-    #password {
-      margin-top: 20px;
-      padding: 10px;
-      border: 2px solid #fff;
-      border-radius: 10px;
-      font-size: 16px;
-      text-align: center;
-    }
+        .password-box button {
+            padding: 15px;
+            background-color: #ff69b4;
+            border: none;
+            color: white;
+            font-size: 1.1em;
+            border-radius: 25px;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
 
-    @keyframes fadeIn {
-      0% {opacity: 0;}
-      100% {opacity: 1;}
-    }
+        .password-box button:hover {
+            background-color: #ff4c8b;
+        }
 
-    @keyframes shake {
-      0% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      50% { transform: translateX(5px); }
-      75% { transform: translateX(-5px); }
-      100% { transform: translateX(0); }
-    }
+        /* Ana içerik için stil */
+        .container {
+            padding: 20px;
+            display: none;
+            position: relative;
+            z-index: 5;
+        }
 
-    .shake {
-      animation: shake 0.3s ease-in-out;
-      border: 2px solid red !important;
-    }
+        h1 {
+            font-size: 3em;
+            color: #fff;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+            line-height: 1.2;
+        }
 
-    #message {
-      font-size: 24px;
-      margin-top: 40px;
-      color: #e91e63;
-    }
+        p {
+            font-size: 1.5em;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+        }
 
-    #musicControl {
-      position: fixed;
-      bottom: 80px;
-      right: 20px;
-      z-index: 100;
-      padding: 10px 15px;
-      border-radius: 20px;
-      background: #ff69b4;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-    }
-  </style>
+        /* Menü düzeni */
+        .menu {
+            position: fixed;
+            top: 0;
+            left: -100%; /* Menü başlangıçta gizli */
+            background-color: #ff69b4;
+            color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            width: 25%;
+            height: 100%;
+            transition: 0.3s ease-in-out;
+            z-index: 10;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .menu a {
+            display: block;
+            margin: 15px 0;
+            text-decoration: none;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .menu a:hover {
+            color: #ff4c8b;
+        }
+
+        footer {
+            margin-top: 40px;
+            display: none;
+        }
+
+        footer a {
+            text-decoration: none;
+            color: #ff69b4;
+        }
+
+        footer a:hover {
+            color: #ff4c8b;
+        }
+
+        /* Menü açıldığında sağa kayma efekti */
+        .menu.open {
+            left: 0;
+        }
+
+        /* Hamburger menü ikonu */
+        .menu-icon {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            z-index: 15;
+            color: white;
+            padding: 10px;
+        }
+
+        /* Pixel Kalp */
+        .pixel-heart {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            z-index: 100;
+            cursor: pointer;
+            display: none;
+        }
+
+        .pixel {
+            width: 8px;
+            height: 8px;
+            background-color: #ff4c8b;
+            position: absolute;
+            transition: all 0.3s ease;
+        }
+
+        /* Responsive Tasarım - Mobil için */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2em;
+                line-height: 1.4;
+            }
+
+            p {
+                font-size: 1.2em;
+                max-width: 100%;
+            }
+
+            .password-box {
+                width: 80%;
+                padding: 30px;
+            }
+
+            .menu {
+                width: 70%;
+                padding: 20px;
+            }
+
+            .menu-icon {
+                top: 10px;
+                left: 10px;
+                font-size: 28px;
+            }
+
+            .pixel-heart {
+                width: 30px;
+                height: 30px;
+            }
+
+            .pixel {
+                width: 6px;
+                height: 6px;
+            }
+        }
+
+        /* Full screen için */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            p {
+                font-size: 1em;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div id="lockscreen">
-    <div class="heart" onclick="checkPassword()" id="heart">
-      <div class="pixel-heart">
-        <div class="pixel"></div>
-        <div class="pixel"></div>
-        <div class="pixel"></div>
-        <div class="pixel"></div>
-        <div class="pixel"></div>
+    <audio autoplay loop>
+        <source src="https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
+        Tarayıcınız ses dosyasını desteklemiyor.
+    </audio>
 
-        <div class="pixel"></div>
-        <div class="pixel"></div>
-        <div class="pixel"></div>
-        <div class="pixel"></div>
-        <div class="pixel"></div>
-
-        <div class="pixel"></div>
-        <div class="pixel"></div>
-        <div class="pixel"></div>
-        <div class="pixel"></div>
-        <div class="pixel"></div>
-
-        <div class="pixel"></div>
-        <div class="pixel"></div>
-        <div class="pixel"></div>
-        <div class="pixel"></div>
-        <div class="pixel"></div>
-
-        <div class="pixel"></div>
-        <div class="pixel"></div>
-        <div class="pixel"></div>
-        <div class="pixel"></div>
-        <div class="pixel"></div>
-      </div>
+    <!-- Şifre giriş alanı -->
+    <div class="password-container" id="passwordContainer">
+        <div class="password-box">
+            <h2>Şifreyi Girin</h2>
+            <input type="password" id="password" placeholder="Şifre">
+            <button onclick="checkPassword()">Gönder</button>
+        </div>
     </div>
-    <input type="password" id="password" placeholder="Şifreyi gir ve kalbe tıkla...">
-  </div>
 
-  <div id="mainContent">
-    <h1>Bir Yıllık Aşkımız</h1>
-    <p id="message">Bir yıl önce hayatıma girdin ve her şeyi güzelleştirdin. Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim.</p>
-  </div>
+    <!-- Ana içerik -->
+    <div class="container" id="mainContent">
+        <h1>Bir yıl önce hayatıma girdin ve her şeyi güzelleştirdin.</h1>
+        <p>Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim.</p>
 
-  <audio id="bgMusic" autoplay loop>
-    <source src="ac-kapiyi.mp3" type="audio/mpeg">
-    Tarayıcınız bu ses öğesini desteklemiyor.
-  </audio>
+        <!-- Sayaç -->
+        <p id="timer" style="margin-top: 20px; font-size: 20px; color: #333;"></p>
+    </div>
 
-  <button id="musicControl">♫ Durdur</button>
+    <!-- Hamburger menü ikonu -->
+    <div class="menu-icon" onclick="toggleMenu()">&#x2022;&#x2022;&#x2022;</div>
 
-  <script>
-    const music = document.getElementById('bgMusic');
-    const musicBtn = document.getElementById('musicControl');
-    const input = document.getElementById('password');
-    const heart = document.getElementById('heart');
-    let clickCount = 0;
+    <!-- Menü -->
+    <div class="menu" id="menu">
+        <a href="zaman-tuneli.html">Zaman Tüneli</a>
+        <a href="galeri.html">Fotoğraf Galerisi</a>
+        <a href="mesajlar.html">Özel Mesajlar & Şiirler</a>
+        <a href="flower-page.html">Çiçek Yeri</a>
+        <a href="xox.html">XOX Oyunu</a>
+        <a href="yarisoyunu.html">Yarış Oyunu</a>
+        <a href="duello.html">Düello</a>
+    </div>
 
-    heart.addEventListener('click', () => {
-      clickCount++;
-      if (clickCount === 10) {
-        alert("Sana her gün yeniden âşık oluyorum... ❤️");
-      }
-    });
+    <footer id="footer">
+        <p>&copy; 2025 Senin İçin. Tüm Sevgim sende saklıdır.</p>
+    </footer>
 
-    musicBtn.addEventListener('click', () => {
-      if (music.paused) {
-        music.play();
-        musicBtn.textContent = '♫ Durdur';
-      } else {
-        music.pause();
-        musicBtn.textContent = '♫ Çal';
-      }
-    });
+    <!-- Pixel Kalp -->
+    <div class="pixel-heart" id="pixelHeart"></div>
 
-    function checkPassword() {
-      const inputPassword = input.value;
-      if (inputPassword === "240424") {
-        document.getElementById('lockscreen').style.display = 'none';
-        document.getElementById('mainContent').style.display = 'block';
-        music.play();
-      } else {
-        input.classList.add('shake');
-        setTimeout(() => {
-          input.classList.remove('shake');
-        }, 500);
-        alert('Yanlış şifre. Lütfen tekrar deneyin.');
-      }
-    }
-  </script>
+    <script>
+        let timerElement = document.getElementById('timer');
+        let startDate = new Date('2024-04-24T00:00:00'); // Başlangıç tarihi
+        let interval = setInterval(function() {
+            let now = new Date();
+            let diff = now - startDate;
+            let days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            let hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            let minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            let seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            timerElement.innerHTML = `Geçen süre: ${days}g ${hours}s ${minutes}d ${seconds}s`;
+        }, 1000);
+
+        // Şifre kontrolü
+        const correctPassword = '240424';
+
+        function checkPassword() {
+            let password = document.getElementById('password').value;
+            if (password === correctPassword) {
+                document.getElementById('passwordContainer').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                document.getElementById('menu').style.display = 'block';
+                document.getElementById('footer').style.display = 'block';
+                document.getElementById('pixelHeart').style.display = 'block';
+            } else {
+                alert('Yanlış şifre!');
+            }
+        }
+    </script>
 </body>
 </html>
