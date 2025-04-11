@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Senin İçin</title>
+
     <style>
         /* Genel boşlukları sıfırlayalım */
         * {
@@ -389,11 +390,11 @@
                     const moveX = (Math.random() - 0.5) * 10;
                     const moveY = (Math.random() - 0.5) * 10;
                     
-                    pixel.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                    pixel.style.transform = translate(${moveX}px, ${moveY}px);
                     
                     // Rastgele renk değişimi
                     const hue = Math.floor(Math.random() * 30) + 330; // Pembe tonları
-                    pixel.style.backgroundColor = `hsl(${hue}, 100%, 70%)`;
+                    pixel.style.backgroundColor = hsl(${hue}, 100%, 70%);
                 });
             }, 1000);
             
@@ -412,15 +413,8 @@
             });
         }
     </script>
-<p id="loveCounter"></p>
-<script>
-    const startDate = new Date('2024-04-02'); // İlişkinizin başladığı tarih
-    const today = new Date();
-    const diffTime = Math.abs(today - startDate);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    document.getElementById('loveCounter').innerText = `Seninle tam ${diffDays} gündür birlikteyiz. 💗`;
-
-</script>
+     <script src="https://pixijs.download/v8.9.1/pixi.js"></script>
+    <script src="kurtar.js"></script>
 </body>
 </html>
