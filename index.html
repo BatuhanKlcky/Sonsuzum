@@ -14,7 +14,7 @@
 
     <style>
 
-        /* Genel boşlukları sıfırlayalım */
+        /* Genel stil ayarları */
 
         * {
 
@@ -54,73 +54,39 @@
 
 
 
-        /* Şifre giriş alanının modern tasarımı */
+        /* Sayaç ve animasyonlar */
 
-        .password-container {
+        .counter {
 
             position: fixed;
 
-            top: 0;
+            bottom: 20px;
 
-            left: 0;
+            right: 70px; /* Pixel kalbin hemen solunda */
 
-            width: 100%;
+            font-size: 1.2em;
 
-            height: 100%;
+            color: white;
 
-            background: rgba(0, 0, 0, 0.8); /* Buğulu arka plan */
+            font-weight: bold;
 
-            display: flex;
-
-            justify-content: center;
-
-            align-items: center;
-
-            z-index: 20;
-
-            animation: fadeIn 0.5s ease-out; /* Giriş animasyonu */
+            animation: moveLeft 1s infinite linear;
 
         }
 
 
 
-        /* Şifre giriş kutusu tasarımı */
-
-        .password-box {
-
-            background: linear-gradient(135deg, #ff4c8b, #ff69b4); /* Şık renk geçişi */
-
-            padding: 40px;
-
-            border-radius: 15px;
-
-            text-align: center;
-
-            width: 320px;
-
-            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
-
-            transform: scale(1);
-
-            animation: scaleUp 0.3s ease-in-out forwards; /* Animasyon ekledim */
-
-        }
-
-
-
-        /* Animasyonlar */
-
-        @keyframes fadeIn {
+        @keyframes moveLeft {
 
             0% {
 
-                opacity: 0;
+                right: 70px;
 
             }
 
             100% {
 
-                opacity: 1;
+                right: 100%;
 
             }
 
@@ -128,11 +94,49 @@
 
 
 
-        @keyframes scaleUp {
+        /* Pixel Kalp için stil */
+
+        .pixel-heart {
+
+            position: fixed;
+
+            bottom: 20px;
+
+            right: 20px;
+
+            width: 80px;
+
+            height: 80px;
+
+            background-color: #ff4c8b;
+
+            clip-path: polygon(50% 0%, 0% 35%, 0% 100%, 50% 85%, 100% 100%, 100% 35%);
+
+            animation: pulse 1.5s ease-in-out infinite;
+
+            cursor: pointer;
+
+            z-index: 100;
+
+            transition: transform 0.3s ease;
+
+        }
+
+
+
+        /* Kalbin animasyonu */
+
+        @keyframes pulse {
 
             0% {
 
-                transform: scale(0.8);
+                transform: scale(1);
+
+            }
+
+            50% {
+
+                transform: scale(1.1);
 
             }
 
@@ -146,133 +150,43 @@
 
 
 
-        .password-box h2 {
+        .pixel-heart:hover {
 
-            font-size: 1.5em;
+            transform: scale(1.2);
 
-            margin-bottom: 20px;
+        }
+
+
+
+        /* Kalp üzerine gelindiğinde yazıyı gösterme */
+
+        .heart-text {
+
+            position: absolute;
+
+            top: -30px;
+
+            left: 50%;
+
+            transform: translateX(-50%);
+
+            font-size: 1.2em;
 
             color: white;
 
             font-weight: bold;
 
-        }
+            opacity: 0;
 
-
-
-        .password-box input {
-
-            padding: 15px;
-
-            width: 100%;
-
-            margin-top: 15px;
-
-            border-radius: 25px;
-
-            border: none;
-
-            background-color: white;
-
-            font-size: 1em;
-
-            color: #333;
-
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.3s ease;
 
         }
 
 
 
-        .password-box input:focus {
+        .pixel-heart:hover .heart-text {
 
-            outline: none;
-
-            box-shadow: 0 0 10px #ff69b4;
-
-            border: 2px solid #ff69b4;
-
-        }
-
-
-
-        .password-box button {
-
-            padding: 15px;
-
-            background-color: #ff69b4;
-
-            border: none;
-
-            color: white;
-
-            font-size: 1.1em;
-
-            border-radius: 25px;
-
-            width: 100%;
-
-            cursor: pointer;
-
-            margin-top: 20px;
-
-            transition: background-color 0.3s;
-
-        }
-
-
-
-        .password-box button:hover {
-
-            background-color: #ff4c8b;
-
-        }
-
-
-
-        /* Ana içerik için stil */
-
-        .container {
-
-            padding: 20px;
-
-            display: none;
-
-            position: relative;
-
-            z-index: 5;
-
-        }
-
-
-
-        h1 {
-
-            font-size: 3em;
-
-            color: #fff;
-
-            margin-bottom: 20px;
-
-            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
-
-            line-height: 1.2;
-
-        }
-
-
-
-        p {
-
-            font-size: 1.5em;
-
-            max-width: 800px;
-
-            margin: 0 auto;
-
-            line-height: 1.8;
-
-            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+            opacity: 1;
 
         }
 
@@ -362,16 +276,6 @@
 
 
 
-        /* Menü açıldığında sağa kayma efekti */
-
-        .menu.open {
-
-            left: 0;
-
-        }
-
-
-
         /* Hamburger menü ikonu */
 
         .menu-icon {
@@ -391,46 +295,6 @@
             color: white;
 
             padding: 10px;
-
-        }
-
-
-
-        /* Pixel Kalp */
-
-        .pixel-heart {
-
-            position: fixed;
-
-            bottom: 20px;
-
-            right: 20px;
-
-            width: 40px;
-
-            height: 40px;
-
-            z-index: 100;
-
-            cursor: pointer;
-
-            display: none;
-
-        }
-
-
-
-        .pixel {
-
-            width: 8px;
-
-            height: 8px;
-
-            background-color: #ff4c8b;
-
-            position: absolute;
-
-            transition: all 0.3s ease;
 
         }
 
@@ -494,19 +358,17 @@
 
             .pixel-heart {
 
-                width: 30px;
+                width: 60px;
 
-                height: 30px;
+                height: 60px;
 
             }
 
 
 
-            .pixel {
+            .heart-text {
 
-                width: 6px;
-
-                height: 6px;
+                font-size: 1em;
 
             }
 
@@ -552,24 +414,6 @@
 
 
 
-    <!-- Şifre giriş alanı -->
-
-    <div class="password-container" id="passwordContainer">
-
-        <div class="password-box">
-
-            <h2>Şifreyi Girin</h2>
-
-            <input type="password" id="password" placeholder="Şifre">
-
-            <button onclick="checkPassword()">Gönder</button>
-
-        </div>
-
-    </div>
-
-
-
     <!-- Ana içerik -->
 
     <div class="container" id="mainContent">
@@ -579,6 +423,12 @@
         <p>Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim.</p>
 
     </div>
+
+
+
+    <!-- Sayaç -->
+
+    <div class="counter" id="loveCounter"></div>
 
 
 
@@ -620,81 +470,33 @@
 
     <!-- Pixel Kalp -->
 
-    <div class="pixel-heart" id="pixelHeart"></div>
+    <div class="pixel-heart" id="pixelHeart">
+
+        <div class="heart-text">B KALP D</div>
+
+    </div>
 
 
 
     <script>
 
-        const correctPassword = '240424'; // Doğru şifre
+        // Sayaç kodu
+
+        const startDate = new Date('2024-04-24'); // Çıkma tarihini belirt
+
+        const today = new Date();
+
+        const diffTime = Math.abs(today - startDate);
+
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
 
 
-        // Sayfa yüklendiğinde zaman kontrolü
-
-        window.onload = function() {
-
-            const lastAccess = localStorage.getItem('lastAccess');
-
-            const currentTime = Date.now();
-
-            
-
-            if (lastAccess && (currentTime - lastAccess) < 600000) { // 600000 ms = 10 dakika
-
-                // 10 dakika içinde tekrar şifre isteme
-
-                document.getElementById('passwordContainer').style.display = 'none';
-
-                document.getElementById('mainContent').style.display = 'block';
-
-                document.getElementById('menu').style.display = 'block';
-
-                document.getElementById('footer').style.display = 'block';
-
-                document.getElementById('pixelHeart').style.display = 'block';
-
-                document.getElementById('bgMusic').play(); // Şarkıyı başlat
-
-                createPixelHeart();
-
-            }
-
-        }
+        document.getElementById('loveCounter').innerText = `Birlikte geçirdiğimiz ${diffDays} özel günümüz var. 💖`;
 
 
 
-        function checkPassword() {
-
-            const inputPassword = document.getElementById('password').value;
-
-            if (inputPassword === correctPassword) {
-
-                localStorage.setItem('lastAccess', Date.now());
-
-                document.getElementById('passwordContainer').style.display = 'none';
-
-                document.getElementById('mainContent').style.display = 'block';
-
-                document.getElementById('menu').style.display = 'block';
-
-                document.getElementById('footer').style.display = 'block';
-
-                document.getElementById('pixelHeart').style.display = 'block';
-
-                document.getElementById('bgMusic').play(); // Şarkıyı başlat
-
-                createPixelHeart();
-
-            } else {
-
-                alert('Yanlış şifre. Lütfen tekrar deneyin.');
-
-            }
-
-        }
-
-
+        // Menü açma/kapama
 
         function toggleMenu() {
 
@@ -702,106 +504,8 @@
 
         }
 
-
-
-        // Pixel Kalp oluşturma ve animasyon
-
-        function createPixelHeart() {
-
-            const heart = document.getElementById('pixelHeart');
-
-            heart.innerHTML = '';
-
-            
-
-            // Pixel kalp şekli (5x5 grid)
-
-            const heartShape = [
-
-                [0, 1, 0, 1, 0],
-
-                [1, 1, 1, 1, 1],
-
-                [1, 1, 1, 1, 1],
-
-                [0, 1, 1, 1, 0],
-
-                [0, 0, 1, 0, 0]
-
-            ];
-
-            
-
-            // Pixel'leri oluştur
-
-            for (let y = 0; y < 5; y++) {
-
-                for (let x = 0; x < 5; x++) {
-
-                    if (heartShape[y][x] === 1) {
-
-                        const pixel = document.createElement('div');
-
-                        pixel.className = 'pixel';
-
-                        pixel.style.left = (x * 8) + 'px';
-
-                        pixel.style.top = (y * 8) + 'px';
-
-                        
-
-                        // Rastgele animasyon gecikmesi
-
-                        pixel.style.transitionDelay = (Math.random() * 0.5) + 's';
-
-                        
-
-                        heart.appendChild(pixel);
-
-                    }
-
-                }
-
-            } 
-
-            
-
-            // Tıklama efekti
-
-            heart.addEventListener('click', () => {
-
-                const pixels = document.querySelectorAll('.pixel');
-
-                pixels.forEach(pixel => {
-
-                    pixel.style.transform = 'translate(0, -20px) scale(1.5)';
-
-                    pixel.style.opacity = '0.7';
-
-                    
-
-                    setTimeout(() => {
-
-                        pixel.style.transform = 'translate(0, 0) scale(1)';
-
-                        pixel.style.opacity = '1';
-
-                    }, 300);
-
-                });
-
-            });
-
-        }
-
     </script>
-
-
-
-     <script src="https://pixijs.download/v8.9.1/pixi.js"></script>
-
-    <script src="kurtar.js"></script>
 
 </body>
 
-</html
+</html>
