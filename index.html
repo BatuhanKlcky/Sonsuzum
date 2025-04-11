@@ -350,67 +350,51 @@
             document.getElementById('menu').classList.toggle('open');
         }
 
-        // Pixel Kalp oluşturma ve animasyon
-        function createPixelHeart() {
-            const heart = document.getElementById('pixelHeart');
-            heart.innerHTML = '';
-            
-            // Pixel kalp şekli (5x5 grid)
-            const heartShape = [
-                [0, 1, 0, 1, 0],
-                [1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 1],
-                [0, 1, 1, 1, 0],
-                [0, 0, 1, 0, 0]
-            ];
-            
-            // Pixel'leri oluştur
-            for (let y = 0; y < 5; y++) {
-                for (let x = 0; x < 5; x++) {
-                    if (heartShape[y][x] === 1) {
-                        const pixel = document.createElement('div');
-                        pixel.className = 'pixel';
-                        pixel.style.left = (x * 8) + 'px';
-                        pixel.style.top = (y * 8) + 'px';
-                        
-                        // Rastgele animasyon gecikmesi
-                        pixel.style.transitionDelay = (Math.random() * 0.5) + 's';
-                        
-                        heart.appendChild(pixel);
-                    }
-                }
-            }
-            
-            // Animasyon için rastgele hareket
-            setInterval(() => {
-                const pixels = document.querySelectorAll('.pixel');
-                pixels.forEach(pixel => {
-                    // Küçük rastgele hareketler
-                    const moveX = (Math.random() - 0.5) * 10;
-                    const moveY = (Math.random() - 0.5) * 10;
-                    
-                    pixel.style.transform = `translate(${moveX}px, ${moveY}px)`;
-                    
-                    // Rastgele renk değişimi
-                    const hue = Math.floor(Math.random() * 30) + 330; // Pembe tonları
-                    pixel.style.backgroundColor = `hsl(${hue}, 100%, 70%)`;
-                });
-            }, 1000);
-            
-            // Tıklama efekti
-            heart.addEventListener('click', () => {
-                const pixels = document.querySelectorAll('.pixel');
-                pixels.forEach(pixel => {
-                    pixel.style.transform = 'translate(0, -20px) scale(1.5)';
-                    pixel.style.opacity = '0.7';
-                    
-                    setTimeout(() => {
-                        pixel.style.transform = 'translate(0, 0) scale(1)';
-                        pixel.style.opacity = '1';
-                    }, 300);
-                });
-            });
-        }
+// Animasyon için rastgele hareket
+let heartAnimation; // kontrol için tanımla
+
+function animatePixels() {
+    heartAnimation = setInterval(() => {
+        const pixels = document.querySelectorAll('.pixel');
+        pixels.forEach(pixel => {
+            const moveX = (Math.random() - 0.5) * 10;
+            const moveY = (Math.random() - 0.5) * 10;
+
+            pixel.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            const hue = Math.floor(Math.random() * 30) + 330; // Pembe tonları
+            pixel.style.backgroundColor = `hsl(${hue}, 100%, 70%)`;
+        });
+    }, 1000);
+}
+
+animatePixels(); // Başlangıçta başlat
+
+// Kalbe dönüşme fonksiyonu
+function assembleHeart() {
+    clearInterval(heartAnimation); // Rastgele animasyonu durdur
+
+    const pixels = document.querySelectorAll('.pixel');
+    pixels.forEach((pixel, index) => {
+        pixel.style.transform = `translate(0px, 0px) scale(1)`;
+        pixel.style.opacity = '1';
+        pixel.style.backgroundColor = '#ff4c8b';
+    });
+
+    // Birkaç saniye sonra tekrar dağılsın
+    setTimeout(() => {
+        disperseHeart();
+    }, 4000); // 4 saniye sonra dağılsın
+}
+
+// Yeniden dağılma fonksiyonu
+function disperseHeart() {
+    animatePixels(); // Rastgele animasyonu yeniden başlat
+}
+
+// Tıklama efekti
+heart.addEventListener('click', () => {
+    assembleHeart(); // Kalp şekline geç
+});
     </script>
 
 </body>
