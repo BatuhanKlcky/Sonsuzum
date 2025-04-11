@@ -380,23 +380,7 @@
                         heart.appendChild(pixel);
                     }
                 }
-            }
-            
-            // Animasyon için rastgele hareket
-            setInterval(() => {
-                const pixels = document.querySelectorAll('.pixel');
-                pixels.forEach(pixel => {
-                    // Küçük rastgele hareketler
-                    const moveX = (Math.random() - 0.5) * 10;
-                    const moveY = (Math.random() - 0.5) * 10;
-                    
-                    pixel.style.transform = translate(${moveX}px, ${moveY}px);
-                    
-                    // Rastgele renk değişimi
-                    const hue = Math.floor(Math.random() * 30) + 330; // Pembe tonları
-                    pixel.style.backgroundColor = hsl(${hue}, 100%, 70%);
-                });
-            }, 1000);
+            } 
             
             // Tıklama efekti
             heart.addEventListener('click', () => {
@@ -414,7 +398,5 @@
         }
     </script>
 
-     <script src="https://pixijs.download/v8.9.1/pixi.js"></script>
-    <script src="kurtar.js"></script>
 </body>
 </html>
