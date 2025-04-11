@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Senin İçin</title>
+
     <style>
         /* Genel boşlukları sıfırlayalım */
         * {
@@ -23,6 +24,8 @@
             color: #fff;
             text-align: center;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         /* Şifre giriş alanının modern tasarımı */
@@ -119,6 +122,7 @@
             display: none;
             position: relative;
             z-index: 5;
+            flex: 1;
         }
 
         h1 {
@@ -168,6 +172,9 @@
         footer {
             margin-top: 40px;
             display: none;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px 10px 0 0;
         }
 
         footer a {
@@ -216,6 +223,48 @@
             transition: all 0.3s ease;
         }
 
+        /* Sayaç Stili */
+        .anniversary-counter {
+            background: rgba(255, 105, 180, 0.7);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px auto;
+            max-width: 500px;
+            display: none;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .anniversary-counter h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .counter-numbers {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .counter-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 10px;
+            min-width: 70px;
+        }
+
+        .counter-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ff4c8b;
+        }
+
+        .counter-label {
+            font-size: 0.8em;
+            color: #333;
+        }
+
         /* Responsive Tasarım - Mobil için */
         @media (max-width: 768px) {
             h1 {
@@ -253,6 +302,18 @@
                 width: 6px;
                 height: 6px;
             }
+
+            .anniversary-counter {
+                max-width: 90%;
+            }
+
+            .counter-item {
+                min-width: 50px;
+            }
+
+            .counter-value {
+                font-size: 1.5em;
+            }
         }
 
         /* Full screen için */
@@ -264,11 +325,29 @@
             p {
                 font-size: 1em;
             }
+
+            .counter-numbers {
+                flex-wrap: wrap;
+            }
+
+            .counter-item {
+                min-width: 40px;
+                padding: 5px;
+            }
+
+            .counter-value {
+                font-size: 1.2em;
+            }
+
+            .counter-label {
+                font-size: 0.7em;
+            }
         }
     </style>
 </head>
 <body>
-    <audio autoplay loop>
+    <!-- Şarkının doğru şekilde sürekli çalmasını sağlamak -->
+    <audio autoplay loop id="bgMusic">
         <source src="https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
         Tarayıcınız ses dosyasını desteklemiyor.
     </audio>
@@ -286,9 +365,38 @@
     <div class="container" id="mainContent">
         <h1>Bir yıl önce hayatıma girdin ve her şeyi güzelleştirdin.</h1>
         <p>Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim.</p>
-
+        
         <!-- Sayaç -->
-        <p id="timer" style="margin-top: 20px; font-size: 20px; color: #333;"></p>
+        <div class="anniversary-counter" id="anniversaryCounter">
+            <h3>Birlikte Geçirdiğimiz Süre</h3>
+            <div class="counter-numbers">
+                <div class="counter-item">
+                    <div class="counter-value" id="years">0</div>
+                    <div class="counter-label">Yıl</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-value" id="months">0</div>
+                    <div class="counter-label">Ay</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-value" id="days">0</div>
+                    <div class="counter-label">Gün</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-value" id="hours">0</div>
+                    <div class="counter-label">Saat</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-value" id="minutes">0</div>
+                    <div class="counter-label">Dakika</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-value" id="seconds">0</div>
+                    <div class="counter-label">Saniye</div>
+                </div>
+            </div>
+            <p style="margin-top: 10px; font-size: 0.9em;">24 Nisan 2024'ten beri birlikteyiz ❤️</p>
+        </div>
     </div>
 
     <!-- Hamburger menü ikonu -->
@@ -299,7 +407,7 @@
         <a href="zaman-tuneli.html">Zaman Tüneli</a>
         <a href="galeri.html">Fotoğraf Galerisi</a>
         <a href="mesajlar.html">Özel Mesajlar & Şiirler</a>
-        <a href="flower-page.html">Çiçek Yeri</a>
+        <a href="flower-page.html">Çiçek Yeri </a>
         <a href="xox.html">XOX Oyunu</a>
         <a href="yarisoyunu.html">Yarış Oyunu</a>
         <a href="duello.html">Düello</a>
@@ -313,34 +421,134 @@
     <div class="pixel-heart" id="pixelHeart"></div>
 
     <script>
-        let timerElement = document.getElementById('timer');
-        let startDate = new Date('2024-04-24T00:00:00'); // Başlangıç tarihi
-        let interval = setInterval(function() {
-            let now = new Date();
-            let diff = now - startDate;
-            let days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            let hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            let minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            let seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        const correctPassword = '240424'; // Doğru şifre
 
-            timerElement.innerHTML = `Geçen süre: ${days}g ${hours}s ${minutes}d ${seconds}s`;
-        }, 1000);
-
-        // Şifre kontrolü
-        const correctPassword = '240424';
-
-        function checkPassword() {
-            let password = document.getElementById('password').value;
-            if (password === correctPassword) {
+        // Sayfa yüklendiğinde zaman kontrolü
+        window.onload = function() {
+            const lastAccess = localStorage.getItem('lastAccess');
+            const currentTime = Date.now();
+            
+            if (lastAccess && (currentTime - lastAccess) < 600000) { // 600000 ms = 10 dakika
+                // 10 dakika içinde tekrar şifre isteme
                 document.getElementById('passwordContainer').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
                 document.getElementById('menu').style.display = 'block';
                 document.getElementById('footer').style.display = 'block';
                 document.getElementById('pixelHeart').style.display = 'block';
-            } else {
-                alert('Yanlış şifre!');
+                document.getElementById('anniversaryCounter').style.display = 'block';
+                document.getElementById('bgMusic').play(); // Şarkıyı başlat
+                createPixelHeart();
+                startAnniversaryCounter();
             }
         }
+
+        function checkPassword() {
+            const inputPassword = document.getElementById('password').value;
+            if (inputPassword === correctPassword) {
+                localStorage.setItem('lastAccess', Date.now());
+                document.getElementById('passwordContainer').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                document.getElementById('menu').style.display = 'block';
+                document.getElementById('footer').style.display = 'block';
+                document.getElementById('pixelHeart').style.display = 'block';
+                document.getElementById('anniversaryCounter').style.display = 'block';
+                document.getElementById('bgMusic').play(); // Şarkıyı başlat
+                createPixelHeart();
+                startAnniversaryCounter();
+            } else {
+                alert('Yanlış şifre. Lütfen tekrar deneyin.');
+            }
+        }
+
+        function toggleMenu() {
+            document.getElementById('menu').classList.toggle('open');
+        }
+
+        // Pixel Kalp oluşturma ve animasyon
+        function createPixelHeart() {
+            const heart = document.getElementById('pixelHeart');
+            heart.innerHTML = '';
+            
+            // Pixel kalp şekli (5x5 grid)
+            const heartShape = [
+                [0, 1, 0, 1, 0],
+                [1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1],
+                [0, 1, 1, 1, 0],
+                [0, 0, 1, 0, 0]
+            ];
+            
+            // Pixel'leri oluştur
+            for (let y = 0; y < 5; y++) {
+                for (let x = 0; x < 5; x++) {
+                    if (heartShape[y][x] === 1) {
+                        const pixel = document.createElement('div');
+                        pixel.className = 'pixel';
+                        pixel.style.left = (x * 8) + 'px';
+                        pixel.style.top = (y * 8) + 'px';
+                        
+                        // Rastgele animasyon gecikmesi
+                        pixel.style.transitionDelay = (Math.random() * 0.5) + 's';
+                        
+                        heart.appendChild(pixel);
+                    }
+                }
+            } 
+            
+            // Tıklama efekti
+            heart.addEventListener('click', () => {
+                const pixels = document.querySelectorAll('.pixel');
+                pixels.forEach(pixel => {
+                    pixel.style.transform = 'translate(0, -20px) scale(1.5)';
+                    pixel.style.opacity = '0.7';
+                    
+                    setTimeout(() => {
+                        pixel.style.transform = 'translate(0, 0) scale(1)';
+                        pixel.style.opacity = '1';
+                    }, 300);
+                });
+            });
+        }
+
+        // Çıkma tarihi sayacı
+        function startAnniversaryCounter() {
+            const startDate = new Date('2024-04-24T00:00:00');
+            
+            function updateCounter() {
+                const now = new Date();
+                const diff = now - startDate;
+                
+                // Zaman hesaplamaları
+                const seconds = Math.floor(diff / 1000);
+                const minutes = Math.floor(seconds / 60);
+                const hours = Math.floor(minutes / 60);
+                const days = Math.floor(hours / 24);
+                
+                // Yıl ve ay hesaplamaları (yaklaşık)
+                const years = Math.floor(days / 365);
+                const remainingDays = days % 365;
+                const months = Math.floor(remainingDays / 30);
+                const remainingDaysAfterMonths = remainingDays % 30;
+                
+                // Kalan saat, dakika ve saniyeler
+                const remainingHours = hours % 24;
+                const remainingMinutes = minutes % 60;
+                const remainingSeconds = seconds % 60;
+                
+                // Değerleri güncelle
+                document.getElementById('years').textContent = years;
+                document.getElementById('months').textContent = months;
+                document.getElementById('days').textContent = remainingDaysAfterMonths;
+                document.getElementById('hours').textContent = remainingHours;
+                document.getElementById('minutes').textContent = remainingMinutes;
+                document.getElementById('seconds').textContent = remainingSeconds;
+            }
+            
+            // İlk güncelleme ve saniyede bir güncelle
+            updateCounter();
+            setInterval(updateCounter, 1000);
+        }
     </script>
+
 </body>
 </html>
