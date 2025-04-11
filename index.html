@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Senin İçin</title>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Genel boşlukları sıfırlayalım */
         * {
@@ -24,8 +24,6 @@
             color: #fff;
             text-align: center;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
 
         /* Şifre giriş alanının modern tasarımı */
@@ -122,7 +120,6 @@
             display: none;
             position: relative;
             z-index: 5;
-            flex: 1;
         }
 
         h1 {
@@ -141,40 +138,75 @@
             text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
         }
 
-        /* Menü düzeni */
-        .menu {
+        /* YENİ MODERN MENÜ STİLLERİ */
+        .menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 50;
+            width: 50px;
+            height: 50px;
+            background-color: #ff758f;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            display: none; /* Başlangıçta gizli */
+        }
+
+        .menu-toggle:hover {
+            background-color: #d62a6b;
+            transform: scale(1.1);
+        }
+
+        .sidebar-menu {
             position: fixed;
             top: 0;
-            left: -100%; /* Menü başlangıçta gizli */
-            background-color: #ff69b4;
-            color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            width: 25%;
+            left: -300px;
+            width: 300px;
             height: 100%;
-            transition: 0.3s ease-in-out;
-            z-index: 10;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(to bottom, #ff758f, #ff7eb3);
+            z-index: 40;
+            transition: all 0.3s ease;
+            padding: 80px 20px 20px;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
         }
 
-        .menu a {
+        .sidebar-menu.active {
+            left: 0;
+        }
+
+        .menu-item {
             display: block;
-            margin: 15px 0;
-            text-decoration: none;
             color: white;
-            font-size: 1.2em;
+            text-decoration: none;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            font-weight: 500;
         }
 
-        .menu a:hover {
-            color: #ff4c8b;
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .menu-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
         }
 
         footer {
             margin-top: 40px;
             display: none;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 10px 10px 0 0;
         }
 
         footer a {
@@ -184,23 +216,6 @@
 
         footer a:hover {
             color: #ff4c8b;
-        }
-
-        /* Menü açıldığında sağa kayma efekti */
-        .menu.open {
-            left: 0;
-        }
-
-        /* Hamburger menü ikonu */
-        .menu-icon {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            font-size: 30px;
-            cursor: pointer;
-            z-index: 15;
-            color: white;
-            padding: 10px;
         }
 
         /* Pixel Kalp */
@@ -223,48 +238,6 @@
             transition: all 0.3s ease;
         }
 
-        /* Sayaç Stili */
-        .anniversary-counter {
-            background: rgba(255, 105, 180, 0.7);
-            padding: 15px;
-            border-radius: 15px;
-            margin: 20px auto;
-            max-width: 500px;
-            display: none;
-            backdrop-filter: blur(5px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .anniversary-counter h3 {
-            font-size: 1.5em;
-            margin-bottom: 10px;
-            color: white;
-        }
-
-        .counter-numbers {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .counter-item {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px;
-            border-radius: 10px;
-            min-width: 70px;
-        }
-
-        .counter-value {
-            font-size: 2em;
-            font-weight: bold;
-            color: #ff4c8b;
-        }
-
-        .counter-label {
-            font-size: 0.8em;
-            color: #333;
-        }
-
         /* Responsive Tasarım - Mobil için */
         @media (max-width: 768px) {
             h1 {
@@ -282,15 +255,8 @@
                 padding: 30px;
             }
 
-            .menu {
-                width: 70%;
-                padding: 20px;
-            }
-
-            .menu-icon {
-                top: 10px;
-                left: 10px;
-                font-size: 28px;
+            .menu-toggle {
+                display: flex; /* Mobilde göster */
             }
 
             .pixel-heart {
@@ -301,18 +267,6 @@
             .pixel {
                 width: 6px;
                 height: 6px;
-            }
-
-            .anniversary-counter {
-                max-width: 90%;
-            }
-
-            .counter-item {
-                min-width: 50px;
-            }
-
-            .counter-value {
-                font-size: 1.5em;
             }
         }
 
@@ -325,22 +279,9 @@
             p {
                 font-size: 1em;
             }
-
-            .counter-numbers {
-                flex-wrap: wrap;
-            }
-
-            .counter-item {
-                min-width: 40px;
-                padding: 5px;
-            }
-
-            .counter-value {
-                font-size: 1.2em;
-            }
-
-            .counter-label {
-                font-size: 0.7em;
+            
+            .sidebar-menu {
+                width: 250px;
             }
         }
     </style>
@@ -365,52 +306,24 @@
     <div class="container" id="mainContent">
         <h1>Bir yıl önce hayatıma girdin ve her şeyi güzelleştirdin.</h1>
         <p>Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim.</p>
-        
-        <!-- Sayaç -->
-        <div class="anniversary-counter" id="anniversaryCounter">
-            <h3>Birlikte Geçirdiğimiz Süre</h3>
-            <div class="counter-numbers">
-                <div class="counter-item">
-                    <div class="counter-value" id="years">0</div>
-                    <div class="counter-label">Yıl</div>
-                </div>
-                <div class="counter-item">
-                    <div class="counter-value" id="months">0</div>
-                    <div class="counter-label">Ay</div>
-                </div>
-                <div class="counter-item">
-                    <div class="counter-value" id="days">0</div>
-                    <div class="counter-label">Gün</div>
-                </div>
-                <div class="counter-item">
-                    <div class="counter-value" id="hours">0</div>
-                    <div class="counter-label">Saat</div>
-                </div>
-                <div class="counter-item">
-                    <div class="counter-value" id="minutes">0</div>
-                    <div class="counter-label">Dakika</div>
-                </div>
-                <div class="counter-item">
-                    <div class="counter-value" id="seconds">0</div>
-                    <div class="counter-label">Saniye</div>
-                </div>
-            </div>
-            <p style="margin-top: 10px; font-size: 0.9em;">24 Nisan 2024'ten beri birlikteyiz ❤️</p>
-        </div>
     </div>
 
-    <!-- Hamburger menü ikonu -->
-    <div class="menu-icon" onclick="toggleMenu()">&#x2022;&#x2022;&#x2022;</div>
+    <!-- YENİ MODERN MENÜ -->
+    <div class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </div>
 
-    <!-- Menü -->
-    <div class="menu" id="menu">
-        <a href="zaman-tuneli.html">Zaman Tüneli</a>
-        <a href="galeri.html">Fotoğraf Galerisi</a>
-        <a href="mesajlar.html">Özel Mesajlar & Şiirler</a>
-        <a href="flower-page.html">Çiçek Yeri </a>
-        <a href="xox.html">XOX Oyunu</a>
-        <a href="yarisoyunu.html">Yarış Oyunu</a>
-        <a href="duello.html">Düello</a>
+    <div class="sidebar-menu" id="sidebarMenu">
+        <a href="index.html" class="menu-item"><i class="fas fa-home"></i> Ana Sayfa</a>
+        <a href="zaman-tuneli.html" class="menu-item"><i class="fas fa-history"></i> Zaman Tüneli</a>
+        <a href="galeri.html" class="menu-item"><i class="fas fa-images"></i> Fotoğraf Galerisi</a>
+        <a href="mesajlar.html" class="menu-item"><i class="fas fa-envelope"></i> Özel Mesajlar</a>
+        <a href="siirler.html" class="menu-item"><i class="fas fa-book"></i> Şiirler</a>
+        <a href="flower-page.html" class="menu-item"><i class="fas fa-flower"></i> Çiçek Yeri</a>
+        <a href="xox.html" class="menu-item"><i class="fas fa-times"></i> XOX Oyunu</a>
+        <a href="yarisoyunu.html" class="menu-item"><i class="fas fa-flag-checkered"></i> Yarış Oyunu</a>
+        <a href="duello.html" class="menu-item"><i class="fas fa-gamepad"></i> Düello</a>
+        <a href="#" class="menu-item" id="musicControl"><i class="fas fa-music"></i> Müzik: Açık</a>
     </div>
 
     <footer id="footer">
@@ -432,13 +345,11 @@
                 // 10 dakika içinde tekrar şifre isteme
                 document.getElementById('passwordContainer').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
-                document.getElementById('menu').style.display = 'block';
                 document.getElementById('footer').style.display = 'block';
                 document.getElementById('pixelHeart').style.display = 'block';
-                document.getElementById('anniversaryCounter').style.display = 'block';
+                document.getElementById('menuToggle').style.display = 'flex';
                 document.getElementById('bgMusic').play(); // Şarkıyı başlat
                 createPixelHeart();
-                startAnniversaryCounter();
             }
         }
 
@@ -448,20 +359,36 @@
                 localStorage.setItem('lastAccess', Date.now());
                 document.getElementById('passwordContainer').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
-                document.getElementById('menu').style.display = 'block';
                 document.getElementById('footer').style.display = 'block';
                 document.getElementById('pixelHeart').style.display = 'block';
-                document.getElementById('anniversaryCounter').style.display = 'block';
+                document.getElementById('menuToggle').style.display = 'flex';
                 document.getElementById('bgMusic').play(); // Şarkıyı başlat
                 createPixelHeart();
-                startAnniversaryCounter();
             } else {
                 alert('Yanlış şifre. Lütfen tekrar deneyin.');
             }
         }
 
+        // YENİ MENÜ TOGGLE FONKSİYONU
         function toggleMenu() {
-            document.getElementById('menu').classList.toggle('open');
+            document.getElementById('sidebarMenu').classList.toggle('active');
+            document.getElementById('menuToggle').innerHTML = 
+                document.getElementById('sidebarMenu').classList.contains('active') ? 
+                '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        }
+
+        // MÜZİK KONTROL FONKSİYONU
+        function toggleMusic() {
+            const bgMusic = document.getElementById('bgMusic');
+            const musicControl = document.getElementById('musicControl');
+            
+            if (bgMusic.paused) {
+                bgMusic.play();
+                musicControl.innerHTML = '<i class="fas fa-music"></i> Müzik: Açık';
+            } else {
+                bgMusic.pause();
+                musicControl.innerHTML = '<i class="fas fa-music"></i> Müzik: Kapalı';
+            }
         }
 
         // Pixel Kalp oluşturma ve animasyon
@@ -510,97 +437,12 @@
             });
         }
 
-        // Çıkma tarihi sayacı
-        function startAnniversaryCounter() {
-            const startDate = new Date('2024-04-24T00:00:00');
-            
-            function updateCounter() {
-                const now = new Date();
-                const diff = now - startDate;
-                
-                // Zaman hesaplamaları
-                const seconds = Math.floor(diff / 1000);
-                const minutes = Math.floor(seconds / 60);
-                const hours = Math.floor(minutes / 60);
-                const days = Math.floor(hours / 24);
-                
-                // Yıl ve ay hesaplamaları (yaklaşık)
-                const years = Math.floor(days / 365);
-                const remainingDays = days % 365;
-                const months = Math.floor(remainingDays / 30);
-                const remainingDaysAfterMonths = remainingDays % 30;
-                
-                // Kalan saat, dakika ve saniyeler
-                const remainingHours = hours % 24;
-                const remainingMinutes = minutes % 60;
-                const remainingSeconds = seconds % 60;
-                
-                // Değerleri güncelle
-                document.getElementById('years').textContent = years;
-                document.getElementById('months').textContent = months;
-                document.getElementById('days').textContent = remainingDaysAfterMonths;
-                document.getElementById('hours').textContent = remainingHours;
-                document.getElementById('minutes').textContent = remainingMinutes;
-                document.getElementById('seconds').textContent = remainingSeconds;
-            }
-            
-            // İlk güncelleme ve saniyede bir güncelle
-            updateCounter();
-            setInterval(updateCounter, 1000);
-        }
+        // Event listener'ları ekle
+        document.getElementById('menuToggle').addEventListener('click', toggleMenu);
+        document.getElementById('musicControl').addEventListener('click', toggleMusic);
+
+        // Müzik otomatik çalmayı dene
+        document.getElementById('bgMusic').play().catch(e => console.log("Otomatik çalma engellendi: ", e));
     </script>
-<!-- body içine ekleyin -->
-<div class="music-controls">
-    <button id="playPauseBtn">▶️</button>
-    <input type="range" id="volumeControl" min="0" max="1" step="0.1" value="0.7">
-</div>
-
-<style>
-.music-controls {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    background: rgba(255,105,180,0.7);
-    padding: 10px;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    z-index: 50;
-    backdrop-filter: blur(5px);
-}
-
-#playPauseBtn {
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    padding: 5px;
-}
-
-#volumeControl {
-    width: 80px;
-}
-</style>
-
-<script>
-const bgMusic = document.getElementById('bgMusic');
-const playPauseBtn = document.getElementById('playPauseBtn');
-const volumeControl = document.getElementById('volumeControl');
-
-playPauseBtn.addEventListener('click', () => {
-    if (bgMusic.paused) {
-        bgMusic.play();
-        playPauseBtn.textContent = '⏸️';
-    } else {
-        bgMusic.pause();
-        playPauseBtn.textContent = '▶️';
-    }
-});
-
-volumeControl.addEventListener('input', () => {
-    bgMusic.volume = volumeControl.value;
-});
-</script>
 </body>
 </html>
