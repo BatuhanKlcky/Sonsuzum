@@ -4,8 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Özel Mesajlar & Şiirler</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Genel stil */
+        :root {
+            --primary-color: #ff758f;
+            --secondary-color: #ff7eb3;
+            --accent-color: #ff8e9e;
+            --light-pink: #ffe5ec;
+            --dark-pink: #d62a6b;
+            --text-color: #333;
+            --white: #fff;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,136 +25,346 @@
         }
 
         body {
-            background-color: #fceff5; /* Hafif pembe arka plan */
-            font-family: 'Arial', sans-serif;
-            color: #6d597a;
-            padding: 0;
-            margin: 0;
+            background: linear-gradient(135deg, var(--light-pink), #f8f8f8);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
         }
 
         h1 {
+            color: var(--dark-pink);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            display: inline-block;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+        }
+
+        /* YENİ MODERN MENÜ */
+        .menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .menu-toggle:hover {
+            background-color: var(--dark-pink);
+            transform: scale(1.1);
+        }
+
+        .sidebar-menu {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+            z-index: 90;
+            transition: var(--transition);
+            padding: 80px 20px 20px;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-menu.active {
+            left: 0;
+        }
+
+        .menu-item {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            transition: var(--transition);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .menu-item i {
+            margin-right: 10px;
+            width: 20px;
             text-align: center;
-            font-size: 2.5em;
-            color: #ff69b4;
-            padding-top: 40px;
+        }
+
+        /* MESAJ KUTULARI */
+        .message-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
         }
 
         .message-box {
-            background-color: rgba(255, 255, 255, 0.8); /* Hafif şeffaf beyaz arka plan */
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            margin: 20px auto;
-            padding: 20px;
-            width: 80%;
-            max-width: 800px;
-            transition: transform 0.3s;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 105, 180, 0.2);
         }
 
         .message-box:hover {
-            transform: scale(1.05);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
         }
 
-        .message-box h2 {
-            font-size: 1.8em;
-            color: #ff69b4;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .message-box p {
-            font-size: 1.2em;
-            line-height: 1.6;
-            color: #6d597a;
-        }
-
-        .message-box .author {
-            font-style: italic;
-            font-size: 1.1em;
-            text-align: right;
-            margin-top: 15px;
-            color: #ff69b4;
-        }
-
-        .menu {
-            position: fixed;
-            top: 50%;
-            left: 0;
-            background-color: #ff69b4;
-            color: #fff;
+        .message-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
             padding: 20px;
-            border-radius: 10px;
-            transform: translateY(-50%);
-            z-index: 10;
-        }
-
-        .menu a {
-            display: block;
-            margin: 10px 0;
-            text-decoration: none;
-            color: white;
-        }
-
-        .menu a:hover {
-            color: #ff4c8b;
-        }
-
-        footer {
-            margin-top: 40px;
             text-align: center;
+            position: relative;
         }
 
-        footer a {
-            text-decoration: none;
-            color: #ff69b4;
+        .message-header h2 {
+            font-size: 1.5em;
+            margin: 0;
+            font-weight: 600;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
         }
 
-        footer a:hover {
-            color: #ff4c8b;
-        }
-
-        
-        /* Açılabilir mesaj kutusu */
-        .message-toggle {
-            background-color: #ff69b4;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            border: none;
-            font-size: 1.2em;
-            transition: background-color 0.3s;
-            margin-top: 20px;
-        }
-
-        .message-toggle:hover {
-            background-color: #ff4c8b;
+        .message-date {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.8em;
         }
 
         .message-content {
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .message-content p {
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            color: var(--text-color);
+            text-align: justify;
+        }
+
+        .message-author {
+            font-style: italic;
+            font-size: 1em;
+            text-align: right;
+            margin-top: 15px;
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+
+        .message-toggle {
+            background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .message-toggle:hover {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        }
+
+        .message-toggle i {
+            margin-left: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .message-toggle.active i {
+            transform: rotate(180deg);
+        }
+
+        .hidden-content {
             display: none;
-            margin-top: 20px;
-            font-size: 1.2em;
-            line-height: 1.6;
-            text-align: left;
+            padding: 0 20px 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+            color: var(--dark-pink);
+            position: relative;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+        }
+
+        /* KALP ANİMASYONU */
+        .heart-animation {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 80;
+        }
+
+        .heart {
+            color: var(--accent-color);
+            font-size: 2rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .message-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar-menu {
+                width: 250px;
+            }
         }
     </style>
 </head>
 <body>
-     <!-- Şarkıyı otomatik başlatan etiket -->
-    <audio autoplay loop>
-        <source src="https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/%C4%B0D%C4%B0L%20%E2%99%AB%20Duygusal%20Piyano%20Fon%20M%C3%BCzi%C4%9Fi.mp3
-" type="audio/mpeg">
+    <!-- Şarkıyı otomatik başlatan etiket -->
+    <audio autoplay loop id="bgMusic">
+        <source src="https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/%C4%B0D%C4%B0L%20%E2%99%AB%20Duygusal%20Piyano%20Fon%20M%C3%BCzi%C4%9Fi.mp3" type="audio/mpeg">
         Tarayıcınız ses dosyasını desteklemiyor.
     </audio>
 
-    <div class="menu">
-        <a href="index.html">Ana Sayfa</a>
-        <a href="zaman-tuneli.html">Zaman Tüneli</a>
-        <a href="galeri.html">Fotoğraf Galerisi</a>
+    <!-- YENİ MODERN MENÜ -->
+    <div class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
     </div>
 
-    <h1>Özel Mesajlar & Şiirler</h1>
+    <div class="sidebar-menu" id="sidebarMenu">
+        <a href="index.html" class="menu-item"><i class="fas fa-home"></i> Ana Sayfa</a>
+        <a href="zaman-tuneli.html" class="menu-item"><i class="fas fa-history"></i> Zaman Tüneli</a>
+        <a href="galeri.html" class="menu-item"><i class="fas fa-images"></i> Fotoğraf Galerisi</a>
+        <a href="mesajlar.html" class="menu-item"><i class="fas fa-envelope"></i> Özel Mesajlar</a>
+        <a href="#" class="menu-item" id="musicControl"><i class="fas fa-music"></i> Müzik: Açık</a>
+    </div>
 
+    <div class="container">
+        <header>
+            <h1>Özel Mesajlar & Şiirler</h1>
+        </header>
+
+        <div class="message-container">
+            <!-- 1. Ay Mesajı -->
+            <div class="message-box">
+                <div class="message-header">
+                    <div class="message-date">1. Ay</div>
+                    <h2>Birinci Yılımız</h2>
+                </div>
+                <div class="message-content">
+                    <p>Bir yıl önce hayatıma giren en değerli insanla geçirdiğimiz bu harika zamanı anlatmak çok zor. Her geçen gün birlikte daha da güçleniyoruz. İyi ki varsın, seni sonsuza kadar seveceğim.</p>
+                    <p class="message-author">- Benim</p>
+                </div>
+                <button class="message-toggle" onclick="toggleMessage(this)">
+                    Devamını Oku <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="hidden-content">
+                    <p>Bu ilk ayımızda seninle tanışmanın mutluluğunu yaşadım. Her gün yeni bir şey öğrendim senden. Seninle geçirdiğim her an, kalbimde kocaman bir yer edindi.</p>
+                    <p>Seninle olmak her günü daha anlamlı ve daha özel kıldı. Sabahları seninle uyanmak, geceleri seninle uyumak, günün her anını seninle paylaşmak bana tarifsiz bir mutluluk veriyor.</p>
+                    <p class="message-author">- Seninle</p>
+                </div>
+            </div>
+
+            <!-- 2. Ay Mesajı -->
+            <div class="message-box">
+                <div class="message-header">
+                    <div class="message-date">2. Ay</div>
+                    <h2>Meleğimle İkinci Ayımız</h2>
+                </div>
+                <div class="message-content">
+                    <p>Meleğim, bugün birlikte geçirdiğimiz ikinci ayın mutluluğunu yaşıyoruz. Zaman ne kadar da hızlı geçti. İlk günlerimizi hatırladığımda içimdeki heyecan ve kalbimdeki çarpıntıların hala taze olduğunu hissediyorum.</p>
+                    <p class="message-author">- Seninle</p>
+                </div>
+                <button class="message-toggle" onclick="toggleMessage(this)">
+                    Devamını Oku <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="hidden-content">
+                    <p>Seninle geçirdiğim her an bana sevginin ve mutluluğun gerçek anlamını öğretti. Seninle tanıştığım günden beri hayatımda pek çok şey değişti. Daha önce yalnız başıma attığım adımları şimdi seninle atıyorum.</p>
+                    <p>Seninle paylaştığım her anın ne kadar kıymetli olduğunu biliyorum ve her gün bu anıları daha da özel kılmak için elimden geleni yapıyorum. İlişkimizin bu iki ayında birbirimize olan sevgi ve bağlılığımızın ne kadar güçlü olduğunu gördüm.</p>
+                    <p>Seninle her gün yeni bir şey öğreniyor, birbirimizi daha iyi tanıyor ve sevgimizin derinleştiğini hissediyorum. Birlikte güldüğümüz, birlikte üzüldüğümüz anlar ilişkimizin sağlam temelleri oldu.</p>
+                    <p class="message-author">- Sonsuza kadar</p>
+                </div>
+            </div>
+
+            
     <div class="message-box">
         <h2>Birinci Yılımız</h2>
         <p>Bir yıl önce hayatımıza giren en değerli insanla geçirdiğimiz bu harika zamanı anlatmak çok zor. Her geçen gün birlikte daha da güçleniyoruz. İyi ki varsın, seni sonsuza kadar seveceğim.</p>
@@ -581,21 +803,74 @@ Bütün denizlerin ötesinde, başka bir dünyada.</p>
         <p class="author">- Seninle</p>
     </div>
 
-    
+            <!-- Diğer mesajlar buraya aynı şekilde eklenecek -->
+            <!-- 3. Ay, 4. Ay vb. tüm mesajlarınız -->
+        </div>
+    </div>
+
+    <!-- KALP ANİMASYONU -->
+    <div class="heart-animation" onclick="animateHeart()">
+        <i class="fas fa-heart heart"></i>
+    </div>
+
     <footer>
         <p>&copy; 2025 Senin İçin. Tüm Sevgim sende saklıdır.</p>
     </footer>
 
     <script>
-        function toggleMessage(id) {
-            var content = document.getElementById(id);
-            if (content.style.display === "none" || content.style.display === "") {
-                content.style.display = "block";
+        // Menü toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebarMenu').classList.toggle('active');
+            this.innerHTML = document.getElementById('sidebarMenu').classList.contains('active') ? 
+                '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        });
+
+        // Mesaj toggle
+        function toggleMessage(button) {
+            const messageBox = button.parentElement;
+            const hiddenContent = messageBox.querySelector('.hidden-content');
+            
+            button.classList.toggle('active');
+            
+            if (hiddenContent.style.display === 'block') {
+                hiddenContent.style.display = 'none';
             } else {
-                content.style.display = "none";
+                hiddenContent.style.display = 'block';
             }
         }
-    </script>
 
+        // Kalp animasyonu
+        function animateHeart() {
+            const heart = document.querySelector('.heart');
+            heart.style.transform = 'scale(1.5)';
+            heart.style.color = '#ff1744';
+            
+            setTimeout(() => {
+                heart.style.transform = 'scale(1)';
+                heart.style.color = '#ff4081';
+            }, 300);
+            
+            // Tıklama sesi
+            const clickSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3');
+            clickSound.volume = 0.3;
+            clickSound.play().catch(e => console.log("Ses oynatılamadı"));
+        }
+
+        // Müzik kontrolü
+        document.getElementById('musicControl').addEventListener('click', function() {
+            const bgMusic = document.getElementById('bgMusic');
+            
+            if (bgMusic.paused) {
+                bgMusic.play();
+                this.innerHTML = '<i class="fas fa-music"></i> Müzik: Açık';
+            } else {
+                bgMusic.pause();
+                this.innerHTML = '<i class="fas fa-music"></i> Müzik: Kapalı';
+            }
+        });
+
+        // Sayfa yüklendiğinde müziği otomatik başlatmayı dene
+        document.getElementById('bgMusic').play().catch(e => console.log("Otomatik çalma engellendi"));
+    </script>
 </body>
 </html>
