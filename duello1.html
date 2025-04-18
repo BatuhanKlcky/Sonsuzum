@@ -1,0 +1,60 @@
+<rosieArtifact title="Create index.html">
+<rosieCreate file="index.html">
+<![CDATA[
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Wrestling Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden; /* Prevent scrollbars */
+            background-color: #000; /* Optional: background for loading */
+        }
+        #renderDiv {
+            width: 100vw;
+            height: 100vh;
+            display: block; /* Ensure it takes up space */
+        }
+        /* Minimal styling for the UI message */
+        #game-message {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 24px;
+            border-radius: 5px;
+            z-index: 100;
+            display: none; /* Hidden by default, controlled by JS */
+            text-align: center;
+        }
+    </style>
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://esm.sh/three@0.161.0",
+        "game": "./duello1.js",
+        "sceneSetup": "./sceneSetup.js",
+        "player": "./player.js",
+        "inputHandler": "./inputHandler.js",
+        "physics": "./physics.js",
+        "ui": "./ui.js",
+        "main": "./main.js"
+      }
+    }
+    </script>
+</head>
+<body>
+    <div id="renderDiv"></div>
+    <script type="module" src="./main.js"></script>
+</body>
+</html>
+]]>
+</rosieCreate>
+</rosieArtifact>
