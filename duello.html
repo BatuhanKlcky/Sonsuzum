@@ -3,252 +3,825 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Duello Oyunu</title>
+    <title>Ultra Duello</title>
     <style>
         body {
             margin: 0;
             padding: 0;
             text-align: center;
-            background-color: #222;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
             color: white;
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            user-select: none;
+        }
+        h1 {
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            margin: 20px 0;
+            font-size: 2.5em;
+            background: linear-gradient(to right, #ff4d4d, #4d79ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         canvas {
-            background: #444;
+            background: radial-gradient(circle, #2c3e50, #1a1a2e);
             display: block;
-            margin: auto;
-            border-radius: 10px;
+            margin: 20px auto;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            border: 3px solid rgba(255, 255, 255, 0.1);
         }
         .controls {
-            margin-top: 10px;
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         button {
-            padding: 15px;
+            padding: 15px 25px;
             margin: 5px;
             font-size: 18px;
             border: none;
-            border-radius: 8px;
-            background-color: #ff4c8b;
+            border-radius: 50px;
+            background: linear-gradient(145deg, #ff4d4d, #ff9999);
             color: white;
             cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 77, 77, 0.4);
+            font-weight: bold;
+            min-width: 180px;
         }
         button:hover {
-            background-color: #ff69b4;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 77, 77, 0.6);
+        }
+        button:active {
+            transform: translateY(1px);
+        }
+        .player2-btn {
+            background: linear-gradient(145deg, #4d79ff, #99bbff);
+            box-shadow: 0 5px 15px rgba(77, 121, 255, 0.4);
+        }
+        .player2-btn:hover {
+            box-shadow: 0 8px 20px rgba(77, 121, 255, 0.6);
+        }
+        .score-container {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin: 20px 0;
         }
         .score {
-            font-size: 20px;
-            margin-top: 10px;
+            font-size: 24px;
+            padding: 15px 30px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            min-width: 150px;
+        }
+        #scorePlayer1 {
+            color: #ff4d4d;
+            font-weight: bold;
+            font-size: 28px;
+        }
+        #scorePlayer2 {
+            color: #4d79ff;
+            font-weight: bold;
+            font-size: 28px;
         }
         .timer {
-            font-size: 20px;
-            margin-top: 10px;
+            font-size: 24px;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            display: inline-block;
+            min-width: 200px;
+        }
+        #timer {
+            font-weight: bold;
+            color: #f1c40f;
+        }
+        .reset-btn {
+            background: linear-gradient(145deg, #2ecc71, #27ae60);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+        }
+        .reset-btn:hover {
+            box-shadow: 0 8px 20px rgba(46, 204, 113, 0.6);
+        }
+        .powerup-indicator {
+            margin: 15px 0;
+            font-size: 18px;
+            opacity: 0.8;
+        }
+        .instructions {
+            margin: 20px auto;
+            max-width: 600px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
         }
     </style>
 </head>
 <body>
-    <h1>Duello Oyunu</h1>
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div class="particles" id="particles"></div>
+    <h1>ULTRA DUEL</h1>
+    <canvas id="gameCanvas" width="800" height="500"></canvas>
+    
     <div class="controls">
-        <button id="leftPlayer1" onmousedown="moveLeftPlayer1(true)" onmouseup="moveLeftPlayer1(false)">⬅️ (Oyuncu 1)</button>
-        <button id="rightPlayer1" onmousedown="moveRightPlayer1(true)" onmouseup="moveRightPlayer1(false)">➡️ (Oyuncu 1)</button>
-        <button id="leftPlayer2" onmousedown="moveLeftPlayer2(true)" onmouseup="moveLeftPlayer2(false)">⬅️ (Oyuncu 2)</button>
-        <button id="rightPlayer2" onmousedown="moveRightPlayer2(true)" onmouseup="moveRightPlayer2(false)">➡️ (Oyuncu 2)</button>
+        <button id="leftPlayer1" onmousedown="moveLeftPlayer1(true)" onmouseup="moveLeftPlayer1(false)">⬅️ (A) Oyuncu 1</button>
+        <button id="rightPlayer1" onmousedown="moveRightPlayer1(true)" onmouseup="moveRightPlayer1(false)">➡️ (D) Oyuncu 1</button>
+        <button id="leftPlayer2" class="player2-btn" onmousedown="moveLeftPlayer2(true)" onmouseup="moveLeftPlayer2(false)">⬅️ (←) Oyuncu 2</button>
+        <button id="rightPlayer2" class="player2-btn" onmousedown="moveRightPlayer2(true)" onmouseup="moveRightPlayer2(false)">➡️ (→) Oyuncu 2</button>
     </div>
-    <div class="score">
-        <span>Oyuncu 1: <span id="scorePlayer1">0</span></span>
-        <br>
-        <span>Oyuncu 2: <span id="scorePlayer2">0</span></span>
+    
+    <div class="score-container">
+        <div class="score">Oyuncu 1: <span id="scorePlayer1">0</span></div>
+        <div class="score">Oyuncu 2: <span id="scorePlayer2">0</span></div>
     </div>
-    <div class="timer">
-        <span id="timer">Süre: 60 saniye</span>
-    </div>
+    
+    <div class="timer">Süre: <span id="timer">60</span> saniye</div>
+    
+    <div class="powerup-indicator" id="powerupIndicator"></div>
+    
     <div>
-        <button onclick="resetGame()">Yeniden Başlat</button>
+        <button class="reset-btn" onclick="resetGame()">YENİDEN BAŞLAT</button>
     </div>
+    
+    <div class="instructions">
+        <strong>Nasıl Oynanır:</strong> Oyuncu 1 (Kırmızı) A ve D tuşlarıyla, Oyuncu 2 (Mavi) ok tuşlarıyla hareket eder. Topa vurarak puan kazanın. Power-up'ları toplayarak özel yetenekler kazanın!
+    </div>
+
     <script>
+        // Canvas ve context ayarları
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
+        canvas.width = 800;
+        canvas.height = 500;
 
-        // Oyuncuların başlangıç noktaları
-        let player1 = { x: 50, y: 350, width: 50, height: 50, color: 'red', movingLeft: false, movingRight: false };
-        let player2 = { x: 300, y: 350, width: 50, height: 50, color: 'blue', movingLeft: false, movingRight: false };
-        let ball = { x: 200, y: 200, radius: 10, speedX: 2, speedY: 2, color: 'white' };
-        
-        // Skorlar
-        let scorePlayer1 = 0;
-        let scorePlayer2 = 0;
+        // Oyun nesneleri
+        const player1 = { 
+            x: 100, 
+            y: canvas.height - 30, 
+            width: 100, 
+            height: 20, 
+            color: '#ff4d4d',
+            movingLeft: false, 
+            movingRight: false,
+            score: 0,
+            powerUp: null,
+            powerUpTime: 0
+        };
 
-        // Zamanlayıcı
+        const player2 = { 
+            x: canvas.width - 200, 
+            y: canvas.height - 30, 
+            width: 100, 
+            height: 20, 
+            color: '#4d79ff',
+            movingLeft: false, 
+            movingRight: false,
+            score: 0,
+            powerUp: null,
+            powerUpTime: 0
+        };
+
+        const ball = { 
+            x: canvas.width / 2, 
+            y: canvas.height / 2, 
+            radius: 12, 
+            speedX: 4, 
+            speedY: 4, 
+            color: '#ffffff',
+            trail: []
+        };
+
+        // Power-up nesneleri
+        const powerUps = {
+            types: [
+                { name: 'Büyük Raket', color: '#2ecc71', duration: 10000 },
+                { name: 'Hızlı Top', color: '#e74c3c', duration: 8000 },
+                { name: 'Yavaş Rakip', color: '#3498db', duration: 7000 },
+                { name: 'Ekstra Puan', color: '#f1c40f', duration: 0 }
+            ],
+            active: null,
+            spawnTime: 0
+        };
+
+        // Oyun durumu
         let gameTime = 60;
         let gameInterval;
-        
+        let lastTime = 0;
+        let particles = [];
+        let isGameOver = false;
+
+        // Particle efekti için fonksiyon
+        function createParticles(x, y, color, count = 20) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    size: Math.random() * 5 + 2,
+                    color: color,
+                    speedX: Math.random() * 6 - 3,
+                    speedY: Math.random() * 6 - 3,
+                    life: 100
+                });
+            }
+        }
+
+        // Particle'ları güncelleme
+        function updateParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].x += particles[i].speedX;
+                particles[i].y += particles[i].speedY;
+                particles[i].life--;
+
+                if (particles[i].life <= 0) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        // Particle'ları çizme
+        function drawParticles() {
+            particles.forEach(p => {
+                ctx.globalAlpha = p.life / 100;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+        }
+
+        // Topun izini çizme
+        function drawBallTrail() {
+            for (let i = 0; i < ball.trail.length; i++) {
+                const alpha = i / ball.trail.length * 0.6;
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = ball.color;
+                ctx.beginPath();
+                ctx.arc(ball.trail[i].x, ball.trail[i].y, ball.radius * (i / ball.trail.length), 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+        }
+
         // Topu çizme
         function drawBall() {
+            // İzleri ekle
+            ball.trail.push({ x: ball.x, y: ball.y });
+            if (ball.trail.length > 10) {
+                ball.trail.shift();
+            }
+            
+            drawBallTrail();
+            
+            // Topun kendisi
             ctx.fillStyle = ball.color;
             ctx.beginPath();
             ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Topa ışık efekti
+            const gradient = ctx.createRadialGradient(
+                ball.x, ball.y, ball.radius,
+                ball.x, ball.y, ball.radius * 2
+            );
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius * 2, 0, Math.PI * 2);
             ctx.fill();
         }
 
         // Oyuncuları çizme
         function drawPlayers() {
-            ctx.fillStyle = player1.color;
-            ctx.fillRect(player1.x, player1.y, player1.width, player1.height);
+            // Oyuncu 1
+            drawPlayer(player1);
             
-            ctx.fillStyle = player2.color;
-            ctx.fillRect(player2.x, player2.y, player2.width, player2.height);
+            // Oyuncu 2
+            drawPlayer(player2);
+        }
+
+        function drawPlayer(player) {
+            // Gölge efekti
+            ctx.shadowColor = player.color;
+            ctx.shadowBlur = 15;
+            
+            // Power-up etkisi varsa farklı çiz
+            if (player.powerUp === 'Büyük Raket') {
+                const tempWidth = player.width;
+                player.width = 150;
+                ctx.fillStyle = player.color;
+                ctx.fillRect(player.x, player.y, player.width, player.height);
+                player.width = tempWidth;
+            } else {
+                ctx.fillStyle = player.color;
+                ctx.fillRect(player.x, player.y, player.width, player.height);
+            }
+            
+            // Kenar ışıltısı
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(player.x, player.y, player.width, player.height);
+            
+            ctx.shadowBlur = 0;
+            
+            // Power-up süresi varsa gösterge çiz
+            if (player.powerUpTime > 0) {
+                const powerUpProgress = (Date.now() - player.powerUpTime) / 
+                                        (powerUps.types.find(p => p.name === player.powerUp)?.duration || 10000);
+                if (powerUpProgress < 1) {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.fillRect(player.x, player.y - 10, player.width, 5);
+                    
+                    ctx.fillStyle = '#f1c40f';
+                    ctx.fillRect(player.x, player.y - 10, player.width * (1 - powerUpProgress), 5);
+                }
+            }
+        }
+
+        // Power-up çizme
+        function drawPowerUp() {
+            if (powerUps.active) {
+                const powerUp = powerUps.active;
+                
+                // Parlaklık efekti
+                ctx.shadowColor = powerUp.color;
+                ctx.shadowBlur = 20;
+                
+                // Power-up dikdörtgeni
+                ctx.fillStyle = powerUp.color;
+                ctx.fillRect(powerUp.x, powerUp.y, 30, 30);
+                
+                // İç desen
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.beginPath();
+                ctx.moveTo(powerUp.x + 15, powerUp.y);
+                ctx.lineTo(powerUp.x + 30, powerUp.y + 15);
+                ctx.lineTo(powerUp.x + 15, powerUp.y + 30);
+                ctx.lineTo(powerUp.x, powerUp.y + 15);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.shadowBlur = 0;
+            }
         }
 
         // Skorları güncelleme
         function updateScore() {
-            document.getElementById("scorePlayer1").innerText = scorePlayer1;
-            document.getElementById("scorePlayer2").innerText = scorePlayer2;
+            document.getElementById("scorePlayer1").textContent = player1.score;
+            document.getElementById("scorePlayer2").textContent = player2.score;
+        }
+
+        // Power-up gösterge metnini güncelleme
+        function updatePowerUpIndicator() {
+            const indicator = document.getElementById("powerupIndicator");
+            let text = "";
+            
+            if (player1.powerUp && (Date.now() - player1.powerUpTime) < (powerUps.types.find(p => p.name === player1.powerUp)?.duration || 0)) {
+                text += `Oyuncu 1: ${player1.powerUp} | `;
+            }
+            
+            if (player2.powerUp && (Date.now() - player2.powerUpTime) < (powerUps.types.find(p => p.name === player2.powerUp)?.duration || 0)) {
+                text += `Oyuncu 2: ${player2.powerUp}`;
+            }
+            
+            indicator.textContent = text;
+            indicator.style.color = text.includes("Oyuncu 1") ? player1.color : player2.color;
         }
 
         // Topun hareketini güncelleme
         function updateBall() {
-            ball.x += ball.speedX;
-            ball.y += ball.speedY;
+            // Topun hızını artırarak oyunu zorlaştır
+            const speedIncrease = Math.min(player1.score + player2.score, 10) * 0.01;
+            
+            ball.x += ball.speedX * (1 + speedIncrease);
+            ball.y += ball.speedY * (1 + speedIncrease);
 
-            // Top, kenarlara çarptığında yön değiştirir
-            if (ball.x <= ball.radius || ball.x >= canvas.width - ball.radius) {
+            // Duvarlara çarpma kontrolü
+            if (ball.x <= ball.radius) {
+                ball.x = ball.radius;
                 ball.speedX = -ball.speedX;
+                createParticles(ball.x, ball.y, '#ffffff');
             }
-            if (ball.y <= ball.radius || ball.y >= canvas.height - ball.radius) {
+            if (ball.x >= canvas.width - ball.radius) {
+                ball.x = canvas.width - ball.radius;
+                ball.speedX = -ball.speedX;
+                createParticles(ball.x, ball.y, '#ffffff');
+            }
+            if (ball.y <= ball.radius) {
+                ball.y = ball.radius;
                 ball.speedY = -ball.speedY;
+                createParticles(ball.x, ball.y, '#ffffff');
+            }
+            
+            // Alt sınıra ulaşırsa sıfırla
+            if (ball.y >= canvas.height + ball.radius * 2) {
+                resetBall();
             }
         }
 
-        // Oyuncu 1 hareketleri (A ve D tuşları)
-        function moveLeftPlayer1(pressed) {
-            player1.movingLeft = pressed;
+        // Topu sıfırlama
+        function resetBall() {
+            ball.x = canvas.width / 2;
+            ball.y = canvas.height / 2;
+            ball.speedX = 4 * (Math.random() > 0.5 ? 1 : -1);
+            ball.speedY = 4;
+            ball.trail = [];
+            
+            // Power-up spawn şansı
+            if (!powerUps.active && Math.random() < 0.3) {
+                spawnPowerUp();
+            }
         }
 
-        function moveRightPlayer1(pressed) {
-            player1.movingRight = pressed;
+        // Power-up oluşturma
+        function spawnPowerUp() {
+            const type = powerUps.types[Math.floor(Math.random() * powerUps.types.length)];
+            powerUps.active = {
+                ...type,
+                x: Math.random() * (canvas.width - 60) + 30,
+                y: Math.random() * (canvas.height / 2) + 50
+            };
+            powerUps.spawnTime = Date.now();
         }
 
-        // Oyuncu 2 hareketleri (Ok tuşları)
-        function moveLeftPlayer2(pressed) {
-            player2.movingLeft = pressed;
+        // Power-up toplama kontrolü
+        function checkPowerUpCollision() {
+            if (powerUps.active) {
+                // Power-up ile top arasındaki mesafe
+                const distX = Math.abs(ball.x - (powerUps.active.x + 15));
+                const distY = Math.abs(ball.y - (powerUps.active.y + 15));
+                
+                if (distX <= ball.radius + 15 && distY <= ball.radius + 15) {
+                    // Hangi oyuncu vurdu?
+                    const player = ball.speedY > 0 ? player1 : player2;
+                    applyPowerUp(player, powerUps.active.name);
+                    
+                    // Efekt oluştur
+                    createParticles(powerUps.active.x + 15, powerUps.active.y + 15, powerUps.active.color, 50);
+                    
+                    // Power-up'ı kaldır
+                    powerUps.active = null;
+                }
+                
+                // 10 saniye sonra power-up kaybolur
+                if (Date.now() - powerUps.spawnTime > 10000) {
+                    powerUps.active = null;
+                }
+            }
         }
 
-        function moveRightPlayer2(pressed) {
-            player2.movingRight = pressed;
+        // Power-up uygulama
+        function applyPowerUp(player, powerUpType) {
+            player.powerUp = powerUpType;
+            player.powerUpTime = Date.now();
+            
+            switch (powerUpType) {
+                case 'Büyük Raket':
+                    // Zaten çizim sırasında işleniyor
+                    break;
+                case 'Hızlı Top':
+                    ball.speedX *= 1.5;
+                    ball.speedY *= 1.5;
+                    break;
+                case 'Yavaş Rakip':
+                    const opponent = player === player1 ? player2 : player1;
+                    opponent.slowUntil = Date.now() + 7000;
+                    break;
+                case 'Ekstra Puan':
+                    player.score += 2;
+                    updateScore();
+                    break;
+            }
         }
+
+        // Power-up sürelerini kontrol etme
+        function checkPowerUpExpiry() {
+            [player1, player2].forEach(player => {
+                if (player.powerUp && player.powerUpTime) {
+                    const powerUpDuration = powerUps.types.find(p => p.name === player.powerUp)?.duration || 0;
+                    if (Date.now() - player.powerUpTime > powerUpDuration) {
+                        player.powerUp = null;
+                        player.powerUpTime = 0;
+                        
+                        // Büyük raket power-up'ı biterse topu kontrol et
+                        if (powerUpDuration > 0) {
+                            checkBallPlayerCollision();
+                        }
+                    }
+                }
+            });
+        }
+
+        // Oyuncu hareket kontrolleri
+        function moveLeftPlayer1(pressed) { player1.movingLeft = pressed; }
+        function moveRightPlayer1(pressed) { player1.movingRight = pressed; }
+        function moveLeftPlayer2(pressed) { player2.movingLeft = pressed; }
+        function moveRightPlayer2(pressed) { player2.movingRight = pressed; }
 
         // Oyuncuların hareketini güncelleme
         function updatePlayerMovement() {
+            const now = Date.now();
+            
+            // Oyuncu 1 hareketi
+            let speed1 = 8;
+            if (player1.slowUntil && now < player1.slowUntil) speed1 = 3;
+            
             if (player1.movingLeft && player1.x > 0) {
-                player1.x -= 5 + scorePlayer1 * 0.1;  // Skor arttıkça hız artsın
+                player1.x -= speed1;
             }
             if (player1.movingRight && player1.x < canvas.width - player1.width) {
-                player1.x += 5 + scorePlayer1 * 0.1;
+                player1.x += speed1;
             }
+            
+            // Oyuncu 2 hareketi
+            let speed2 = 8;
+            if (player2.slowUntil && now < player2.slowUntil) speed2 = 3;
+            
             if (player2.movingLeft && player2.x > 0) {
-                player2.x -= 5 + scorePlayer2 * 0.1;
+                player2.x -= speed2;
             }
             if (player2.movingRight && player2.x < canvas.width - player2.width) {
-                player2.x += 5 + scorePlayer2 * 0.1;
+                player2.x += speed2;
             }
         }
 
-        // Topun oyunculara çarpıp puan kazandırmasını kontrol etme
-        function checkCollision() {
-            if (ball.x > player1.x && ball.x < player1.x + player1.width && ball.y + ball.radius > player1.y) {
-                ball.speedY = -ball.speedY;
-                scorePlayer1++;
+        // Topun oyunculara çarpma kontrolü
+        function checkBallPlayerCollision() {
+            // Oyuncu 1 ile çarpışma (üst kısım)
+            if (ball.y + ball.radius >= player1.y && 
+                ball.y - ball.radius <= player1.y + player1.height &&
+                ball.x + ball.radius >= player1.x && 
+                ball.x - ball.radius <= player1.x + player1.width) {
+                
+                // Çarpışma açısını hesapla (top raketin neresine çarptı?)
+                const hitPos = (ball.x - (player1.x + player1.width / 2)) / (player1.width / 2);
+                const angle = hitPos * Math.PI / 3; // -60° ile +60° arası
+                
+                ball.speedX = 8 * Math.sin(angle);
+                ball.speedY = -Math.abs(8 * Math.cos(angle));
+                
+                player1.score++;
                 updateScore();
-                increaseBallSpeed();
+                createParticles(ball.x, ball.y, player1.color);
+                
+                // Power-up etkisi (büyük raket)
+                if (player1.powerUp === 'Büyük Raket') {
+                    ball.speedX *= 1.2;
+                    ball.speedY *= 1.2;
+                }
             }
-            if (ball.x > player2.x && ball.x < player2.x + player2.width && ball.y + ball.radius > player2.y) {
-                ball.speedY = -ball.speedY;
-                scorePlayer2++;
+            
+            // Oyuncu 2 ile çarpışma (üst kısım)
+            if (ball.y + ball.radius >= player2.y && 
+                ball.y - ball.radius <= player2.y + player2.height &&
+                ball.x + ball.radius >= player2.x && 
+                ball.x - ball.radius <= player2.x + player2.width) {
+                
+                const hitPos = (ball.x - (player2.x + player2.width / 2)) / (player2.width / 2);
+                const angle = hitPos * Math.PI / 3;
+                
+                ball.speedX = 8 * Math.sin(angle);
+                ball.speedY = -Math.abs(8 * Math.cos(angle));
+                
+                player2.score++;
                 updateScore();
-                increaseBallSpeed();
+                createParticles(ball.x, ball.y, player2.color);
+                
+                if (player2.powerUp === 'Büyük Raket') {
+                    ball.speedX *= 1.2;
+                    ball.speedY *= 1.2;
+                }
             }
-        }
-
-        // Top hızını arttırma
-        function increaseBallSpeed() {
-            ball.speedX *= 1.05;
-            ball.speedY *= 1.05;
         }
 
         // Zamanlayıcıyı güncelleme
         function updateTimer() {
             if (gameTime > 0) {
                 gameTime--;
-                document.getElementById("timer").innerText = `Süre: ${gameTime} saniye`;
+                document.getElementById("timer").textContent = gameTime;
+                
+                // Son 10 saniyede zaman kırmızı olsun
+                if (gameTime <= 10) {
+                    document.getElementById("timer").style.color = '#e74c3c';
+                    document.getElementById("timer").style.animation = 'pulse 0.5s infinite';
+                }
             } else {
-                clearInterval(gameInterval);
-                alert('Zaman doldu! Oyun bitti.');
-                resetGame();
+                endGame();
             }
         }
 
-        // Oyun başlatma
+        // Oyun bitişi
+        function endGame() {
+            isGameOver = true;
+            clearInterval(gameInterval);
+            
+            // Kazananı belirle
+            let winnerText = "";
+            if (player1.score > player2.score) {
+                winnerText = `Oyuncu 1 Kazandı! (${player1.score}-${player2.score})`;
+            } else if (player2.score > player1.score) {
+                winnerText = `Oyuncu 2 Kazandı! (${player2.score}-${player1.score})`;
+            } else {
+                winnerText = `Berabere! (${player1.score}-${player2.score})`;
+            }
+            
+            // Büyük kazanan yazısı göster
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 48px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(winnerText, canvas.width / 2, canvas.height / 2);
+            
+            ctx.font = '24px Arial';
+            ctx.fillText('Yeniden başlatmak için sayfayı tıkla', canvas.width / 2, canvas.height / 2 + 50);
+            
+            // Sayfa tıklanınca yeniden başlat
+            canvas.addEventListener('click', resetGame, { once: true });
+        }
+
+        // Oyunu başlatma
         function startGame() {
-            gameInterval = setInterval(updateTimer, 1000);  // Her saniye zamanlayıcıyı güncelle
-            update();
+            isGameOver = false;
+            gameInterval = setInterval(updateTimer, 1000);
+            lastTime = Date.now();
+            gameLoop();
         }
 
-        // Oyun ekranını güncelleme
-        function update() {
+        // Ana oyun döngüsü
+        function gameLoop() {
+            if (isGameOver) return;
+            
+            const now = Date.now();
+            const deltaTime = now - lastTime;
+            lastTime = now;
+            
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Topu ve oyuncuları çizme
-            drawBall();
-            drawPlayers();
-
-            // Oyuncu hareketlerini güncelleme
+            
+            // Arkaplan efekti
+            drawBackground(deltaTime);
+            
+            // Oyun nesnelerini güncelleme
             updatePlayerMovement();
-
-            // Topun hareketini güncelleme
             updateBall();
-
-            // Çarpışma kontrolü
-            checkCollision();
-
-            // Oyun devam ettiği sürece tekrar çalıştır
-            requestAnimationFrame(update);
+            checkBallPlayerCollision();
+            checkPowerUpCollision();
+            checkPowerUpExpiry();
+            updateParticles();
+            updatePowerUpIndicator();
+            
+            // Oyun nesnelerini çizme
+            drawPowerUp();
+            drawPlayers();
+            drawBall();
+            drawParticles();
+            
+            requestAnimationFrame(gameLoop);
         }
 
-        // Yeniden başlatma fonksiyonu
+        // Arkaplan efekti
+        function drawBackground(deltaTime) {
+            // Gradient arkaplan
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#1a1a2e');
+            gradient.addColorStop(1, '#16213e');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Yıldız efekti
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            for (let i = 0; i < 100; i++) {
+                const x = Math.sin((Date.now() + i * 100) / 1000) * 50 + i * 20 % canvas.width;
+                const y = i * 10 % canvas.height;
+                const size = Math.sin((Date.now() + i * 100) / 500) * 2 + 2;
+                ctx.fillRect(x, y, size, size);
+            }
+            
+            // Orta çizgi
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.setLineDash([10, 10]);
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, 0);
+            ctx.lineTo(canvas.width / 2, canvas.height);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // Oyunu sıfırlama
         function resetGame() {
+            clearInterval(gameInterval);
+            
+            // Oyuncuları sıfırla
+            player1.x = 100;
+            player1.y = canvas.height - 30;
+            player1.score = 0;
+            player1.powerUp = null;
+            player1.powerUpTime = 0;
+            
+            player2.x = canvas.width - 200;
+            player2.y = canvas.height - 30;
+            player2.score = 0;
+            player2.powerUp = null;
+            player2.powerUpTime = 0;
+            
+            // Topu sıfırla
+            resetBall();
+            ball.speedX = 4 * (Math.random() > 0.5 ? 1 : -1);
+            ball.speedY = 4;
+            
+            // Zamanlayıcıyı sıfırla
             gameTime = 60;
-            scorePlayer1 = 0;
-            scorePlayer2 = 0;
-            ball = { x: 200, y: 200, radius: 10, speedX: 2, speedY: 2, color: 'white' };
-            player1.x = 50;
-            player2.x = 300;
-            updateScore();
-            document.getElementById("timer").innerText = `Süre: ${gameTime} saniye`;
+            document.getElementById("timer").textContent = gameTime;
+            document.getElementById("timer").style.color = '#f1c40f';
+            document.getElementById("timer").style.animation = '';
+            
+            // Power-up'ları temizle
+            powerUps.active = null;
+            document.getElementById("powerupIndicator").textContent = "";
+            
+            // Particle'ları temizle
+            particles = [];
+            
+            // Oyunu başlat
             startGame();
         }
 
-        // Klavye kontrolünü ekleyelim
+        // Klavye kontrolleri
         document.addEventListener("keydown", (event) => {
-            // Oyuncu 1 için (A ve D tuşları)
             if (event.key === "a") moveLeftPlayer1(true);
             if (event.key === "d") moveRightPlayer1(true);
-
-            // Oyuncu 2 için (Ok tuşları)
             if (event.key === "ArrowLeft") moveLeftPlayer2(true);
             if (event.key === "ArrowRight") moveRightPlayer2(true);
         });
 
         document.addEventListener("keyup", (event) => {
-            // Oyuncu 1 için (A ve D tuşları)
             if (event.key === "a") moveLeftPlayer1(false);
             if (event.key === "d") moveRightPlayer1(false);
-
-            // Oyuncu 2 için (Ok tuşları)
             if (event.key === "ArrowLeft") moveLeftPlayer2(false);
             if (event.key === "ArrowRight") moveRightPlayer2(false);
         });
 
-        // Oyun başladığında başlat
+        // Particle efekti için canvas
+        const particlesCanvas = document.getElementById("particles");
+        particlesCanvas.width = window.innerWidth;
+        particlesCanvas.height = window.innerHeight;
+        const pCtx = particlesCanvas.getContext("2d");
+
+        // Arkaplan particle'ları
+        const bgParticles = Array(100).fill().map(() => ({
+            x: Math.random() * particlesCanvas.width,
+            y: Math.random() * particlesCanvas.height,
+            size: Math.random() * 3 + 1,
+            speed: Math.random() * 0.5 + 0.1,
+            color: `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.1})`
+        }));
+
+        function updateBGParticles() {
+            pCtx.clearRect(0, 0, particlesCanvas.width, particlesCanvas.height);
+            
+            bgParticles.forEach(p => {
+                p.y += p.speed;
+                if (p.y > particlesCanvas.height) {
+                    p.y = 0;
+                    p.x = Math.random() * particlesCanvas.width;
+                }
+                
+                pCtx.fillStyle = p.color;
+                pCtx.beginPath();
+                pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                pCtx.fill();
+            });
+            
+            requestAnimationFrame(updateBGParticles);
+        }
+
+        // Pencere boyutu değişince ayarla
+        window.addEventListener('resize', () => {
+            particlesCanvas.width = window.innerWidth;
+            particlesCanvas.height = window.innerHeight;
+        });
+
+        // Oyunu başlat
+        updateBGParticles();
         startGame();
     </script>
 </body>
