@@ -13,7 +13,7 @@
         }
 
         body {
-            background: linear-gradient(135deg, #ffb6c1, #f9d3d0); /* Pastel renk geçişi */
+            background: linear-gradient(135deg, #ffb6c1, #f9d3d0);
             font-family: 'Arial', sans-serif;
             color: #6d597a;
             padding: 0;
@@ -23,9 +23,9 @@
         h1 {
             text-align: center;
             font-size: 2.5em;
-            color: #fff; /* Başlık rengi beyaz */
+            color: #fff;
             padding-top: 40px;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* Başlık için gölge efekti */
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
         }
 
         .timeline {
@@ -37,7 +37,7 @@
         }
 
         .event {
-            background-color: rgba(255, 255, 255, 0.8); /* Kartların arka planını hafif beyaz yapıyoruz */
+            background-color: rgba(255, 255, 255, 0.8);
             margin: 10px 0;
             padding: 20px;
             width: 80%;
@@ -48,7 +48,7 @@
         }
 
         .event:hover {
-            transform: scale(1.05);
+            transform: scale(1.02);
         }
 
         .event h3 {
@@ -66,9 +66,10 @@
             font-size: 1.1em;
             font-style: italic;
             margin-top: 10px;
+            color: #6d597a;
         }
 
-        /* Menü stilini burada koruyoruz */
+        /* Menü stili */
         .menu {
             position: fixed;
             top: 50%;
@@ -76,7 +77,7 @@
             background-color: #ff69b4;
             color: #fff;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 0 10px 10px 0;
             transform: translateY(-50%);
             z-index: 10;
         }
@@ -86,6 +87,7 @@
             margin: 10px 0;
             text-decoration: none;
             color: white;
+            transition: color 0.3s;
         }
 
         .menu a:hover {
@@ -95,15 +97,42 @@
         footer {
             margin-top: 40px;
             text-align: center;
+            padding: 20px;
+            color: #6d597a;
         }
 
         footer a {
             text-decoration: none;
             color: #ff69b4;
+            transition: color 0.3s;
         }
 
         footer a:hover {
             color: #ff4c8b;
+        }
+
+        /* Şarkı butonu stili */
+        .sarki-baslik {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        #sarkiButonu {
+            padding: 6px 12px;
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        #sarkiButonu:hover {
+            background-color: #ff4c8b;
+            transform: scale(1.05);
         }
     </style>
 </head>
@@ -119,26 +148,26 @@
 
     <div class="timeline">
         <div class="event">
-            <h3>İlk Mesajlaşmamız </h3>
-            <p>Belkide herşeyin başladığı zaman. </p>
+            <h3>İlk Mesajlaşmamız</h3>
+            <p>Belkide herşeyin başladığı zaman.</p>
             <p class="event-time">Tarih: 6 Mart 2024</p>
         </div>
         
         <div class="event">
-            <h3>İlk senden Hoşlandığımı söylemem </h3>
-            <p>İlk reddetmen 😭 </p>
+            <h3>İlk senden Hoşlandığımı söylemem</h3>
+            <p>İlk reddetmen 😭</p>
             <p class="event-time">Tarih: 18 Mart 2024</p>
         </div>
 
-         <div class="event">
-            <h3>Bizi düşün Diyip Senin BANA "At olmanı düşünüyüm demen" .</h3>
-            <p>😭 </p>
+        <div class="event">
+            <h3>Bizi düşün Diyip Senin BANA "At olmanı düşünüyüm demen"</h3>
+            <p>😭</p>
             <p class="event-time">Tarih: 24 Mart 2024</p>
         </div>
 
         <div class="event">
-            <h3>Sürpriz Yumurtaa </h3>
-            <p>İlk defa bu kadar heyecanlanmıştım hiç unutmam o elimdeki yumurtayı sana vermemi ve sonraki tepkini .</p>
+            <h3>Sürpriz Yumurtaa</h3>
+            <p>İlk defa bu kadar heyecanlanmıştım hiç unutmam o elimdeki yumurtayı sana vermemi ve sonraki tepkini.</p>
             <p class="event-time">Tarih: 6 Nisan 2024</p>
         </div>
         
@@ -148,67 +177,84 @@
             <p class="event-time">Tarih: 12 Nisan 2024</p>
         </div>
         
-         <div class="event">
+        <div class="event">
             <h3>İlk elimi tuttuğun gün Ve Başlangıcımız ...</h3>
             <p>Hayatımıza birlikte adım atmaya başladığımız o özel an… İlk elimi tuttuğun gün, zamanın durduğunu hissetmiştim. O an seninle olan yolculuğumuzun başlangıcıydı ve her şey o anla birlikte bir anlam kazandı. Birlikte geçirdiğimiz her an, hayatımıza değer katıyor, seni tanıdıkça daha çok seviyorum. Zaman tünelimizde her adım, geçmişten bugüne olan yolculuğumuzu hatırlatıyor. Geleceğe birlikte adım atarken her anımız bizim için bir hazine olacak.</p>
             <p class="event-time">Tarih: 24 Nisan 2024</p>
         </div>
         
-   <div class="event">
-            <h3>İlk Seni Seviyorum dediğin ve İlk konserimiz </h3>
+        <div class="event">
+            <h3>İlk Seni Seviyorum dediğin ve İlk konserimiz</h3>
             <p>İlk defa senin "Bende seni" dediğin o anı unutmak mümkün değil. O an sanki dünya durdu ve sadece o kelimeler kulaklarımda çınladı. İçimdeki tüm hisler seni sevmenin derinliği o kadar güçlüydü ki, adeta her şey anlam kazandı. Senin bu sözü söylemen, bana olan sevgini hissetmeme neden oldu. O an, hayatımda aldığım en özel ve en doğru kararlardan biriydi Seninle her şey daha güzel, daha anlamlı. O günden sonra her an seninle olmak, seni daha çok sevmenin bir yolu oldu.</p>
             <p class="event-time">Tarih: 29 Nisan 2024</p>
         </div>
 
-          <div class="event">
-            <h3>Doğum Günüm </h3>
+        <div class="event">
+            <h3>Doğum Günüm</h3>
             <p>Seninle olduğum her an, dünyadaki tüm kutlamalardan daha değerli. Her yıl bir yaş daha büyürken, seninle her şeyin daha güzel olduğunu fark ediyorum. Doğum günümü seninle geçirdiğim için ne kadar şanslı olduğumu bir kez daha anladım. Gülüşün ve varlığın, bu günü unutulmaz kıldı.
-            Ve o hediyen… Her gün ona bakıyorum, her defasında bana seni hatırlatıyor. Sadece bir eşya değil, senin düşünceli ve sevgi dolu kalbini taşıyor. Her gördüğümde, sana ne kadar sevgi dolu olduğumu düşünüyorum. Seninle geçirdiğim her an gibi, o hediye de bana her gün senin varlığını hatırlatıyor.
-
-</p>
+            Ve o hediyen… Her gün ona bakıyorum, her defasında bana seni hatırlatıyor. Sadece bir eşya değil, senin düşünceli ve sevgi dolu kalbini taşıyor. Her gördüğümde, sana ne kadar sevgi dolu olduğumu düşünüyorum. Seninle geçirdiğim her an gibi, o hediye de bana her gün senin varlığını hatırlatıyor.</p>
             <p class="event-time">Tarih: 11 Temmuz 2024</p>
         </div>
 
-         <div class="event">
-            <h3>En değerlimin Doğum günü </h3>
+        <div class="event">
+            <h3>En değerlimin Doğum günü</h3>
             <p>Bu günde senin yanında olmak, sana mutlu anlar yaşatabilmek, birlikte gülmek ve keyifli zamanlar geçirmek, hayatımın en değerli hediyesi. Seninle olduğum her an, başka hiçbir şeyin önemi yok. Çünkü senin varlığın, dünyadaki her şeyi daha anlamlı kılıyor.
-Seninle geçirdiğimiz her an, sana olan sevgimi her geçen gün daha da büyütüyor. Bugün, senin için çok özel bir gün, ama unutma ki her gün seninle olmak, her gün seninle yaşamak, benim için bir doğum günü gibi.</p>
+            Seninle geçirdiğimiz her an, sana olan sevgimi her geçen gün daha da büyütüyor. Bugün, senin için çok özel bir gün, ama unutma ki her gün seninle olmak, her gün seninle yaşamak, benim için bir doğum günü gibi.</p>
             <p class="event-time">Tarih: 17 Aralık 2024</p>
         </div>
         
         <div class="event">
             <h3>Birinci Yılımız</h3>
             <p>Bir yıl önce, hayatıma girmeyi kabul ettin ve her şey değişti. O anı hatırladıkça kalbimde bir yerlerde hâlâ o ilk heyecanı hissediyorum. Bir yıl boyunca seninle geçirdiğim her an, bir ömre bedel oldu. Zaman, seninle geçirdiğim her dakikada durdu, sanki sadece biz varmışız gibi.
-Birinci yılımız, belki de hayatımın en kıymetli yılı oldu. Gözlerinde bulduğum huzur, kalbimde duyduğum sevgi ve seninle yaşadığım her an, hayatıma yepyeni bir anlam kattı. O gün seninle başlayan yolculuğumuzda, ilk adımlarımızdan bugüne kadar, her şey çok özel ve unutulmaz.
-Bir yıl boyunca her anımız, her gülüşümüz ve birlikte yaptığımız her şey, birer hatıra olarak kalbimde saklı. Bu birinci yıl, sadece bir başlangıçtı, daha nice yıllar seninle olmayı hayal ediyorum</p>
+            Birinci yılımız, belki de hayatımın en kıymetli yılı oldu. Gözlerinde bulduğum huzur, kalbimde duyduğum sevgi ve seninle yaşadığım her an, hayatıma yepyeni bir anlam kattı. O gün seninle başlayan yolculuğumuzda, ilk adımlarımızdan bugüne kadar, her şey çok özel ve unutulmaz.
+            Bir yıl boyunca her anımız, her gülüşümüz ve birlikte yaptığımız her şey, birer hatıra olarak kalbimde saklı. Bu birinci yıl, sadece bir başlangıçtı, daha nice yıllar seninle olmayı hayal ediyorum</p>
             <p class="event-time">Tarih: 24 Nisan 2025</p>
         </div>
 
-                 <div class="event">
-            <h3>Şarkın </h3>
-            <p>Bebişim benim bebişim<p>
-<p>Ölürüm senin hasretine<p>
-<p>Gözlerin düşer aklıma<p>
-<p>Her gece ay ışığında sessizce<p>
-<p><p>
-<p>
-<p>Bir gülüşün yeter bana<p>
-<p>Dağılır içimdeki hüzün<p>
-<p>Adını anmak bile yeter<p>
-<p>Derman olur en derin özlemime dünün<p>
-                     <p>
-<p>
-<p>Kalbim atar sen diye<p>
-<p>Sensizken bile seninle<p>
-<p>Bebişim, tek dileğim <p>
-<p>Ölürüm senin sevginle</p>
+        <div class="event">
+            <div class="sarki-baslik">
+                <h3>Şarkın</h3>
+                <button id="sarkiButonu">🎵 Oynat</button>
+            </div>
+            <p>Bebişim benim bebişim</p>
+            <p>Ölürüm senin hasretine</p>
+            <p>Gözlerin düşer aklıma</p>
+            <p>Her gece ay ışığında sessizce</p>
+            <p></p>
+            <p>Bir gülüşün yeter bana</p>
+            <p>Dağılır içimdeki hüzün</p>
+            <p>Adını anmak bile yeter</p>
+            <p>Derman olur en derin özlemime dünün</p>
+            <p></p>
+            <p>Kalbim atar sen diye</p>
+            <p>Sensizken bile seninle</p>
+            <p>Bebişim, tek dileğim</p>
+            <p>Ölürüm senin sevginle</p>
             <p class="event-time">Tarih: 12 Nisan 2025</p>
         </div>
-     
     </div>
 
     <footer>
         <p>&copy; 2025 Senin İçin. Tüm Sevgim sende saklıdır.</p>
     </footer>
+
+    <audio id="sarki">
+        <source src="hayatıma.mp3" type="audio/mpeg">
+        Tarayıcınız audio elementini desteklemiyor.
+    </audio>
+
+    <script>
+        document.getElementById('sarkiButonu').addEventListener('click', function() {
+            var sarki = document.getElementById('sarki');
+            
+            if(sarki.paused) {
+                sarki.play();
+                this.textContent = "⏸ Durdur";
+            } else {
+                sarki.pause();
+                this.textContent = "🎵 Oynat";
+            }
+        });
+    </script>
 </body>
 </html>
