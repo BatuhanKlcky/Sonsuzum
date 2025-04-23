@@ -172,6 +172,8 @@
         }
 
         /* Menü stili */
+
+        <button class="menu-toggle"><i class="fas fa-bars"></i></button>
         .menu {
             position: fixed;
             top: 50%;
@@ -207,7 +209,35 @@
             background: rgba(255, 255, 255, 0.2);
             transform: translateX(5px);
         }
+.menu-toggle {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: var(--primary-color);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 10px;
+    color: white;
+    font-size: 1.2em;
+    cursor: pointer;
+    z-index: 101;
+    display: none; /* mobilde gizli */
+}
 
+@media (min-width: 769px) {
+    .menu {
+        display: none;
+        flex-direction: column;
+    }
+
+    .menu.active {
+        display: flex;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+}
         /* Şarkı butonu stili */
         .music-player {
             background: rgba(255, 255, 255, 0.9);
@@ -697,6 +727,10 @@
             e.preventDefault();
             alert('Bu sayfa senin için özenle hazırlandı sevgilim! ❤️');
         });
+
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+    document.querySelector('.menu').classList.toggle('active');
+});
     </script>
 </body>
 </html>
