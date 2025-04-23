@@ -172,72 +172,92 @@
         }
 
         /* Menü stili */
+       .menu-toggle {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: var(--primary-color);
+      border: none;
+      padding: 10px 15px;
+      border-radius: 10px;
+      color: white;
+      font-size: 1.2em;
+      cursor: pointer;
+      z-index: 101;
+      display: none;
+    }
 
-        <button class="menu-toggle"><i class="fas fa-bars"></i></button>
-        .menu {
-            position: fixed;
-            top: 50%;
-            left: 20px;
-            transform: translateY(-50%);
-            background: rgba(255, 105, 180, 0.9);
-            border-radius: 20px;
-            padding: 15px 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .menu a {
-            color: white;
-            text-decoration: none;
-            font-size: 1.2em;
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            border-radius: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .menu a i {
-            margin-right: 10px;
-            font-size: 1.2em;
-        }
-
-        .menu a:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateX(5px);
-        }
-.menu-toggle {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    background: var(--primary-color);
-    border: none;
-    padding: 10px 15px;
-    border-radius: 10px;
-    color: white;
-    font-size: 1.2em;
-    cursor: pointer;
-    z-index: 101;
-    display: none; /* mobilde gizli */
-}
-
-@media (min-width: 769px) {
     .menu {
+      position: fixed;
+      top: 50%;
+      left: 20px;
+      transform: translateY(-50%);
+      background: rgba(255, 105, 180, 0.9);
+      border-radius: 20px;
+      padding: 15px 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .menu a {
+      color: white;
+      text-decoration: none;
+      font-size: 1.2em;
+      display: flex;
+      align-items: center;
+      padding: 10px 15px;
+      border-radius: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .menu a i {
+      margin-right: 10px;
+    }
+
+    .menu a:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateX(5px);
+    }
+
+    @media (min-width: 769px) {
+      .menu {
         display: none;
-        flex-direction: column;
-    }
-
-    .menu.active {
+      }
+      .menu.active {
         display: flex;
+      }
+      .menu-toggle {
+        display: block;
+      }
     }
 
-    .menu-toggle {
-        display: block;
+    @media (max-width: 768px) {
+      .menu {
+        top: auto;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        flex-direction: row;
+        padding: 10px 15px;
+      }
+
+      .menu a {
+        padding: 8px 12px;
+        font-size: 1em;
+      }
+
+      .menu a span {
+        display: none;
+      }
+
+      .menu a i {
+        margin-right: 0;
+      }
     }
-}
+
         /* Şarkı butonu stili */
         .music-player {
             background: rgba(255, 255, 255, 0.9);
@@ -451,12 +471,26 @@
     <div class="floating-heart" style="top: 30%; right: 10%; animation-delay: 1s;">❤️</div>
     <div class="floating-heart" style="top: 80%; right: 15%; animation-delay: 1.5s;">❤️</div>
 
-    <div class="menu">
-        <a href="index.html"><i class="fas fa-home"></i> <span>Ana Sayfa</span></a>
-        <a href="galeri.html"><i class="fas fa-images"></i> <span>Galeri</span></a>
-        <a href="mesajlar.html"><i class="fas fa-envelope"></i> <span>Mesajlar</span></a>
-        <a href="#top"><i class="fas fa-arrow-up"></i> <span>Yukarı</span></a>
-    </div>
+    <button class="menu-toggle"><i class="fas fa-bars"></i></button>
+
+  <div class="menu">
+    <a href="index.html"><i class="fas fa-home"></i> <span>Ana Sayfa</span></a>
+    <a href="galeri.html"><i class="fas fa-images"></i> <span>Galeri</span></a>
+    <a href="mesajlar.html"><i class="fas fa-envelope"></i> <span>Mesajlar</span></a>
+    <a href="#top"><i class="fas fa-arrow-up"></i> <span>Yukarı</span></a>
+  </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const toggleButton = document.querySelector('.menu-toggle');
+      const menu = document.querySelector('.menu');
+
+      if (toggleButton && menu) {
+        toggleButton.addEventListener('click', function() {
+          menu.classList.toggle('active');
+        });
+      }
+    });
+  </script>
 
     <h1>Bizim Hikayemiz</h1>
 
@@ -727,10 +761,6 @@
             e.preventDefault();
             alert('Bu sayfa senin için özenle hazırlandı sevgilim! ❤️');
         });
-
-        document.querySelector('.menu-toggle').addEventListener('click', function() {
-    document.querySelector('.menu').classList.toggle('active');
-});
     </script>
 </body>
 </html>
