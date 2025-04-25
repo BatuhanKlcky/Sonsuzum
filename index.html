@@ -1,6 +1,66 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+  // 1. Önce değişkenleri tanımla
+  let supabase;
+  
+  // 2. Sayfa yüklendiğinde çalışacak ana fonksiyon
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      // 3. Supabase bağlantısını kur
+      supabase = supabase.createClient(
+        'https://lvoeziofefbczugymzft.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI'
+      );
+      
+      // 4. Log gönder
+      await logVisit();
+      
+    } catch (error) {
+      console.error('Başlangıç hatası:', error);
+    }
+  });
+
+  // 5. Log gönderme fonksiyonu
+  async function logVisit() {
+    if (!supabase) {
+      console.error('Supabase henüz başlatılmadı');
+      return;
+    }
+    
+    try {
+      const ipData = await getIP();
+      
+      const { error } = await supabase
+        .from('visitor_logs')
+        .insert([{
+          page_url: window.location.href,
+          ip_address: ipData.ip,
+          user_agent: navigator.userAgent,
+          screen_resolution: `${window.screen.width}x${window.screen.height}`
+        }]);
+      
+      if (error) throw error;
+      
+    } catch (error) {
+      console.error('Log gönderme hatası:', error);
+    }
+  }
+
+  // 6. IP alma fonksiyonu
+  async function getIP() {
+    try {
+      const response = await fetch('https://api.ipify.org?format=json');
+      return await response.json();
+    } catch {
+      return { ip: 'unknown' };
+    }
+  }
+    
+</script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Senin İçin</title>
@@ -445,28 +505,6 @@
     </script>
 
 
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script>
-  const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co'
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI'
-  
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey)
-  
-  async function logGiris() {
-    const { error } = await supabase
-      .from('site_logs')
-      .insert([
-        { 
-          event_time: new Date(), 
-          page_url: window.location.href,
-          ip_address: await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(data => data.ip)
-        }
-      ])
-  }
-  
-  // Çıkışta da log at
-  window.addEventListener('beforeunload', logGiris);
-  logGiris(); // Girişte log at
-</script>
+
 </body>
 </html>
