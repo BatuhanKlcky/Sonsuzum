@@ -1,25 +1,29 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <<script src="https://unpkg.com/@supabase/supabase-js/dist/umd/supabase.js"></script>
+     <script src="https://unpkg.com/@supabase/supabase-js/dist/umd/supabase.js"></script>
 
-<script type="module">
-  // Supabase bağlantı bilgilerini buraya yaz
-  const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI';
-  const supabase = createClient(supabaseUrl, supabaseKey);
+  <script>
+    // Supabase bilgilerini giriyoruz
+    const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI'; // ← Buraya kendi anon key’ini yapıştır
 
-  // Basit bir örnek: "users" tablosundan veri çekme
-  const { data, error } = await supabase
-    .from('users')
-    .select('*');
+    // Supabase client oluşturuluyor
+    const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-  if (error) {
-    console.error('Hata:', error.message);
-  } else {
-    console.log('Kullanıcılar:', data);
-  }
-</script>
+    // Örnek: "users" tablosundan tüm verileri çek
+    client
+      .from('users')
+      .select('*')
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('Hata:', error.message);
+        } else {
+          console.log('Veriler:', data);
+        }
+      });
+  </script>
+
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
