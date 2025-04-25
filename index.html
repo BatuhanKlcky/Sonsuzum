@@ -12,10 +12,16 @@
     const client = supabase.createClient(supabaseUrl, supabaseKey);
 
     // Ziyaretçi bilgileri
-    const pageUrl = window.location.href;
-    const userAgent = navigator.userAgent;
-    const screenResolution = `${window.screen.width}x${window.screen.height}`;
-    const ipAddress = 'bilinmiyor'; // Tarayıcıdan alınamaz
+
+
+       // IP adresini çek
+    fetch('https://api.ipify.org?format=json')
+      .then(res => res.json())
+      .then(ipData => {
+        const pageUrl = window.location.href;
+        const userAgent = navigator.userAgent;
+        const screenResolution = `${window.screen.width}x${window.screen.height}`;
+        const ipAddress = ipData.ip;
 
     // Supabase'e veri gönder
     client
