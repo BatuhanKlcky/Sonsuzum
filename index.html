@@ -11,15 +11,26 @@
     // Supabase client oluşturuluyor
     const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // Örnek: "users" tablosundan tüm verileri çek
+    // Ziyaretçi bilgileri
+    const pageUrl = window.location.href;
+    const userAgent = navigator.userAgent;
+    const screenResolution = `${window.screen.width}x${window.screen.height}`;
+    const ipAddress = 'bilinmiyor'; // Tarayıcıdan alınamaz
+
+    // Supabase'e veri gönder
     client
-      .from('visitor_logs')
-      .select('*')
+      .from('visitors') // ← tablonun adı
+      .insert([{
+        page_url: pageUrl,
+        ip_address: ipAddress,
+        user_agent: userAgent,
+        screen_resolution: screenResolution
+      }])
       .then(({ data, error }) => {
         if (error) {
-          console.error('Hata:', error.message);
+          console.error('❌ Hata:', error);
         } else {
-          console.log('Veriler:', data);
+          console.log('✅ Ziyaretçi kaydedildi:', data);
         }
       });
   </script>
