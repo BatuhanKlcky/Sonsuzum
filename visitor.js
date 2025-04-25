@@ -1,4 +1,6 @@
 <!-- Supabase kütüphanesini dahil et -->
+
+  console.log("Visitor script başarıyla yüklendi");
 <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
 
 <script>
