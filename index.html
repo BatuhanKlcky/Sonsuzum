@@ -286,25 +286,7 @@
         }
     </style>
 </head>
-
-    
 <body>
-
-
-    <script>
-// Sayfa yüklendiğinde çalışacak
-document.addEventListener('DOMContentLoaded', function() {
-    var girisZamani = new Date();
-    console.log('Siteye giriş yapıldı:', girisZamani.toLocaleString());
-    
-    // İsterseniz ekranda da gösterebilirsiniz
-    var logBilgisi = document.createElement('div');
-    logBilgisi.textContent = 'Giriş zamanı: ' + girisZamani.toLocaleString();
-    logBilgisi.style.display = 'none'; // Gizli olarak kaydediyoruz
-    document.body.appendChild(logBilgisi);
-});
-</script>
-    
     <!-- Şarkının doğru şekilde sürekli çalmasını sağlamak -->
     <audio autoplay loop id="bgMusic">
         <source src="https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
@@ -461,17 +443,5 @@ document.addEventListener('DOMContentLoaded', function() {
         // Müzik otomatik çalmayı dene
         document.getElementById('bgMusic').play().catch(e => console.log("Otomatik çalma engellendi: ", e));
     </script>
-
-    <script>
-window.onload = function() {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'log_kaydet.php', true);
-    xhr.send();
-};
-</script>
-
-    <!-- </body> etiketinden hemen önce -->
-<img src="log_kaydet.php" alt="" style="display:none;">
-    
 </body>
 </html>
