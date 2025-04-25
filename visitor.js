@@ -1,40 +1,42 @@
- <script src="https://unpkg.com/@supabase/supabase-js/dist/umd/supabase.js"></script>
-  <script>
-    const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI'; // ← buraya kendi anon key'ini koy
-    const client = supabase.createClient(supabaseUrl, supabaseKey);
+<!-- Supabase kütüphanesini dahil et -->
+<script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
 
-    let visitStartTime = Date.now(); // giriş zamanı
+<script>
+  const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI';
+  const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // IP adresini çek
-    fetch('https://api.ipify.org?format=json')
-      .then(res => res.json())
-      .then(ipData => {
-        const pageUrl = window.location.href;
-        const userAgent = navigator.userAgent;
-        const screenResolution = `${window.screen.width}x${window.screen.height}`;
-        const ipAddress = ipData.ip;
+  let visitStart = Date.now();
 
-        // Sayfa kapatılmadan hemen önce veriyi gönder
-        window.addEventListener('beforeunload', async function () {
-          const visitEndTime = Date.now();
-          const timeSpentSeconds = Math.floor((visitEndTime - visitStartTime) / 1000);
+  // IP adresini al
+  fetch('https://api.ipify.org?format=json')
+    .then(response => response.json())
+    .then(ipData => {
+      const page_url = window.location.href;
+      const user_agent = navigator.userAgent;
+      const screen_resolution = `${window.screen.width}x${window.screen.height}`;
+      const ip_address = ipData.ip;
 
-          const { data, error } = await client
-            .from('visitor_logs')
-            .insert([{
-              page_url: pageUrl,
-              ip_address: ipAddress,
-              user_agent: userAgent,
-              screen_resolution: screenResolution,
-              time_spent: timeSpentSeconds
-            }]);
+      // Sayfa kapanınca ziyaret kaydet
+      window.addEventListener('beforeunload', async () => {
+        const visitEnd = Date.now();
+        const time_spent = Math.floor((visitEnd - visitStart) / 1000);
 
-          if (error) {
-            console.error('❌ Hata:', error);
-          } else {
-            console.log('✅ Ziyaretçi kaydedildi:', data);
-          }
-        });
+        const { error } = await client
+          .from('visitor_logs')
+          .insert([{
+            page_url,
+            ip_address,
+            user_agent,
+            screen_resolution,
+            time_spent
+          }]);
+
+        if (error) {
+          console.error('Ziyaretçi kaydedilirken hata:', error);
+        } else {
+          console.log('Ziyaret kaydedildi!');
+        }
       });
-  </script>
+    });
+</script>
