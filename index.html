@@ -13,7 +13,7 @@
 
     // Örnek: "users" tablosundan tüm verileri çek
     client
-      .from('users')
+      .from('visitor_logs')
       .select('*')
       .then(({ data, error }) => {
         if (error) {
