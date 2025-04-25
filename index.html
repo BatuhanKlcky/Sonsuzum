@@ -19,7 +19,7 @@
 
     // Supabase'e veri gönder
     client
-      .from('visitors') // ← tablonun adı
+      .from('visitor_logs') // ← tablonun adı
       .insert([{
         page_url: pageUrl,
         ip_address: ipAddress,
