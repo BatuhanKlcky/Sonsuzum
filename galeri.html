@@ -628,153 +628,178 @@
             10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
             20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
-    
+      
     </style>
 </head>
 <body>
 
  <!-- Şifre Sorma Modalı -->
-    <div class="password-modal" id="passwordModal">
-        <div class="password-box">
-            <div class="heart-animation">♥</div>
-            <h2>Özel Albüme Hoş Geldin</h2>
-            <p style="color: white; margin-bottom: 20px;">Bu albüm sadece senin için. Devam etmek için lütfen şifreyi gir:</p>
-            <input type="password" class="password-input" id="passwordInput" placeholder="Şifreyi gir...">
-            <button class="submit-btn" id="submitPassword">Giriş Yap</button>
-            <div class="error-message" id="errorMessage">Hatalı şifre! Lütfen tekrar dene.</div>
-            <div class="countdown-display" id="countdown"></div>
-        </div>
+<div class="password-modal" id="passwordModal">
+    <div class="password-box">
+        <div class="heart-animation">♥</div>
+        <h2>Özel Albüme Hoş Geldin</h2>
+        <p style="color: white; margin-bottom: 20px;">Bu albüm sadece senin için. Devam etmek için lütfen şifreyi gir:</p>
+        <input type="password" class="password-input" id="passwordInput" placeholder="Şifreyi gir..." autocomplete="off">
+        <button class="submit-btn" id="submitPassword">Giriş Yap</button>
+        <div class="error-message" id="errorMessage">Hatalı şifre! Lütfen tekrar dene.</div>
+        <div class="countdown-display" id="countdown"></div>
     </div>
- <script>
-        // LocalStorage entegrasyonlu tam script
-        document.addEventListener('DOMContentLoaded', () => {
-            const passwordModal = document.getElementById('passwordModal');
-            const passwordInput = document.getElementById('passwordInput');
-            const submitPassword = document.getElementById('submitPassword');
-            const errorMessage = document.getElementById('errorMessage');
-            const countdownDisplay = document.getElementById('countdown');
-            const mainContent = document.querySelector('.container');
-            const footer = document.querySelector('footer');
+</div>
+
+<script>
+    // Tüm sayfalarda çalışacak ortak şifre sistemi
+    document.addEventListener('DOMContentLoaded', () => {
+        // Element seçiciler
+        const passwordModal = document.getElementById('passwordModal');
+        const passwordInput = document.getElementById('passwordInput');
+        const submitPassword = document.getElementById('submitPassword');
+        const errorMessage = document.getElementById('errorMessage');
+        const countdownDisplay = document.getElementById('countdown');
+        const mainContent = document.querySelector('.container') || document.querySelector('main') || document.body;
+        const footer = document.querySelector('footer');
+        
+        // Ayarlar
+        const CONFIG = {
+            password: "1YIL", // Tüm sayfalarda geçerli şifre
+            sessionDuration: 5 * 60 * 1000, // 5 dakika (milisaniye)
+            storageKey: "unifiedAuthSystem",
+            crossPageSync: true // Sayfalar arası senkronizasyon
+        };
+
+        // Oturum kontrolü
+        checkAuthStatus();
+
+        function checkAuthStatus() {
+            const authData = getAuthData();
+            const currentTime = Date.now();
+
+            if (authData && authData.expires > currentTime) {
+                // Geçerli oturum varsa
+                const remainingTime = authData.expires - currentTime;
+                grantAccess();
+                startSessionTimer(remainingTime);
+            } else {
+                // Oturum yoksa veya süresi dolmuşsa
+                requestPassword();
+                if (CONFIG.crossPageSync) clearAuthData();
+            }
+        }
+
+        function requestPassword() {
+            if (mainContent) mainContent.style.display = 'none';
+            if (footer) footer.style.display = 'none';
+            passwordModal.style.display = 'flex';
+            passwordInput.value = '';
+            passwordInput.focus();
+            errorMessage.classList.remove('show');
+            if (countdownDisplay) countdownDisplay.textContent = '';
+        }
+
+        function grantAccess() {
+            // Oturum bilgisini kaydet
+            const authData = {
+                expires: Date.now() + CONFIG.sessionDuration,
+                created: new Date().toISOString()
+            };
+            saveAuthData(authData);
+
+            // İçeriği göster
+            if (mainContent) mainContent.style.display = 'block';
+            if (footer) footer.style.display = 'block';
+            passwordModal.style.display = 'none';
+
+            // Sayfalar arası senkronizasyon
+            if (CONFIG.crossPageSync) {
+                window.dispatchEvent(new Event('storage'));
+            }
+        }
+
+        function startSessionTimer(duration) {
+            // Önceki zamanlayıcıları temizle
+            if (window.authTimer) clearInterval(window.authTimer);
             
-            // Ayarlar
-            const CORRECT_PASSWORD = "1YIL";
-            const CHECK_INTERVAL = 5 * 60 * 1000; // 5 dakika (milisaniye)
-            const STORAGE_KEY = "albumAuthData";
-            let checkTimeout;
-            let countdownInterval;
-
-            // Sayfa yüklendiğinde kimlik doğrulamayı kontrol et
-            checkAuthStatus();
-
-            function checkAuthStatus() {
-                const authData = getAuthData();
-                const currentTime = Date.now();
-                
-                if (authData && (currentTime - authData.loginTime) < CHECK_INTERVAL) {
-                    // Daha önce giriş yapılmış ve süre dolmamış
-                    const remainingTime = CHECK_INTERVAL - (currentTime - authData.loginTime);
-                    startSessionTimer(remainingTime);
-                    grantAccess();
-                } else {
-                    // Giriş yapılmamış veya süre dolmuş
-                    askForPassword();
-                    clearAuthData();
-                }
+            // Geri sayım göster
+            if (countdownDisplay) {
+                updateTimerDisplay(duration);
+                window.authTimer = setInterval(() => {
+                    duration -= 1000;
+                    if (duration <= 0) {
+                        clearInterval(window.authTimer);
+                        requestPassword();
+                        clearAuthData();
+                    } else {
+                        updateTimerDisplay(duration);
+                    }
+                }, 1000);
             }
+        }
 
-            function askForPassword() {
-                mainContent.style.display = 'none';
-                footer.style.display = 'none';
-                passwordModal.style.display = 'flex';
-                passwordInput.value = '';
-                passwordInput.focus();
+        function updateTimerDisplay(ms) {
+            const minutes = Math.floor(ms / 60000);
+            const seconds = Math.floor((ms % 60000) / 1000);
+            countdownDisplay.textContent = `Oturum süresi: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        // LocalStorage işlemleri
+        function saveAuthData(data) {
+            localStorage.setItem(CONFIG.storageKey, JSON.stringify(data));
+        }
+
+        function getAuthData() {
+            const data = localStorage.getItem(CONFIG.storageKey);
+            return data ? JSON.parse(data) : null;
+        }
+
+        function clearAuthData() {
+            localStorage.removeItem(CONFIG.storageKey);
+        }
+
+        // Şifre kontrolü
+        function checkPassword() {
+            if (passwordInput.value === CONFIG.password) {
                 errorMessage.classList.remove('show');
-                countdownDisplay.textContent = '';
-            }
-
-            function grantAccess() {
-                // Giriş zamanını kaydet
-                saveAuthData({ loginTime: Date.now() });
-                
-                // İçeriği göster
-                mainContent.style.display = 'block';
-                footer.style.display = 'block';
-                passwordModal.style.display = 'none';
-                
-                // Müziği başlat
-                bgMusic.play().catch(e => console.log("Otomatik çalma engellendi: ", e));
-                
-                // Yeni oturum zamanlayıcısını başlat
-                startSessionTimer(CHECK_INTERVAL);
-            }
-
-            function startSessionTimer(duration) {
-                // Önceki zamanlayıcıları temizle
-                if (checkTimeout) clearTimeout(checkTimeout);
-                if (countdownInterval) clearInterval(countdownInterval);
-                
-                // Geri sayım göster
-                if (countdownDisplay) {
-                    updateCountdownDisplay(duration);
-                    countdownInterval = setInterval(() => {
-                        duration -= 1000;
-                        updateCountdownDisplay(duration);
-                    }, 1000);
-                }
-                
-                // Oturum sonu zamanlayıcısı
-                checkTimeout = setTimeout(() => {
-                    askForPassword();
-                    clearAuthData();
-                }, duration);
-            }
-
-            function updateCountdownDisplay(ms) {
-                const minutes = Math.floor(ms / 60000);
-                const seconds = Math.floor((ms % 60000) / 1000);
-                countdownDisplay.textContent = `Oturum süresi: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-            }
-
-            // LocalStorage fonksiyonları
-            function saveAuthData(data) {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-            }
-
-            function getAuthData() {
-                const data = localStorage.getItem(STORAGE_KEY);
-                return data ? JSON.parse(data) : null;
-            }
-
-            function clearAuthData() {
-                localStorage.removeItem(STORAGE_KEY);
-            }
-
-            // Şifre kontrol fonksiyonu
-            function checkPassword() {
-                if (passwordInput.value === CORRECT_PASSWORD) {
-                    errorMessage.classList.remove('show');
-                    grantAccess();
-                } else {
+                grantAccess();
+            } else {
+                errorMessage.classList.add('show');
+                passwordInput.style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    passwordInput.style.animation = '';
                     passwordInput.value = '';
                     passwordInput.focus();
-                    errorMessage.classList.add('show');
-                    passwordInput.style.animation = 'shake 0.5s';
-                    setTimeout(() => passwordInput.style.animation = '', 500);
-                }
+                }, 500);
             }
+        }
 
-            // Event listeners
-            submitPassword.addEventListener('click', checkPassword);
-            passwordInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') checkPassword();
-            });
-
-            // Sayfa kapatılırken temizlik
-            window.addEventListener('beforeunload', () => {
-                if (checkTimeout) clearTimeout(checkTimeout);
-                if (countdownInterval) clearInterval(countdownInterval);
-            });
+        // Event listeners
+        submitPassword.addEventListener('click', checkPassword);
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkPassword();
         });
+
+        // Sayfalar arası senkronizasyon
+        if (CONFIG.crossPageSync) {
+            window.addEventListener('storage', (e) => {
+                if (e.key === CONFIG.storageKey) {
+                    checkAuthStatus();
+                }
+            });
+        }
+
+        // Sayfa kapatılırken temizlik
+        window.addEventListener('beforeunload', () => {
+            if (window.authTimer) clearInterval(window.authTimer);
+        });
+
+        // Global çıkış fonksiyonu
+        window.forceLogout = function() {
+            clearAuthData();
+            if (CONFIG.crossPageSync) {
+                window.dispatchEvent(new Event('storage'));
+            }
+            location.reload();
+        };
+    });
+
     </script>
     <!-- Müzik Player -->
     <audio id="bgMusic" loop>
