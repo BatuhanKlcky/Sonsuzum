@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 
- <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
+ <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"> <script>
 
 <script>
   const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
@@ -511,9 +511,63 @@
                 bottom: -30px;
             }
         }
+             .password-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .password-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .content {
+            display: none;
+            padding: 20px;
+        }
     </style>
 </head>
 <body>
+
+ <script>
+        const PASSWORD = "240424"; // Aynı şifre
+        
+        function verifyPassword() {
+            const enteredPassword = document.getElementById("galleryPassword").value;
+            if(enteredPassword === PASSWORD) {
+                localStorage.setItem("galleryAccess", Date.now());
+                hidePasswordScreen();
+                showGallery();
+            } else {
+                alert("Geçersiz şifre!");
+            }
+        }
+
+        function hidePasswordScreen() {
+            document.getElementById("passwordContainer").style.display = "none";
+        }
+
+        function showGallery() {
+            document.getElementById("galleryContent").style.display = "block";
+        }
+
+        // Sayfa yüklendiğinde kontrol et
+        document.addEventListener("DOMContentLoaded", function() {
+            const accessTime = localStorage.getItem("galleryAccess");
+            if(accessTime && (Date.now() - accessTime < 600000)) { // 10 dakika
+                hidePasswordScreen();
+                showGallery();
+            }
+        });
+    </script>
     <!-- Müzik Player -->
     <audio id="bgMusic" loop>
         <source src="https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/%C4%B0D%C4%B0L%20%E2%99%AB%20Duygusal%20Piyano%20Fon%20M%C3%BCzi%C4%9Fi.mp3" type="audio/mpeg">
@@ -609,6 +663,47 @@
             <div class="full-image-caption" id="fullImageCaption"></div>
         </div>
     </div>
+ 
+ <!-- Şifre Giriş -->
+    <div class="password-container" id="passwordContainer">
+        <div class="password-box">
+            <h2>Galeri İçin Şifre Girin</h2>
+            <input type="password" id="galleryPassword" placeholder="Şifre">
+            <button onclick="verifyPassword()">Onayla</button>
+        </div>
+    </div>
+ <script>
+        const PASSWORD = "240424"; // Aynı şifre
+        
+        function verifyPassword() {
+            const enteredPassword = document.getElementById("galleryPassword").value;
+            if(enteredPassword === PASSWORD) {
+                localStorage.setItem("galleryAccess", Date.now());
+                hidePasswordScreen();
+                showGallery();
+            } else {
+                alert("Geçersiz şifre!");
+            }
+        }
+
+        function hidePasswordScreen() {
+            document.getElementById("passwordContainer").style.display = "none";
+        }
+
+        function showGallery() {
+            document.getElementById("gallery").style.display = "block";
+        }
+
+        // Sayfa yüklendiğinde kontrol et
+        document.addEventListener("DOMContentLoaded", function() {
+            const accessTime = localStorage.getItem("galleryAccess");
+            if(accessTime && (Date.now() - accessTime < 600000)) { // 10 dakika
+                hidePasswordScreen();
+                showGallery();
+            }
+        });
+    </script>
+ 
 
     <footer>
         <p>Bu albüm <span class="heart">♥</span> ile hazırlandı | &copy; 2025 Tüm Sevgim Sende saklıdır</p>
