@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 
- <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"> <script>
+ <script> src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"> </script>
 
 <script>
   const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
@@ -511,39 +511,50 @@
                 bottom: -30px;
             }
         }
+             /* Şifre giriş alanının modern tasarımı */
         .password-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.8); /* Buğulu arka plan */
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 2000;
-            animation: fadeIn 0.5s ease-out;
+            z-index: 20;
+            animation: fadeIn 0.5s ease-out; /* Giriş animasyonu */
         }
 
+        /* Şifre giriş kutusu tasarımı */
         .password-box {
-            background: linear-gradient(135deg, #ff4c8b, #ff69b4);
+            background: linear-gradient(135deg, #ff4c8b, #ff69b4); /* Şık renk geçişi */
             padding: 40px;
             border-radius: 15px;
             text-align: center;
             width: 320px;
             box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
             transform: scale(1);
-            animation: scaleUp 0.3s ease-in-out forwards;
+            animation: scaleUp 0.3s ease-in-out forwards; /* Animasyon ekledim */
         }
 
+        /* Animasyonlar */
         @keyframes fadeIn {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
         }
 
         @keyframes scaleUp {
-            0% { transform: scale(0.8); }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(0.8);
+            }
+            100% {
+                transform: scale(1);
+            }
         }
 
         .password-box h2 {
@@ -588,89 +599,59 @@
             background-color: #ff4c8b;
         }
 
-        /* İçerik için bulanık stil */
-        .blur-content {
-            filter: blur(8px);
-            pointer-events: none;
-            user-select: none;
-        }
-
-        @media (max-width: 768px) {
-            .password-box {
-                width: 80%;
-                padding: 30px;
-            }
-        }
     </style>
 </head>
 <body>
-  
-   <!-- Şifre giriş paneli (index.html ile tamamen aynı) -->
+
+ 
+    <!-- Şifre giriş alanı -->
     <div class="password-container" id="passwordContainer">
         <div class="password-box">
             <h2>Şifreyi Girin</h2>
             <input type="password" id="password" placeholder="Şifre">
-            <button onclick="submitPassword()">Gönder</button>
+            <button onclick="checkPassword()">Gönder</button>
         </div>
     </div>
 
-<div id="mainContent" class="blur-content">
-       <script>
-        // Şifre kontrol fonksiyonu
-        const correctPassword = '240424';
-        
+ <script>
+        const correctPassword = '240424'; // Doğru şifre
+
+        // Sayfa yüklendiğinde zaman kontrolü
+        window.onload = function() {
+            const lastAccess = localStorage.getItem('lastAccess');
+            const currentTime = Date.now();
+            
+            if (lastAccess && (currentTime - lastAccess) < 600000) { // 600000 ms = 10 dakika
+                // 10 dakika içinde tekrar şifre isteme
+                document.getElementById('passwordContainer').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                document.getElementById('footer').style.display = 'block';
+                document.getElementById('menuToggle').style.display = 'flex';
+                document.getElementById('bgMusic').play(); // Şarkıyı başlat
+            }
+        }
+
         function checkPassword() {
             const inputPassword = document.getElementById('password').value;
             if (inputPassword === correctPassword) {
-                // Oturum bilgisini kaydet
-                sessionStorage.setItem('galleryAuthenticated', 'true');
-                localStorage.setItem('lastGalleryAccess', Date.now());
-                
-                // Şifre panelini kaldır ve içeriği göster
+                localStorage.setItem('lastAccess', Date.now());
                 document.getElementById('passwordContainer').style.display = 'none';
-                document.getElementById('mainContent').classList.remove('blur-content');
-                
-                // Müziği başlat
-                if (document.getElementById('bgMusic')) {
-                    document.getElementById('bgMusic').play().catch(e => console.log("Müzik başlatılamadı:", e));
-                }
+                document.getElementById('mainContent').style.display = 'block';
+                document.getElementById('footer').style.display = 'block';
+                document.getElementById('menuToggle').style.display = 'flex';
+                document.getElementById('bgMusic').play(); // Şarkıyı başlat
+               
             } else {
                 alert('Yanlış şifre. Lütfen tekrar deneyin.');
             }
         }
 
-        // Sayfa yüklendiğinde kontrol et
-        window.onload = function() {
-            // Şifre butonuna event listener ekle
-            document.getElementById('submitPassword').addEventListener('click', checkPassword);
-            
-            // Enter tuşu ile şifre gönderme
-            document.getElementById('password').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    checkPassword();
-                }
-            });
-
-            const isAuthenticated = sessionStorage.getItem('galleryAuthenticated');
-            const lastAccess = localStorage.getItem('lastGalleryAccess');
-            const currentTime = Date.now();
-            
-            // 10 dakika içinde mi kontrolü
-            if (isAuthenticated || (lastAccess && (currentTime - lastAccess) < 600000)) {
-                document.getElementById('passwordContainer').style.display = 'none';
-                document.getElementById('mainContent').classList.remove('blur-content');
-                
-                // Müziği başlat
-                if (document.getElementById('bgMusic')) {
-                    document.getElementById('bgMusic').play().catch(e => console.log("Müzik başlatılamadı:", e));
-                }
-            }
-             
+ 
     <!-- Müzik Player -->
     <audio id="bgMusic" loop>
         <source src="https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/%C4%B0D%C4%B0L%20%E2%99%AB%20Duygusal%20Piyano%20Fon%20M%C3%BCzi%C4%9Fi.mp3" type="audio/mpeg">
     </audio>
- window.checkPassword = checkPassword;
+
     <!-- Menü Toggle -->
     <div class="menu-toggle" id="menuToggle">
         <i class="fas fa-bars"></i>
@@ -761,47 +742,6 @@
             <div class="full-image-caption" id="fullImageCaption"></div>
         </div>
     </div>
- 
- <!-- Şifre Giriş -->
-    <div class="password-container" id="passwordContainer">
-        <div class="password-box">
-            <h2>Galeri İçin Şifre Girin</h2>
-            <input type="password" id="galleryPassword" placeholder="Şifre">
-            <button onclick="verifyPassword()">Onayla</button>
-        </div>
-    </div>
- <script>
-        const PASSWORD = "240424"; // Aynı şifre
-        
-        function verifyPassword() {
-            const enteredPassword = document.getElementById("galleryPassword").value;
-            if(enteredPassword === PASSWORD) {
-                localStorage.setItem("galleryAccess", Date.now());
-                hidePasswordScreen();
-                showGallery();
-            } else {
-                alert("Geçersiz şifre!");
-            }
-        }
-
-        function hidePasswordScreen() {
-            document.getElementById("passwordContainer").style.display = "none";
-        }
-
-        function showGallery() {
-            document.getElementById("gallery").style.display = "block";
-        }
-
-        // Sayfa yüklendiğinde kontrol et
-        document.addEventListener("DOMContentLoaded", function() {
-            const accessTime = localStorage.getItem("galleryAccess");
-            if(accessTime && (Date.now() - accessTime < 600000)) { // 10 dakika
-                hidePasswordScreen();
-                showGallery();
-            }
-        });
-    </script>
- 
 
     <footer>
         <p>Bu albüm <span class="heart">♥</span> ile hazırlandı | &copy; 2025 Tüm Sevgim Sende saklıdır</p>
