@@ -511,193 +511,271 @@
                 bottom: -30px;
             }
         }
-      .password-modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.9);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-        opacity: 1;
-        transition: opacity 0.5s ease;
-    }
+      /* Şifre Modal Stilleri */
+        .password-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+        
+        .password-modal.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .password-box {
+            background: linear-gradient(135deg, #ff758f, #ff7eb3);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            animation: scaleIn 0.5s forwards;
+        }
+        
+        @keyframes scaleIn {
+            to { transform: scale(1); }
+        }
+        
+        .password-box h2 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        .password-input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .password-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+        }
+        
+        .submit-btn {
+            background: white;
+            color: #ff758f;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .submit-btn:hover {
+            background: #ffe5ec;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .error-message {
+            color: white;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            height: 20px;
+        }
+        
+        .error-message.show {
+            opacity: 1;
+        }
+        
+        .heart-animation {
+            font-size: 2rem;
+            color: white;
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+            margin-bottom: 15px;
+        }
+        
+        .countdown-display {
+            color: white;
+            margin-top: 15px;
+            font-size: 1rem;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
     
-    .password-modal.hidden {
-        opacity: 0;
-        pointer-events: none;
-    }
-    
-    .password-box {
-        background: linear-gradient(135deg, #ff758f, #ff7eb3);
-        padding: 30px;
-        border-radius: 15px;
-        width: 90%;
-        max-width: 400px;
-        text-align: center;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        transform: scale(0.9);
-        animation: scaleIn 0.5s forwards;
-    }
-    
-    @keyframes scaleIn {
-        to { transform: scale(1); }
-    }
-    
-    .password-box h2 {
-        color: white;
-        margin-bottom: 20px;
-        font-size: 1.8rem;
-    }
-    
-    .password-input {
-        width: 100%;
-        padding: 15px;
-        margin-bottom: 20px;
-        border: none;
-        border-radius: 30px;
-        font-size: 1rem;
-        text-align: center;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-    }
-    
-    .password-input:focus {
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
-    }
-    
-    .submit-btn {
-        background: white;
-        color: #ff758f;
-        border: none;
-        padding: 12px 30px;
-        border-radius: 30px;
-        font-size: 1rem;
-        font-weight: bold;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-    
-    .submit-btn:hover {
-        background: #ffe5ec;
-        transform: translateY(-3px);
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-    }
-    
-    .error-message {
-        color: white;
-        margin-top: 15px;
-        font-size: 0.9rem;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        height: 20px;
-    }
-    
-    .error-message.show {
-        opacity: 1;
-    }
-    
-    .heart-animation {
-        font-size: 2rem;
-        color: white;
-        display: inline-block;
-        animation: pulse 1.5s infinite;
-        margin-bottom: 15px;
-    }
-    
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.2); }
-        100% { transform: scale(1); }
-    }
     </style>
 </head>
 <body>
 
-  <div class="password-modal" id="passwordModal">
-    <div class="password-box">
-        <div class="heart-animation">♥</div>
-        <h2>Özel Albüme Hoş Geldin</h2>
-        <p style="color: white; margin-bottom: 20px;">Bu albüm sadece senin için. Devam etmek için lütfen şifreyi gir:</p>
-        <input type="password" class="password-input" id="passwordInput" placeholder="Şifreyi gir...">
-        <button class="submit-btn" id="submitPassword">Giriş Yap</button>
-        <div class="error-message" id="errorMessage">Hatalı şifre! Lütfen tekrar dene.</div>
+ <!-- Şifre Sorma Modalı -->
+    <div class="password-modal" id="passwordModal">
+        <div class="password-box">
+            <div class="heart-animation">♥</div>
+            <h2>Özel Albüme Hoş Geldin</h2>
+            <p style="color: white; margin-bottom: 20px;">Bu albüm sadece senin için. Devam etmek için lütfen şifreyi gir:</p>
+            <input type="password" class="password-input" id="passwordInput" placeholder="Şifreyi gir...">
+            <button class="submit-btn" id="submitPassword">Giriş Yap</button>
+            <div class="error-message" id="errorMessage">Hatalı şifre! Lütfen tekrar dene.</div>
+            <div class="countdown-display" id="countdown"></div>
+        </div>
     </div>
-</div>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const passwordModal = document.getElementById('passwordModal');
-        const passwordInput = document.getElementById('passwordInput');
-        const submitPassword = document.getElementById('submitPassword');
-        const errorMessage = document.getElementById('errorMessage');
-        const mainContent = document.querySelector('.container');
-        const footer = document.querySelector('footer');
-        
-        // 
-        const CORRECT_PASSWORD = "240424";
-        
-        // Sayfa yüklendiğinde içeriği gizle
-        mainContent.style.display = 'none';
-        footer.style.display = 'none';
-        
-        // Şifre gönder butonu
-        submitPassword.addEventListener('click', checkPassword);
-        
-        // Enter tuşu ile de gönderilsin
-        passwordInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                checkPassword();
+ <script>
+        // LocalStorage entegrasyonlu tam script
+        document.addEventListener('DOMContentLoaded', () => {
+            const passwordModal = document.getElementById('passwordModal');
+            const passwordInput = document.getElementById('passwordInput');
+            const submitPassword = document.getElementById('submitPassword');
+            const errorMessage = document.getElementById('errorMessage');
+            const countdownDisplay = document.getElementById('countdown');
+            const mainContent = document.querySelector('.container');
+            const footer = document.querySelector('footer');
+            
+            // Ayarlar
+            const CORRECT_PASSWORD = "sevgi";
+            const CHECK_INTERVAL = 5 * 60 * 1000; // 5 dakika (milisaniye)
+            const STORAGE_KEY = "albumAuthData";
+            let checkTimeout;
+            let countdownInterval;
+
+            // Sayfa yüklendiğinde kimlik doğrulamayı kontrol et
+            checkAuthStatus();
+
+            function checkAuthStatus() {
+                const authData = getAuthData();
+                const currentTime = Date.now();
+                
+                if (authData && (currentTime - authData.loginTime) < CHECK_INTERVAL) {
+                    // Daha önce giriş yapılmış ve süre dolmamış
+                    const remainingTime = CHECK_INTERVAL - (currentTime - authData.loginTime);
+                    startSessionTimer(remainingTime);
+                    grantAccess();
+                } else {
+                    // Giriş yapılmamış veya süre dolmuş
+                    askForPassword();
+                    clearAuthData();
+                }
             }
-        });
-        
-        function checkPassword() {
-            if (passwordInput.value === CORRECT_PASSWORD) {
-                // Şifre doğru
-                errorMessage.classList.remove('show');
-                
-                // Modal'ı kapat
-                passwordModal.classList.add('hidden');
-                
-                // İçeriği göster
-                setTimeout(() => {
-                    mainContent.style.display = 'block';
-                    footer.style.display = 'block';
-                    passwordModal.style.display = 'none';
-                    
-                    // Müziği başlat (eğer kullanıcı izin verirse)
-                    bgMusic.play().catch(e => console.log("Otomatik çalma engellendi: ", e));
-                }, 500);
-            } else {
-                // Şifre yanlış
+
+            function askForPassword() {
+                mainContent.style.display = 'none';
+                footer.style.display = 'none';
+                passwordModal.style.display = 'flex';
                 passwordInput.value = '';
                 passwordInput.focus();
-                errorMessage.classList.add('show');
+                errorMessage.classList.remove('show');
+                countdownDisplay.textContent = '';
+            }
+
+            function grantAccess() {
+                // Giriş zamanını kaydet
+                saveAuthData({ loginTime: Date.now() });
                 
-                // Titreşim efekti
-                passwordInput.style.animation = 'shake 0.5s';
-                setTimeout(() => {
-                    passwordInput.style.animation = '';
-                }, 500);
+                // İçeriği göster
+                mainContent.style.display = 'block';
+                footer.style.display = 'block';
+                passwordModal.style.display = 'none';
+                
+                // Müziği başlat
+                bgMusic.play().catch(e => console.log("Otomatik çalma engellendi: ", e));
+                
+                // Yeni oturum zamanlayıcısını başlat
+                startSessionTimer(CHECK_INTERVAL);
             }
-        }
-        
-        // Titreşim animasyonu
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes shake {
-                0%, 100% { transform: translateX(0); }
-                10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-                20%, 40%, 60%, 80% { transform: translateX(5px); }
+
+            function startSessionTimer(duration) {
+                // Önceki zamanlayıcıları temizle
+                if (checkTimeout) clearTimeout(checkTimeout);
+                if (countdownInterval) clearInterval(countdownInterval);
+                
+                // Geri sayım göster
+                if (countdownDisplay) {
+                    updateCountdownDisplay(duration);
+                    countdownInterval = setInterval(() => {
+                        duration -= 1000;
+                        updateCountdownDisplay(duration);
+                    }, 1000);
+                }
+                
+                // Oturum sonu zamanlayıcısı
+                checkTimeout = setTimeout(() => {
+                    askForPassword();
+                    clearAuthData();
+                }, duration);
             }
-        `;
-        document.head.appendChild(style);
-    });
-</script>
+
+            function updateCountdownDisplay(ms) {
+                const minutes = Math.floor(ms / 60000);
+                const seconds = Math.floor((ms % 60000) / 1000);
+                countdownDisplay.textContent = `Oturum süresi: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            }
+
+            // LocalStorage fonksiyonları
+            function saveAuthData(data) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            }
+
+            function getAuthData() {
+                const data = localStorage.getItem(STORAGE_KEY);
+                return data ? JSON.parse(data) : null;
+            }
+
+            function clearAuthData() {
+                localStorage.removeItem(STORAGE_KEY);
+            }
+
+            // Şifre kontrol fonksiyonu
+            function checkPassword() {
+                if (passwordInput.value === CORRECT_PASSWORD) {
+                    errorMessage.classList.remove('show');
+                    grantAccess();
+                } else {
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                    errorMessage.classList.add('show');
+                    passwordInput.style.animation = 'shake 0.5s';
+                    setTimeout(() => passwordInput.style.animation = '', 500);
+                }
+            }
+
+            // Event listeners
+            submitPassword.addEventListener('click', checkPassword);
+            passwordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') checkPassword();
+            });
+
+            // Sayfa kapatılırken temizlik
+            window.addEventListener('beforeunload', () => {
+                if (checkTimeout) clearTimeout(checkTimeout);
+                if (countdownInterval) clearInterval(countdownInterval);
+            });
+        });
+    </script>
     <!-- Müzik Player -->
     <audio id="bgMusic" loop>
         <source src="https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/%C4%B0D%C4%B0L%20%E2%99%AB%20Duygusal%20Piyano%20Fon%20M%C3%BCzi%C4%9Fi.mp3" type="audio/mpeg">
