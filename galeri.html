@@ -615,8 +615,8 @@
     </div>
 
 <div id="mainContent" class="blur-content">
-     <script>
-        // Şifre kontrolü (index.html ile aynı)
+       <script>
+        // Şifre kontrol fonksiyonu
         const correctPassword = '240424';
         
         function checkPassword() {
@@ -639,8 +639,18 @@
             }
         }
 
-        // Sayfa yüklendiğinde kontrol et (index.html mantığıyla aynı)
+        // Sayfa yüklendiğinde kontrol et
         window.onload = function() {
+            // Şifre butonuna event listener ekle
+            document.getElementById('submitPassword').addEventListener('click', checkPassword);
+            
+            // Enter tuşu ile şifre gönderme
+            document.getElementById('password').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkPassword();
+                }
+            });
+
             const isAuthenticated = sessionStorage.getItem('galleryAuthenticated');
             const lastAccess = localStorage.getItem('lastGalleryAccess');
             const currentTime = Date.now();
@@ -655,18 +665,12 @@
                     document.getElementById('bgMusic').play().catch(e => console.log("Müzik başlatılamadı:", e));
                 }
             }
- <script>
-             // Enter tuşu ile şifre gönderme
-        document.getElementById('password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                checkPassword();
-            }
-        });
+             
     <!-- Müzik Player -->
     <audio id="bgMusic" loop>
         <source src="https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/%C4%B0D%C4%B0L%20%E2%99%AB%20Duygusal%20Piyano%20Fon%20M%C3%BCzi%C4%9Fi.mp3" type="audio/mpeg">
     </audio>
-
+ window.checkPassword = checkPassword;
     <!-- Menü Toggle -->
     <div class="menu-toggle" id="menuToggle">
         <i class="fas fa-bars"></i>
