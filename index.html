@@ -488,6 +488,18 @@
         document.getElementById('bgMusic').play().catch(e => console.log("Otomatik çalma engellendi: ", e));
     </script>
 
+<script>
+  let clickCount = 0;
+  
+  document.getElementById('pixelHeart').addEventListener('click', function() {
+    clickCount++;
 
+    if (clickCount === 5) {
+      alert('SENİ ÇOOOOK SEVİYORUM ');
+      clickCount = 0; // 
+    }
+  });
+</script>
+    
 </body>
 </html>
