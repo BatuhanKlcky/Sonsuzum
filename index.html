@@ -377,6 +377,7 @@
     // Tüm sayfalarda çalışacak ortak şifre sistemi
     document.addEventListener('DOMContentLoaded', () => {
         // Element seçiciler
+        const pixelheart = document.getElementById('pixelheart');
         const passwordModal = document.getElementById('passwordModal');
         const passwordInput = document.getElementById('passwordInput');
         const submitPassword = document.getElementById('submitPassword');
@@ -415,6 +416,7 @@
         function requestPassword() {
             if (mainContent) mainContent.style.display = 'none';
             if (footer) footer.style.display = 'none';
+            if (pixelheart) pixelheart.style.display = 'none';
             passwordModal.style.display = 'flex';
             passwordInput.value = '';
             passwordInput.focus();
@@ -433,6 +435,7 @@
             // İçeriği göster
             if (mainContent) mainContent.style.display = 'block';
             if (footer) footer.style.display = 'block';
+             if (pixelheart) pixelheart.style.display = 'block';
             passwordModal.style.display = 'none';
 
             // Sayfalar arası senkronizasyon
@@ -516,9 +519,6 @@
         window.addEventListener('beforeunload', () => {
             if (window.authTimer) clearInterval(window.authTimer);
         });
-if (passwordCorrect) {
-    document.getElementById('pixelheart').style.display = 'block';  // Animasyonu görünür yap
-}
         // Global çıkış fonksiyonu
         window.forceLogout = function() {
             clearAuthData();
@@ -605,7 +605,7 @@ if (passwordCorrect) {
         // Pixel Kalp oluşturma ve animasyon
     
         function createPixelHeart() {
-            const heart = document.getElementById('pixelheart');
+            const pixelheart = document.getElementById('pixelheart');
             heart.innerHTML = '';
             
             // Pixel kalp şekli (5x5 grid)
