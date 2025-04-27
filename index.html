@@ -512,7 +512,18 @@
                 }
             });
         }
-
+// Element var mı kontrolü
+    if (!heart) {
+        console.error("Pixel heart elementi bulunamadı!");
+        // Otomatik oluştur
+        document.body.insertAdjacentHTML('beforeend', 
+            '<div class="pixel-heart">♥</div>');
+    } else {
+        // Animasyonu manuel başlat
+        heart.style.animation = 'pulse 1.5s infinite';
+        console.log("Pixel heart hazır!");
+    }
+});
         // Sayfa kapatılırken temizlik
         window.addEventListener('beforeunload', () => {
             if (window.authTimer) clearInterval(window.authTimer);
