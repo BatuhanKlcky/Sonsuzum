@@ -297,7 +297,7 @@
             right: 20px;
             width: 40px;
             height: 40px;
-            z-index: 1003;
+            z-index: 1002;
             cursor: pointer;
             display: block
         }
@@ -375,9 +375,9 @@
 
 <script>
     // Tüm sayfalarda çalışacak ortak şifre sistemi
+    document.getElementById("pixelheart").style.display = "block"; // Pixelheart görünür
     document.addEventListener('DOMContentLoaded', () => {
         // Element seçiciler
-        const heart = document.querySelector('pixel-heart');
         const passwordModal = document.getElementById('passwordModal');
         const passwordInput = document.getElementById('passwordInput');
         const submitPassword = document.getElementById('submitPassword');
@@ -567,7 +567,7 @@
     </footer>
 
     <!-- Pixel Kalp -->
-    <div class="pixel-heart" id="pixelHeart"></div>
+   <div id="pixelheart" style="display: none;">
 
     <script>
     
@@ -597,7 +597,7 @@
 
         // Pixel Kalp oluşturma ve animasyon
         function createPixelHeart() {
-            const heart = document.getElementById('pixelHeart');
+            const heart = document.getElementById('pixelheart');
             heart.innerHTML = '';
             
             // Pixel kalp şekli (5x5 grid)
