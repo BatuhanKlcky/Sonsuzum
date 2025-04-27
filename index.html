@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="tr">
-    
 <head>
-    
-    <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
 
 <script>
   const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
@@ -47,10 +46,21 @@
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Senin İçin</title>
+    <title>Anılar Galerisi | Özel Albüm</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Genel boşlukları sıfırlayalım */
+        :root {
+            --primary-color: #ff758f;
+            --secondary-color: #ff7eb3;
+            --accent-color: #ff8e9e;
+            --light-pink: #ffe5ec;
+            --dark-pink: #d62a6b;
+            --text-color: #333;
+            --white: #fff;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -58,19 +68,450 @@
         }
 
         body {
-            background-image: url('https://i.imgur.com/iwhcNjJ.jpeg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial', sans-serif;
-            color: #fff;
-            text-align: center;
+            background: linear-gradient(135deg, var(--light-pink), #f8f8f8);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
             min-height: 100vh;
+            padding: 20px;
         }
 
-/* Şifre Modal Stilleri */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        h1 {
+            color: var(--dark-pink);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            display: inline-block;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+        }
+
+        .subtitle {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .filter-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            width: 300px;
+            max-width: 100%;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border: none;
+            border-radius: 30px;
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--accent-color);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+        }
+
+        .filter-select {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 30px;
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            font-size: 1rem;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--accent-color);
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .gallery-item {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            aspect-ratio: 1/1;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .gallery-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .gallery-item:hover::after {
+            opacity: 1;
+        }
+
+        .image-caption {
+            position: absolute;
+            bottom: -50px;
+            left: 0;
+            right: 0;
+            padding: 15px;
+            color: var(--white);
+            z-index: 2;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .gallery-item:hover .image-caption {
+            bottom: 0;
+            opacity: 1;
+        }
+
+        .full-image-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .full-image-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .full-image-container {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        .full-image-container img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: var(--transition);
+            backdrop-filter: blur(5px);
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .prev-btn {
+            left: -70px;
+        }
+
+        .next-btn {
+            right: -70px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            color: var(--white);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: var(--transition);
+            backdrop-filter: blur(5px);
+        }
+
+        .close-btn:hover {
+            background-color: rgba(255, 0, 0, 0.5);
+            transform: rotate(90deg);
+        }
+
+        .full-image-caption {
+            position: absolute;
+            bottom: -40px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: var(--white);
+            font-size: 1.1rem;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+        }
+
+        .menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 50;
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .menu-toggle:hover {
+            background-color: var(--dark-pink);
+            transform: scale(1.1);
+        }
+
+        .sidebar-menu {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+            z-index: 40;
+            transition: var(--transition);
+            padding: 80px 20px 20px;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-menu.active {
+            left: 0;
+        }
+
+        .menu-item {
+            display: block;
+            color: var(--white);
+            text-decoration: none;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            transition: var(--transition);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .menu-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+
+        .heart {
+            color: var(--dark-pink);
+            font-size: 1.2rem;
+            animation: pulse 1.5s infinite;
+            display: inline-block;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        /* Responsive Tasarım */
+        @media (max-width: 992px) {
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+            
+            .nav-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+            
+            .prev-btn {
+                left: -50px;
+            }
+            
+            .next-btn {
+                right: -50px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .sidebar-menu {
+                width: 250px;
+                left: -250px;
+            }
+            
+            .sidebar-menu.active {
+                left: 0;
+            }
+            
+            .full-image-container img {
+                max-height: 70vh;
+            }
+            
+            .nav-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+            
+            .prev-btn {
+                left: 10px;
+            }
+            
+            .next-btn {
+                right: 10px;
+            }
+            
+            .close-btn {
+                top: 10px;
+                right: 10px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 15px;
+            }
+            
+            .filter-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .filter-select {
+                width: 100%;
+            }
+            
+            .full-image-container img {
+                max-height: 60vh;
+            }
+            
+            .full-image-caption {
+                font-size: 0.9rem;
+                bottom: -30px;
+            }
+        }
+      /* Şifre Modal Stilleri */
         .password-modal {
             position: fixed;
             top: 0;
@@ -187,409 +628,429 @@
             10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
             20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
-        /* Ana içerik için stil */
-        .container {
-            padding: 20px;
-            display: none;
-            position: relative;
-            z-index: 5;
-        }
-
-        h1 {
-            font-size: 3em;
-            color: #fff;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
-            line-height: 1.2;
-        }
-
-        p {
-            font-size: 1.5em;
-            max-width: 800px;
-            margin: 0 auto;
-            line-height: 1.8;
-            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
-        }
-
-        /* YENİ MODERN MENÜ STİLLERİ */
-        .menu-toggle {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1002;
-            width: 50px;
-            height: 50px;
-            background-color: #ff758f;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .menu-toggle:hover {
-            background-color: #d62a6b;
-            transform: scale(1.1);
-        }
-
-        .sidebar-menu {
-            position: fixed;
-            top: 0;
-            left: -300px;
-            width: 300px;
-            height: 100%;
-            background: linear-gradient(to bottom, #ff758f, #ff7eb3);
-            z-index: 40;
-            transition: all 0.3s ease;
-            padding: 80px 20px 20px;
-            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .sidebar-menu.active {
-            left: 0;
-        }
-
-        .menu-item {
-            display: block;
-            color: white;
-            text-decoration: none;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            font-size: 1.1rem;
-            font-weight: 500;
-        }
-
-        .menu-item:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            transform: translateX(5px);
-        }
-
-        .menu-item i {
-            margin-right: 10px;
-            width: 20px;
-            text-align: center;
-        }
-
-        footer {
-            margin-top: 40px;
-            display: none;
-        }
-
-        footer a {
-            text-decoration: none;
-            color: #ff69b4;
-        }
-
-        footer a:hover {
-            color: #ff4c8b;
-        }
-
-        /* Pixel Kalp */
-        .pixel-heart {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            z-index: 40;
-            cursor: pointer;
-            display: block
-        }
-
-        .pixel {
-            width: 8px;
-            height: 8px;
-            background-color: #ff4c8b;
-            position: absolute;
-            transition: all 0.3s ease;
-        }
-
-        /* Responsive Tasarım - Mobil için */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2.2em;
-                line-height: 1.4;
-            }
-
-            p {
-                font-size: 1.2em;
-                max-width: 100%;
-            }
-
-            .password-box {
-                width: 80%;
-                padding: 30px;
-            }
-
-            .menu-toggle {
-                display: flex; /* Mobilde göster */
-            }
-
-            .pixel-heart {
-                width: 30px;
-                height: 30px;
-            }
-
-            .pixel {
-                width: 6px;
-                height: 6px;
-            }
-        }
-
-        /* Full screen için */
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1.8em;
-            }
-
-            p {
-                font-size: 1em;
-            }
-            
-            .sidebar-menu {
-                width: 250px;
-            }
-        }
+    
     </style>
 </head>
 <body>
- <div class="pixelHeart" id=pixelheart>
-    <!-- Şifre Sorma Modalı -->
-<div class="password-modal" id="passwordModal">
-    <div class="password-box">
-        <div class="heart-animation">♥</div>
-        <h2></h2>
-        <p style="color: white; margin-bottom: 20px;"> Devam etmek için lütfen şifreyi gir:</p>
-        <input type="password" class="password-input" id="passwordInput" placeholder="Şifreyi gir..." autocomplete="off">
-        <button class="submit-btn" id="submitPassword">Giriş Yap</button>
-        <div class="error-message" id="errorMessage">Hatalı şifre! Lütfen tekrar dene.</div>
-        <div class="countdown-display" id="countdown"></div>
+
+ <!-- Şifre Sorma Modalı -->
+    <div class="password-modal" id="passwordModal">
+        <div class="password-box">
+            <div class="heart-animation">♥</div>
+            <h2>Özel Albüme Hoş Geldin</h2>
+            <p style="color: white; margin-bottom: 20px;">Bu albüm sadece senin için. Devam etmek için lütfen şifreyi gir:</p>
+            <input type="password" class="password-input" id="passwordInput" placeholder="Şifreyi gir...">
+            <button class="submit-btn" id="submitPassword">Giriş Yap</button>
+            <div class="error-message" id="errorMessage">Hatalı şifre! Lütfen tekrar dene.</div>
+            <div class="countdown-display" id="countdown"></div>
+        </div>
     </div>
-</div>
-
-<script>
-    // Tüm sayfalarda çalışacak ortak şifre sistemi
-    document.addEventListener('DOMContentLoaded', () => {
-        // Element seçiciler
-        const pixelheart = document.getElementById('pixelheart');
-        const passwordModal = document.getElementById('passwordModal');
-        const passwordInput = document.getElementById('passwordInput');
-        const submitPassword = document.getElementById('submitPassword');
-        const errorMessage = document.getElementById('errorMessage');
-        const countdownDisplay = document.getElementById('countdown');
-        const mainContent = document.querySelector('.container') || document.querySelector('main') || document.body;
-        const footer = document.querySelector('footer');
-        
-        // Ayarlar
-        const CONFIG = {
-            password: "240424", // Tüm sayfalarda geçerli şifre
-            sessionDuration: 5 * 60 * 1000, // 5 dakika (milisaniye)
-            storageKey: "unifiedAuthSystem",
-            crossPageSync: true // Sayfalar arası senkronizasyon
-        };
-
-        // Oturum kontrolü
-        checkAuthStatus();
-
-        function checkAuthStatus() {
-            const authData = getAuthData();
-            const currentTime = Date.now();
-
-            if (authData && authData.expires > currentTime) {
-                // Geçerli oturum varsa
-                const remainingTime = authData.expires - currentTime;
-                grantAccess();
-                startSessionTimer(remainingTime);
-            } else {
-                // Oturum yoksa veya süresi dolmuşsa
-                requestPassword();
-                if (CONFIG.crossPageSync) clearAuthData();
-            }
-        }
-
-        function requestPassword() {
-            if (mainContent) mainContent.style.display = 'none';
-            if (footer) footer.style.display = 'none';
-            if (pixelheart) pixelheart.style.display = 'none';
-            passwordModal.style.display = 'flex';
-            passwordInput.value = '';
-            passwordInput.focus();
-            errorMessage.classList.remove('show');
-            if (countdownDisplay) countdownDisplay.textContent = '';
-        }
-
-        function grantAccess() {
-            // Oturum bilgisini kaydet
-            const authData = {
-                expires: Date.now() + CONFIG.sessionDuration,
-                created: new Date().toISOString()
-            };
-            saveAuthData(authData);
-
-            // İçeriği göster
-            if (mainContent) mainContent.style.display = 'block';
-            if (footer) footer.style.display = 'block';
-             if (pixelheart) pixelheart.style.display = 'block';
-            passwordModal.style.display = 'none';
-
-            // Sayfalar arası senkronizasyon
-            if (CONFIG.crossPageSync) {
-                window.dispatchEvent(new Event('storage'));
-            }
-        }
-
-        function startSessionTimer(duration) {
-            // Önceki zamanlayıcıları temizle
-            if (window.authTimer) clearInterval(window.authTimer);
+ <script>
+        // LocalStorage entegrasyonlu tam script
+        document.addEventListener('DOMContentLoaded', () => {
+            const passwordModal = document.getElementById('passwordModal');
+            const passwordInput = document.getElementById('passwordInput');
+            const submitPassword = document.getElementById('submitPassword');
+            const errorMessage = document.getElementById('errorMessage');
+            const countdownDisplay = document.getElementById('countdown');
+            const mainContent = document.querySelector('.container');
+            const footer = document.querySelector('footer');
             
-            // Geri sayım göster
-            if (countdownDisplay) {
-                updateTimerDisplay(duration);
-                window.authTimer = setInterval(() => {
-                    duration -= 1000;
-                    if (duration <= 0) {
-                        clearInterval(window.authTimer);
-                        requestPassword();
-                        clearAuthData();
-                    } else {
-                        updateTimerDisplay(duration);
-                    }
-                }, 1000);
+            // Ayarlar
+            const CORRECT_PASSWORD = "1YIL";
+            const CHECK_INTERVAL = 5 * 60 * 1000; // 5 dakika (milisaniye)
+            const STORAGE_KEY = "albumAuthData";
+            let checkTimeout;
+            let countdownInterval;
+
+            // Sayfa yüklendiğinde kimlik doğrulamayı kontrol et
+            checkAuthStatus();
+
+            function checkAuthStatus() {
+                const authData = getAuthData();
+                const currentTime = Date.now();
+                
+                if (authData && (currentTime - authData.loginTime) < CHECK_INTERVAL) {
+                    // Daha önce giriş yapılmış ve süre dolmamış
+                    const remainingTime = CHECK_INTERVAL - (currentTime - authData.loginTime);
+                    startSessionTimer(remainingTime);
+                    grantAccess();
+                } else {
+                    // Giriş yapılmamış veya süre dolmuş
+                    askForPassword();
+                    clearAuthData();
+                }
             }
-        }
 
-        function updateTimerDisplay(ms) {
-            const minutes = Math.floor(ms / 60000);
-            const seconds = Math.floor((ms % 60000) / 1000);
-            countdownDisplay.textContent = `Oturum süresi: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-        }
-
-        // LocalStorage işlemleri
-        function saveAuthData(data) {
-            localStorage.setItem(CONFIG.storageKey, JSON.stringify(data));
-        }
-
-        function getAuthData() {
-            const data = localStorage.getItem(CONFIG.storageKey);
-            return data ? JSON.parse(data) : null;
-        }
-
-        function clearAuthData() {
-            localStorage.removeItem(CONFIG.storageKey);
-        }
-
-        // Şifre kontrolü
-        function checkPassword() {
-            if (passwordInput.value === CONFIG.password) {
+            function askForPassword() {
+                mainContent.style.display = 'none';
+                footer.style.display = 'none';
+                passwordModal.style.display = 'flex';
+                passwordInput.value = '';
+                passwordInput.focus();
                 errorMessage.classList.remove('show');
-                grantAccess();
-            } else {
-                errorMessage.classList.add('show');
-                passwordInput.style.animation = 'shake 0.5s';
-                setTimeout(() => {
-                    passwordInput.style.animation = '';
+                countdownDisplay.textContent = '';
+            }
+
+            function grantAccess() {
+                // Giriş zamanını kaydet
+                saveAuthData({ loginTime: Date.now() });
+                
+                // İçeriği göster
+                mainContent.style.display = 'block';
+                footer.style.display = 'block';
+                passwordModal.style.display = 'none';
+                
+                // Müziği başlat
+                bgMusic.play().catch(e => console.log("Otomatik çalma engellendi: ", e));
+                
+                // Yeni oturum zamanlayıcısını başlat
+                startSessionTimer(CHECK_INTERVAL);
+            }
+
+            function startSessionTimer(duration) {
+                // Önceki zamanlayıcıları temizle
+                if (checkTimeout) clearTimeout(checkTimeout);
+                if (countdownInterval) clearInterval(countdownInterval);
+                
+                // Geri sayım göster
+                if (countdownDisplay) {
+                    updateCountdownDisplay(duration);
+                    countdownInterval = setInterval(() => {
+                        duration -= 1000;
+                        updateCountdownDisplay(duration);
+                    }, 1000);
+                }
+                
+                // Oturum sonu zamanlayıcısı
+                checkTimeout = setTimeout(() => {
+                    askForPassword();
+                    clearAuthData();
+                }, duration);
+            }
+
+            function updateCountdownDisplay(ms) {
+                const minutes = Math.floor(ms / 60000);
+                const seconds = Math.floor((ms % 60000) / 1000);
+                countdownDisplay.textContent = `Oturum süresi: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            }
+
+            // LocalStorage fonksiyonları
+            function saveAuthData(data) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            }
+
+            function getAuthData() {
+                const data = localStorage.getItem(STORAGE_KEY);
+                return data ? JSON.parse(data) : null;
+            }
+
+            function clearAuthData() {
+                localStorage.removeItem(STORAGE_KEY);
+            }
+
+            // Şifre kontrol fonksiyonu
+            function checkPassword() {
+                if (passwordInput.value === CORRECT_PASSWORD) {
+                    errorMessage.classList.remove('show');
+                    grantAccess();
+                } else {
                     passwordInput.value = '';
                     passwordInput.focus();
-                }, 500);
-            }
-        }
-
-        // Event listeners
-        submitPassword.addEventListener('click', checkPassword);
-        passwordInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') checkPassword();
-        });
-
-        // Sayfalar arası senkronizasyon
-        if (CONFIG.crossPageSync) {
-            window.addEventListener('storage', (e) => {
-                if (e.key === CONFIG.storageKey) {
-                    checkAuthStatus();
+                    errorMessage.classList.add('show');
+                    passwordInput.style.animation = 'shake 0.5s';
+                    setTimeout(() => passwordInput.style.animation = '', 500);
                 }
-            });
-        }
-
-        // Sayfa kapatılırken temizlik
-        window.addEventListener('beforeunload', () => {
-            if (window.authTimer) clearInterval(window.authTimer);
-        });
-        // Global çıkış fonksiyonu
-        window.forceLogout = function() {
-            clearAuthData();
-            if (CONFIG.crossPageSync) {
-                window.dispatchEvent(new Event('storage'));
             }
-            location.reload();
-        };
-    });
-</script>
 
-if (passwordCorrect) {
-    document.getElementById('pixel-heart').style.display = 'block';  // Animasyonu görünür yap
-}
-    
-    <!-- Şarkının doğru şekilde sürekli çalmasını sağlamak -->
-    <audio autoplay loop id="bgMusic">
-        <source src="https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
-        Tarayıcınız ses dosyasını desteklemiyor.
+            // Event listeners
+            submitPassword.addEventListener('click', checkPassword);
+            passwordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') checkPassword();
+            });
+
+            // Sayfa kapatılırken temizlik
+            window.addEventListener('beforeunload', () => {
+                if (checkTimeout) clearTimeout(checkTimeout);
+                if (countdownInterval) clearInterval(countdownInterval);
+            });
+        });
+    </script>
+    <!-- Müzik Player -->
+    <audio id="bgMusic" loop>
+        <source src="https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/%C4%B0D%C4%B0L%20%E2%99%AB%20Duygusal%20Piyano%20Fon%20M%C3%BCzi%C4%9Fi.mp3" type="audio/mpeg">
     </audio>
 
-   
-
-    <!-- Ana içerik -->
-    <div class="container" id="mainContent">
-         
-        <h1>Bir yıl önce hayatıma girdin ve her şeyi güzelleştirdin.</h1>
-        <p>Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim.</p>
-    </div>
-
-    <!-- YENİ MODERN MENÜ -->
+    <!-- Menü Toggle -->
     <div class="menu-toggle" id="menuToggle">
         <i class="fas fa-bars"></i>
     </div>
 
+    <!-- Yan Menü -->
     <div class="sidebar-menu" id="sidebarMenu">
         <a href="index.html" class="menu-item"><i class="fas fa-home"></i> Ana Sayfa</a>
         <a href="zaman-tuneli.html" class="menu-item"><i class="fas fa-history"></i> Zaman Tüneli</a>
-        <a href="galeri.html" class="menu-item"><i class="fas fa-images"></i> Fotoğraf Galerisi</a>
         <a href="mesajlar.html" class="menu-item"><i class="fas fa-envelope"></i> Özel Mesajlar</a>
-        <a href="cicektarlasi.html" class="menu-item"><i class="fas fa-flower"></i> Çiçek Yeri</a>
-        <a href="xox.html" class="menu-item"><i class="fas fa-times"></i> XOX Oyunu</a>
-        <a href="yarisoyunu.html" class="menu-item"><i class="fas fa-flag-checkered"></i> Yarış Oyunu</a>
-        <a href="duello.html" class="menu-item"><i class="fas fa-gamepad"></i> Düello</a>
         <a href="#" class="menu-item" id="musicControl"><i class="fas fa-music"></i> Müzik: Açık</a>
     </div>
 
-    <footer id="footer">
-        <p>&copy; 2025 Senin İçin. Tüm Sevgim sende saklıdır.</p>
+    <div class="container">
+        <header>
+            <h1>Anılar Galerisi</h1>
+            <p class="subtitle">En güzel anılarımız burada saklı...</p>
+        </header>
+
+        <!-- Filtreleme Kontrolleri -->
+        <div class="filter-controls">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Anılarında ara...">
+            </div>
+            <select class="filter-select" id="filterSelect">
+                <option value="all">Tüm Fotoğraflar</option>
+                <option value=".jpg">JPG</option>
+                <option value=".jpeg">JPEG</option>
+                <option value=".png">PNG</option>
+                <option value=".JPG">Büyük JPG</option>
+            </select>
+        </div>
+        
+        <!-- Galeri -->
+        <div class="gallery" id="gallery">
+            <!--  -->
+            <div class="gallery-item">
+                <img src="resim1.jpg" alt="Mutlu bir anımız" onclick="showImage(this.src, this.alt)">
+                <div class="image-caption">Mutlu bir anımız</div>
+            </div>
+            <div class="gallery-item">
+                <img src="resim2.jpg" alt="Güzel bir gün" onclick="showImage(this.src, this.alt)">
+                <div class="image-caption">Güzel bir gün</div>
+            </div>
+            <div class="gallery-item">
+                <img src="resim3.jpg" alt="Unutulmaz hatıra" onclick="showImage(this.src, this.alt)">
+                <div class="image-caption">Unutulmaz hatıra</div>
+            </div>
+            <div class="gallery-item">
+                <img src="resim4.JPG" alt="Özel bir an" onclick="showImage(this.src, this.alt)">
+                <div class="image-caption">Özel bir an</div>
+            </div>
+            <div class="gallery-item">
+                <img src="resim5.JPG" alt="Gülüşlerimiz" onclick="showImage(this.src, this.alt)">
+                <div class="image-caption">Gülüşlerimiz</div>
+            </div>
+            <div class="gallery-item">
+                <img src="resim6.JPG" alt="Birlikte geçirdiğimiz zamanlar" onclick="showImage(this.src, this.alt)">
+                <div class="image-caption">Birlikte geçirdiğimiz zamanlar</div>
+            </div>
+            <div class="gallery-item">
+                <img src="resim7.JPG" alt="Mutluluk dolu an" onclick="showImage(this.src, this.alt)">
+                <div class="image-caption">Mutluluk dolu an</div>
+            </div>
+            <div class="gallery-item">
+                <img src="resim8.JPG" alt="Sevgi dolu bakışlar" onclick="showImage(this.src, this.alt)">
+                <div class="image-caption">Sevgi dolu bakışlar</div>
+            </div>
+            <div class="gallery-item">
+                <img src="resim9.JPG" alt="Güzel bir hatıra" onclick="showImage(this.src, this.alt)">
+                <div class="image-caption">Güzel bir hatıra</div>
+            </div>
+            <div class="gallery-item">
+                <img src="resim10.JPG" alt="Anılarımız" onclick="showImage(this.src, this.alt)">
+                <div class="image-caption">Anılarımız</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Full Image Overlay -->
+    <div class="full-image-overlay" id="fullImageOverlay" onclick="closeImage(event)">
+        <div class="full-image-container">
+            <img id="expandedImage">
+            <button class="nav-btn prev-btn" onclick="navigate(-1, event)"><i class="fas fa-chevron-left"></i></button>
+            <button class="nav-btn next-btn" onclick="navigate(1, event)"><i class="fas fa-chevron-right"></i></button>
+            <button class="close-btn" onclick="closeImage(event)"><i class="fas fa-times"></i></button>
+            <div class="full-image-caption" id="fullImageCaption"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Bu albüm <span class="heart">♥</span> ile hazırlandı | &copy; 2025 Tüm Sevgim Sende saklıdır</p>
     </footer>
 
-    <!-- Pixel Kalp -->
- 
-
     <script>
-    
-    
+        // Galeri verileri
+        const galleryData = [
+            { src: "resim1.jpg", alt: "Mutlu bir anımız" },
+            { src: "resim2.jpg", alt: "Güzel bir gün" },
+            { src: "resim3.jpg", alt: "Sevdam" },
+            { src: "resim4.JPG", alt: "Cimbomum" },
+            { src: "resim5.JPG", alt: "Gülüşlerimiz" },
+            { src: "resim6.JPG", alt: "Birlikte geçirdiğimiz zamanlar" },
+            { src: "resim7.JPG", alt: "Mutluluk dolu an" },
+            { src: "resim8.JPG", alt: "Sevgi dolu bakışlar" },
+            { src: "resim9.JPG", alt: "Birlikte" },
+            { src: "resim10.JPG", alt: "Anılarımız" },
+            { src: "resim11.JPG", alt: "Herşeyimm" },
+            { src: "resim12.jpg", alt: "Güzel hatıralar" },
+            { src: "resim13.JPG", alt: "Ezberim" },
+            { src: "resim14.JPG", alt: "Sevgi dolu" },
+            { src: "resim15.jpg", alt: "Mezuniyet" },
+            { src: "resim16.jpg", alt: "-" },
+            { src: "resim17.jpg", alt: "Mezuniyetimiz" },
+            { src: "resim18.jpg", alt: "Mezuniyetimiz" },
+            { src: "resim19.jpg", alt: "Mezuniyetimiz" },
+            { src: "resim20.JPG", alt: ":>" },
+            { src: "resim21.jpg", alt: "Hayallerimiz" },
+            { src: "resim22.jpg", alt: "İlk Konserimiz Ve ilk paylaştığımız Fotoğrafımız " },
+            { src: "resim23.jpg", alt: "İlk Konserimiz 29/04/2024" },
+            { src: "resim24.JPG", alt: "İlk Konserimiz 29/04/2024" },
+            { src: "resim25.JPG", alt: "İlk Konserimiz 29/04/2024" },
+            { src: "resim26.JPG", alt: "-" },
+            { src: "resim27.jpg", alt: "İlk Whatsap arka planım : ) " },
+            { src: "resim28.jpg", alt: "Meleğimin Doğum Günü 18/12/2024" },
+            { src: "resim29.jpg", alt: "Meleğimin Doğum Günü 18/12/2024" },
+            { src: "resim30.jpg", alt: "İkinci Konserimiz" }
+        ];
 
-        // YENİ MENÜ TOGGLE FONKSİYONU
+        // DOM Elementleri
+        const gallery = document.getElementById('gallery');
+        const searchInput = document.getElementById('searchInput');
+        const filterSelect = document.getElementById('filterSelect');
+        const fullImageOverlay = document.getElementById('fullImageOverlay');
+        const expandedImage = document.getElementById('expandedImage');
+        const fullImageCaption = document.getElementById('fullImageCaption');
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebarMenu = document.getElementById('sidebarMenu');
+        const bgMusic = document.getElementById('bgMusic');
+        const musicControl = document.getElementById('musicControl');
+
+        // Değişkenler
+        let currentIndex = 0;
+        let filteredImages = [];
+        let slideInterval;
+
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', () => {
+            // Galeriyi oluştur
+            renderGallery(galleryData);
+            
+            // Müziği başlat
+            bgMusic.volume = 0.3;
+            bgMusic.play().catch(e => console.log("Otomatik çalma engellendi: ", e));
+            
+            // Filtreleme event listener'ları
+            searchInput.addEventListener('input', filterGallery);
+            filterSelect.addEventListener('change', filterGallery);
+            
+            // Menü toggle
+            menuToggle.addEventListener('click', toggleMenu);
+            
+            // Müzik kontrolü
+            musicControl.addEventListener('click', toggleMusic);
+        });
+
+        // Galeriyi oluştur
+        function renderGallery(images) {
+            gallery.innerHTML = '';
+            filteredImages = images;
+            
+            images.forEach((image, index) => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+                galleryItem.innerHTML = `
+                    <img src="${image.src}" alt="${image.alt}" onclick="showImage('${image.src}', '${image.alt}', ${index})">
+                    <div class="image-caption">${image.alt}</div>
+                `;
+                gallery.appendChild(galleryItem);
+            });
+        }
+
+        // Galeriyi filtrele
+        function filterGallery() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filterValue = filterSelect.value;
+            
+            const filtered = galleryData.filter(image => {
+                const matchesSearch = image.alt.toLowerCase().includes(searchTerm) || 
+                                     image.src.toLowerCase().includes(searchTerm);
+                const matchesFilter = filterValue === 'all' || image.src.endsWith(filterValue);
+                
+                return matchesSearch && matchesFilter;
+            });
+            
+            renderGallery(filtered);
+        }
+
+        // Büyük resmi göster
+        function showImage(src, alt, index) {
+            currentIndex = index;
+            expandedImage.src = src;
+            fullImageCaption.textContent = alt;
+            fullImageOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Slayt gösterisini başlat
+            startSlideShow();
+            
+            // Klavye kontrolleri
+            document.addEventListener('keydown', handleKeyPress);
+        }
+
+        // Resmi kapat
+        function closeImage(event) {
+            if (event.target === fullImageOverlay || event.target.classList.contains('close-btn')) {
+                fullImageOverlay.classList.remove('active');
+                document.body.style.overflow = 'auto';
+                stopSlideShow();
+                document.removeEventListener('keydown', handleKeyPress);
+            }
+        }
+
+        // Gezinme
+        function navigate(direction, event) {
+            if (event) event.stopPropagation();
+            
+            currentIndex += direction;
+            
+            if (currentIndex >= filteredImages.length) currentIndex = 0;
+            if (currentIndex < 0) currentIndex = filteredImages.length - 1;
+            
+            expandedImage.src = filteredImages[currentIndex].src;
+            fullImageCaption.textContent = filteredImages[currentIndex].alt;
+            
+            // Slayt gösterisini sıfırla
+            stopSlideShow();
+            startSlideShow();
+        }
+
+        // Slayt gösterisini başlat
+        function startSlideShow() {
+            stopSlideShow();
+            slideInterval = setInterval(() => navigate(1), 5000);
+        }
+
+        // Slayt gösterisini durdur
+        function stopSlideShow() {
+            if (slideInterval) {
+                clearInterval(slideInterval);
+            }
+        }
+
+        // Klavye kontrolleri
+        function handleKeyPress(e) {
+            if (e.key === 'ArrowRight') navigate(1);
+            if (e.key === 'ArrowLeft') navigate(-1);
+            if (e.key === 'Escape') closeImage({ target: fullImageOverlay });
+        }
+
+        // Menüyü aç/kapat
         function toggleMenu() {
-            document.getElementById('sidebarMenu').classList.toggle('active');
-            document.getElementById('menuToggle').innerHTML = 
-                document.getElementById('sidebarMenu').classList.contains('active') ? 
+            sidebarMenu.classList.toggle('active');
+            menuToggle.innerHTML = sidebarMenu.classList.contains('active') ? 
                 '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
         }
 
-        // MÜZİK KONTROL FONKSİYONU
+        // Müziği aç/kapat
         function toggleMusic() {
-            const bgMusic = document.getElementById('bgMusic');
-            const musicControl = document.getElementById('musicControl');
-            
             if (bgMusic.paused) {
                 bgMusic.play();
                 musicControl.innerHTML = '<i class="fas fa-music"></i> Müzik: Açık';
@@ -599,76 +1060,10 @@ if (passwordCorrect) {
             }
         }
 
-      
-            
-
-        // Pixel Kalp oluşturma ve animasyon
-    
-        function createPixelHeart() {
-            const pixelheart = document.getElementById('pixelheart');
-            heart.innerHTML = '';
-            
-            // Pixel kalp şekli (5x5 grid)
-            const heartShape = [
-                [0, 1, 0, 1, 0],
-                [1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 1],
-                [0, 1, 1, 1, 0],
-                [0, 0, 1, 0, 0]
-            ];
-            
-            // Pixel'leri oluştur
-            for (let y = 0; y < 5; y++) {
-                for (let x = 0; x < 5; x++) {
-                    if (heartShape[y][x] === 1) {
-                        const pixel = document.createElement('div');
-                        pixel.className = 'pixel';
-                        pixel.style.left = (x * 8) + 'px';
-                        pixel.style.top = (y * 8) + 'px';
-                        
-                        // Rastgele animasyon gecikmesi
-                        pixel.style.transitionDelay = (Math.random() * 0.5) + 's';
-                        
-                        heart.appendChild(pixel);
-                    }
-                }
-            } 
-            
-            // Tıklama efekti
-            heart.addEventListener('click', () => {
-                const pixels = document.querySelectorAll('.pixel');
-                pixels.forEach(pixel => {
-                    pixel.style.transform = 'translate(0, -20px) scale(1.5)';
-                    pixel.style.opacity = '0.7';
-                    
-                    setTimeout(() => {
-                        pixel.style.transform = 'translate(0, 0) scale(1)';
-                        pixel.style.opacity = '1';
-                    }, 300);
-                });
-            });
-        }
-
-        // Event listener'ları ekle
-        document.getElementById('menuToggle').addEventListener('click', toggleMenu);
-        document.getElementById('musicControl').addEventListener('click', toggleMusic);
-
-        // Müzik otomatik çalmayı dene
-        document.getElementById('bgMusic').play().catch(e => console.log("Otomatik çalma engellendi: ", e));
+        // Global fonksiyonlar
+        window.showImage = showImage;
+        window.closeImage = closeImage;
+        window.navigate = navigate;
     </script>
-
-<script>
-  let clickCount = 0;
-  
-  document.getElementById('pixelheart').addEventListener('click', function() {
-    clickCount++;
-
-    if (clickCount === 5) {
-      alert('SENİ ÇOOOOK SEVİYORUM ');
-      clickCount = 0; // 
-    }
-  });
-</script>
-    
 </body>
 </html>
