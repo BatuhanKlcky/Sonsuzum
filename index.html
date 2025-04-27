@@ -375,7 +375,6 @@
 
 <script>
     // Tüm sayfalarda çalışacak ortak şifre sistemi
-    document.getElementById("pixelheart").style.display = "block"; // Pixelheart görünür
     document.addEventListener('DOMContentLoaded', () => {
         // Element seçiciler
         const passwordModal = document.getElementById('passwordModal');
@@ -383,6 +382,7 @@
         const submitPassword = document.getElementById('submitPassword');
         const errorMessage = document.getElementById('errorMessage');
         const countdownDisplay = document.getElementById('countdown');
+        const pixelheart = document.getElementById('pixelheart');
         const mainContent = document.querySelector('.container') || document.querySelector('main') || document.body;
         const footer = document.querySelector('footer');
         
@@ -416,6 +416,7 @@
         function requestPassword() {
             if (mainContent) mainContent.style.display = 'none';
             if (footer) footer.style.display = 'none';
+            if (pixelheart) pixelheart.style.display = 'none';
             passwordModal.style.display = 'flex';
             passwordInput.value = '';
             passwordInput.focus();
@@ -434,6 +435,7 @@
             // İçeriği göster
             if (mainContent) mainContent.style.display = 'block';
             if (footer) footer.style.display = 'block';
+            if (pixelheart) pixelheart.style.display = 'block';
             passwordModal.style.display = 'none';
 
             // Sayfalar arası senkronizasyon
