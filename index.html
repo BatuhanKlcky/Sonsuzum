@@ -297,7 +297,7 @@
             right: 20px;
             width: 40px;
             height: 40px;
-            z-index: 1001;
+            z-index: 1003;
             cursor: pointer;
             display: block
         }
@@ -512,19 +512,7 @@
                 }
             });
         }
-// Element var mı kontrolü
-    if (!heart) {
-        console.error("Pixel heart elementi bulunamadı!");
-        // Otomatik oluştur
-        document.body.insertAdjacentHTML('beforeend', 
-            '<div class="pixel-heart">♥</div>');
-    } else {
-        // Animasyonu manuel başlat
-        heart.style.animation = 'pulse 1.5s infinite';
-        console.log("Pixel heart hazır!");
-    }
-});
-    }
+
         // Sayfa kapatılırken temizlik
         window.addEventListener('beforeunload', () => {
             if (window.authTimer) clearInterval(window.authTimer);
