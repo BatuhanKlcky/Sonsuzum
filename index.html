@@ -543,6 +543,7 @@
 
     <!-- Ana içerik -->
     <div class="container" id="mainContent">
+        <div class="pixelHeart" id=pixelheart> 
         <h1>Bir yıl önce hayatıma girdin ve her şeyi güzelleştirdin.</h1>
         <p>Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim.</p>
     </div>
@@ -569,7 +570,7 @@
     </footer>
 
     <!-- Pixel Kalp -->
-   <div id="pixelheart" style="display: none;">
+   
 
     <script>
     
@@ -654,7 +655,7 @@
 <script>
   let clickCount = 0;
   
-  document.getElementById('pixelHeart').addEventListener('click', function() {
+  document.getElementById('pixelheart').addEventListener('click', function() {
     clickCount++;
 
     if (clickCount === 5) {
