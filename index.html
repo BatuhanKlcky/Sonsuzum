@@ -1,505 +1,89 @@
 <!DOCTYPE html>
-<html lang="tr">
-    
-<head>
-    
-    <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>The Cube</title>
+		<meta
+			name="viewport"
+			content="width=device-width,height=device-height,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0" />
+		<link rel="stylesheet" href="./style.css" />
+	</head>
+	<body>
+		<div class="ui">
+			<div class="ui__background"></div>
 
-<script>
-  const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI';
-  const client = supabase.createClient(supabaseUrl, supabaseKey);
+			<div class="ui__game"></div>
 
-  let visitStart = Date.now();
+			<div class="ui__texts">
+				<h1 class="text text--title">
+					<span>THE</span>
+					<span>CUBE</span>
+				</h1>
+				<div class="text text--note">Double tap to start</div>
+				<div class="text text--timer">0:00</div>
+				<div class="text text--complete">
+					<span>Complete!</span>
+				</div>
+				<div class="text text--best-time">
+					<icon trophy></icon>
+					<span>Best Time!</span>
+				</div>
+			</div>
 
-  // IP adresini al
-  fetch('https://api.ipify.org?format=json')
-    .then(response => response.json())
-    .then(ipData => {
-      const page_url = window.location.href;
-      const user_agent = navigator.userAgent;
-      const screen_resolution = `${window.screen.width}x${window.screen.height}`;
-      const ip_address = ipData.ip;
+			<div class="ui__prefs">
+				<range name="size" title="Cube Size" list="2,3,4,5"></range>
+				<range
+					name="flip"
+					title="Flip Type"
+					list="Swift&nbsp;,Smooth,Bounce"></range>
+				<range name="scramble" title="Scramble Length" list="20,25,30"></range>
+				<range
+					name="fov"
+					title="Camera Angle"
+					list="Ortographic,Perspective"></range>
+				<range
+					name="theme"
+					title="Color Scheme"
+					list="Cube,Erno,Dust,Camo,Rain"></range>
+			</div>
 
-      // Sayfa kapanınca ziyaret kaydet
-      window.addEventListener('beforeunload', async () => {
-        const visitEnd = Date.now();
-        const time_spent = Math.floor((visitEnd - visitStart) / 1000);
+			<div class="ui__theme">
+				<range name="hue" title="Hue" color></range>
+				<range name="saturation" title="Saturation" color></range>
+				<range name="lightness" title="Lightness" color></range>
+			</div>
 
-        const { error } = await client
-          .from('visitor_logs')
-          .insert([{
-            page_url,
-            ip_address,
-            user_agent,
-            screen_resolution,
-            time_spent
-          }]);
+			<div class="ui__stats">
+				<div class="stats" name="cube-size"><i>Cube:</i><b>3x3x3</b></div>
+				<div class="stats" name="total-solves">
+					<i>Total solves:</i><b>-</b>
+				</div>
+				<div class="stats" name="best-time"><i>Best time:</i><b>-</b></div>
+				<div class="stats" name="worst-time"><i>Worst time:</i><b>-</b></div>
+				<div class="stats" name="average-5"><i>Average of 5:</i><b>-</b></div>
+				<div class="stats" name="average-12"><i>Average of 12:</i><b>-</b></div>
+				<div class="stats" name="average-25"><i>Average of 25:</i><b>-</b></div>
+			</div>
 
-        if (error) {
-          console.error('Ziyaretçi kaydedilirken hata:', error);
-        } else {
-          console.log('Ziyaret kaydedildi!');
-        }
-      });
-    });
-</script>
-    
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Senin İçin</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* Genel boşlukları sıfırlayalım */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background-image: url('https://i.imgur.com/iwhcNjJ.jpeg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial', sans-serif;
-            color: #fff;
-            text-align: center;
-            min-height: 100vh;
-        }
-
-        /* Şifre giriş alanının modern tasarımı */
-        .password-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8); /* Buğulu arka plan */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 20;
-            animation: fadeIn 0.5s ease-out; /* Giriş animasyonu */
-        }
-
-        /* Şifre giriş kutusu tasarımı */
-        .password-box {
-            background: linear-gradient(135deg, #ff4c8b, #ff69b4); /* Şık renk geçişi */
-            padding: 40px;
-            border-radius: 15px;
-            text-align: center;
-            width: 320px;
-            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
-            transform: scale(1);
-            animation: scaleUp 0.3s ease-in-out forwards; /* Animasyon ekledim */
-        }
-
-        /* Animasyonlar */
-        @keyframes fadeIn {
-            0% {
-                opacity: 0;
-            }
-            100% {
-                opacity: 1;
-            }
-        }
-
-        @keyframes scaleUp {
-            0% {
-                transform: scale(0.8);
-            }
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        .password-box h2 {
-            font-size: 1.5em;
-            margin-bottom: 20px;
-            color: white;
-            font-weight: bold;
-        }
-
-        .password-box input {
-            padding: 15px;
-            width: 100%;
-            margin-top: 15px;
-            border-radius: 25px;
-            border: none;
-            background-color: white;
-            font-size: 1em;
-            color: #333;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .password-box input:focus {
-            outline: none;
-            box-shadow: 0 0 10px #ff69b4;
-            border: 2px solid #ff69b4;
-        }
-
-        .password-box button {
-            padding: 15px;
-            background-color: #ff69b4;
-            border: none;
-            color: white;
-            font-size: 1.1em;
-            border-radius: 25px;
-            width: 100%;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: background-color 0.3s;
-        }
-
-        .password-box button:hover {
-            background-color: #ff4c8b;
-        }
-
-        /* Ana içerik için stil */
-        .container {
-            padding: 20px;
-            display: none;
-            position: relative;
-            z-index: 5;
-        }
-
-        h1 {
-            font-size: 3em;
-            color: #fff;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
-            line-height: 1.2;
-        }
-
-        p {
-            font-size: 1.5em;
-            max-width: 800px;
-            margin: 0 auto;
-            line-height: 1.8;
-            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
-        }
-
-        /* YENİ MODERN MENÜ STİLLERİ */
-        .menu-toggle {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 50;
-            width: 50px;
-            height: 50px;
-            background-color: #ff758f;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            display: none; /* Başlangıçta gizli */
-        }
-
-        .menu-toggle:hover {
-            background-color: #d62a6b;
-            transform: scale(1.1);
-        }
-
-        .sidebar-menu {
-            position: fixed;
-            top: 0;
-            left: -300px;
-            width: 300px;
-            height: 100%;
-            background: linear-gradient(to bottom, #ff758f, #ff7eb3);
-            z-index: 40;
-            transition: all 0.3s ease;
-            padding: 80px 20px 20px;
-            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .sidebar-menu.active {
-            left: 0;
-        }
-
-        .menu-item {
-            display: block;
-            color: white;
-            text-decoration: none;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            font-size: 1.1rem;
-            font-weight: 500;
-        }
-
-        .menu-item:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            transform: translateX(5px);
-        }
-
-        .menu-item i {
-            margin-right: 10px;
-            width: 20px;
-            text-align: center;
-        }
-
-        footer {
-            margin-top: 40px;
-            display: none;
-        }
-
-        footer a {
-            text-decoration: none;
-            color: #ff69b4;
-        }
-
-        footer a:hover {
-            color: #ff4c8b;
-        }
-
-        /* Pixel Kalp */
-        .pixel-heart {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
-            z-index: 100;
-            cursor: pointer;
-            display: none;
-        }
-
-        .pixel {
-            width: 8px;
-            height: 8px;
-            background-color: #ff4c8b;
-            position: absolute;
-            transition: all 0.3s ease;
-        }
-
-        /* Responsive Tasarım - Mobil için */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2.2em;
-                line-height: 1.4;
-            }
-
-            p {
-                font-size: 1.2em;
-                max-width: 100%;
-            }
-
-            .password-box {
-                width: 80%;
-                padding: 30px;
-            }
-
-            .menu-toggle {
-                display: flex; /* Mobilde göster */
-            }
-
-            .pixel-heart {
-                width: 30px;
-                height: 30px;
-            }
-
-            .pixel {
-                width: 6px;
-                height: 6px;
-            }
-        }
-
-        /* Full screen için */
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1.8em;
-            }
-
-            p {
-                font-size: 1em;
-            }
-            
-            .sidebar-menu {
-                width: 250px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Şarkının doğru şekilde sürekli çalmasını sağlamak -->
-    <audio autoplay loop id="bgMusic">
-        <source src="https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
-        Tarayıcınız ses dosyasını desteklemiyor.
-    </audio>
-
-    <!-- Şifre giriş alanı -->
-    <div class="password-container" id="passwordContainer">
-        <div class="password-box">
-            <h2>Şifreyi Girin</h2>
-            <input type="password" id="password" placeholder="Şifre">
-            <button onclick="checkPassword()">Gönder</button>
-        </div>
-    </div>
-
-    <!-- Ana içerik -->
-    <div class="container" id="mainContent">
-        <h1>Bir yıl önce hayatıma girdin ve her şeyi güzelleştirdin.</h1>
-        <p>Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim.</p>
-    </div>
-
-    <!-- YENİ MODERN MENÜ -->
-    <div class="menu-toggle" id="menuToggle">
-        <i class="fas fa-bars"></i>
-    </div>
-
-    <div class="sidebar-menu" id="sidebarMenu">
-        <a href="index.html" class="menu-item"><i class="fas fa-home"></i> Ana Sayfa</a>
-        <a href="zaman-tuneli.html" class="menu-item"><i class="fas fa-history"></i> Zaman Tüneli</a>
-        <a href="galeri.html" class="menu-item"><i class="fas fa-images"></i> Fotoğraf Galerisi</a>
-        <a href="mesajlar.html" class="menu-item"><i class="fas fa-envelope"></i> Özel Mesajlar</a>
-        <a href="cicektarlasi.html" class="menu-item"><i class="fas fa-flower"></i> Çiçek Yeri</a>
-        <a href="xox.html" class="menu-item"><i class="fas fa-times"></i> XOX Oyunu</a>
-        <a href="yarisoyunu.html" class="menu-item"><i class="fas fa-flag-checkered"></i> Yarış Oyunu</a>
-        <a href="duello.html" class="menu-item"><i class="fas fa-gamepad"></i> Düello</a>
-        <a href="#" class="menu-item" id="musicControl"><i class="fas fa-music"></i> Müzik: Açık</a>
-    </div>
-
-    <footer id="footer">
-        <p>&copy; 2025 Senin İçin. Tüm Sevgim sende saklıdır.</p>
-    </footer>
-
-    <!-- Pixel Kalp -->
-    <div class="pixel-heart" id="pixelHeart"></div>
-
-    <script>
-        const correctPassword = '240424'; // Doğru şifre
-
-        // Sayfa yüklendiğinde zaman kontrolü
-        window.onload = function() {
-            const lastAccess = localStorage.getItem('lastAccess');
-            const currentTime = Date.now();
-            
-            if (lastAccess && (currentTime - lastAccess) < 600000) { // 600000 ms = 10 dakika
-                // 10 dakika içinde tekrar şifre isteme
-                document.getElementById('passwordContainer').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'block';
-                document.getElementById('footer').style.display = 'block';
-                document.getElementById('pixelHeart').style.display = 'block';
-                document.getElementById('menuToggle').style.display = 'flex';
-                document.getElementById('bgMusic').play(); // Şarkıyı başlat
-                createPixelHeart();
-            }
-        }
-
-        function checkPassword() {
-            const inputPassword = document.getElementById('password').value;
-            if (inputPassword === correctPassword) {
-                localStorage.setItem('lastAccess', Date.now());
-                document.getElementById('passwordContainer').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'block';
-                document.getElementById('footer').style.display = 'block';
-                document.getElementById('pixelHeart').style.display = 'block';
-                document.getElementById('menuToggle').style.display = 'flex';
-                document.getElementById('bgMusic').play(); // Şarkıyı başlat
-                createPixelHeart();
-            } else {
-                alert('Yanlış şifre. Lütfen tekrar deneyin.');
-            }
-        }
-
-        // YENİ MENÜ TOGGLE FONKSİYONU
-        function toggleMenu() {
-            document.getElementById('sidebarMenu').classList.toggle('active');
-            document.getElementById('menuToggle').innerHTML = 
-                document.getElementById('sidebarMenu').classList.contains('active') ? 
-                '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
-        }
-
-        // MÜZİK KONTROL FONKSİYONU
-        function toggleMusic() {
-            const bgMusic = document.getElementById('bgMusic');
-            const musicControl = document.getElementById('musicControl');
-            
-            if (bgMusic.paused) {
-                bgMusic.play();
-                musicControl.innerHTML = '<i class="fas fa-music"></i> Müzik: Açık';
-            } else {
-                bgMusic.pause();
-                musicControl.innerHTML = '<i class="fas fa-music"></i> Müzik: Kapalı';
-            }
-        }
-
-        // Pixel Kalp oluşturma ve animasyon
-        function createPixelHeart() {
-            const heart = document.getElementById('pixelHeart');
-            heart.innerHTML = '';
-            
-            // Pixel kalp şekli (5x5 grid)
-            const heartShape = [
-                [0, 1, 0, 1, 0],
-                [1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 1],
-                [0, 1, 1, 1, 0],
-                [0, 0, 1, 0, 0]
-            ];
-            
-            // Pixel'leri oluştur
-            for (let y = 0; y < 5; y++) {
-                for (let x = 0; x < 5; x++) {
-                    if (heartShape[y][x] === 1) {
-                        const pixel = document.createElement('div');
-                        pixel.className = 'pixel';
-                        pixel.style.left = (x * 8) + 'px';
-                        pixel.style.top = (y * 8) + 'px';
-                        
-                        // Rastgele animasyon gecikmesi
-                        pixel.style.transitionDelay = (Math.random() * 0.5) + 's';
-                        
-                        heart.appendChild(pixel);
-                    }
-                }
-            } 
-            
-            // Tıklama efekti
-            heart.addEventListener('click', () => {
-                const pixels = document.querySelectorAll('.pixel');
-                pixels.forEach(pixel => {
-                    pixel.style.transform = 'translate(0, -20px) scale(1.5)';
-                    pixel.style.opacity = '0.7';
-                    
-                    setTimeout(() => {
-                        pixel.style.transform = 'translate(0, 0) scale(1)';
-                        pixel.style.opacity = '1';
-                    }, 300);
-                });
-            });
-        }
-
-        // Event listener'ları ekle
-        document.getElementById('menuToggle').addEventListener('click', toggleMenu);
-        document.getElementById('musicControl').addEventListener('click', toggleMusic);
-
-        // Müzik otomatik çalmayı dene
-        document.getElementById('bgMusic').play().catch(e => console.log("Otomatik çalma engellendi: ", e));
-    </script>
-
-<script>
-  let clickCount = 0;
-  
-  document.getElementById('pixelHeart').addEventListener('click', function() {
-    clickCount++;
-
-    if (clickCount === 5) {
-      alert('SENİ ÇOOOOK SEVİYORUM ');
-      clickCount = 0; // 
-    }
-  });
-</script>
-    
-</body>
+			<div class="ui__buttons">
+				<button class="btn btn--bl btn--stats">
+					<icon trophy></icon>
+				</button>
+				<button class="btn btn--br btn--prefs">
+					<icon settings></icon>
+				</button>
+				<button class="btn btn--bl btn--back">
+					<icon back></icon>
+				</button>
+				<button class="btn btn--br btn--theme">
+					<icon theme></icon>
+				</button>
+				<button class="btn btn--br btn--reset">
+					<icon reset></icon>
+				</button>
+			</div>
+		</div>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/95/three.min.js"></script>
+		<script src="./script.js"></script>
+	</body>
 </html>
