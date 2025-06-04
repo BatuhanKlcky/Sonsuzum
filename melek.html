@@ -3,66 +3,105 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Melek Kanadı Animasyonu</title>
+<title>Kaliteli Melek Kanadı Animasyonu</title>
 <style>
   body {
-    background: #222;
+    margin: 0;
+    background: linear-gradient(135deg, #0d1b2a, #1b263b);
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
   }
 
-  .wing-container {
-    position: relative;
-    width: 200px;
-    height: 200px;
+  svg {
+    width: 300px;
+    height: 300px;
   }
 
-  .wing {
-    position: absolute;
-    top: 50%;
-    width: 100px;
-    height: 150px;
-    background: linear-gradient(135deg, #fff, #d4e9ff);
-    border-radius: 80% 20% 20% 80% / 100% 60% 40% 0;
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
-    transform-origin: top center;
+  .wing-left, .wing-right {
+    transform-origin: bottom center;
     animation-duration: 3s;
     animation-timing-function: ease-in-out;
     animation-iteration-count: infinite;
   }
 
-  .wing.left {
-    left: 0;
-    transform-origin: top right;
-    border-radius: 20% 80% 80% 20% / 60% 100% 0 40%;
+  .wing-left {
     animation-name: flap-left;
+    transform-box: fill-box;
   }
 
-  .wing.right {
-    right: 0;
+  .wing-right {
     animation-name: flap-right;
+    transform-box: fill-box;
   }
 
   @keyframes flap-left {
     0%, 100% { transform: rotate(0deg); }
-    50% { transform: rotate(-30deg); }
+    50% { transform: rotate(-25deg); }
   }
 
   @keyframes flap-right {
     0%, 100% { transform: rotate(0deg); }
-    50% { transform: rotate(30deg); }
+    50% { transform: rotate(25deg); }
   }
 </style>
 </head>
 <body>
 
-<div class="wing-container">
-  <div class="wing left"></div>
-  <div class="wing right"></div>
-</div>
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Melek Kanatları Animasyonu">
+  <defs>
+    <linearGradient id="wingGradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#a8c0ff" stop-opacity="0.6"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#8aaeff" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Sol Kanat -->
+  <g class="wing-left" filter="url(#shadow)" transform="translate(60, 130)">
+    <path fill="url(#wingGradient)" stroke="#6b81a8" stroke-width="2" d="
+      M0,0
+      C-30,-60 -10,-120 20,-140
+      C50,-130 70,-80 50,-40
+      C40,-20 20,-10 0,0Z
+    "/>
+    <path fill="none" stroke="#4466aa" stroke-width="1" d="
+      M0,0
+      C-20,-50 -10,-90 10,-100
+      C30,-90 40,-50 25,-20
+    "/>
+    <path fill="none" stroke="#335599" stroke-width="0.5" d="
+      M0,-20
+      L10,-60
+      M5,-10
+      L15,-40
+    "/>
+  </g>
+
+  <!-- Sağ Kanat -->
+  <g class="wing-right" filter="url(#shadow)" transform="translate(140, 130)">
+    <path fill="url(#wingGradient)" stroke="#6b81a8" stroke-width="2" d="
+      M0,0
+      C30,-60 10,-120 -20,-140
+      C-50,-130 -70,-80 -50,-40
+      C-40,-20 -20,-10 0,0Z
+    "/>
+    <path fill="none" stroke="#4466aa" stroke-width="1" d="
+      M0,0
+      C20,-50 10,-90 -10,-100
+      C-30,-90 -40,-50 -25,-20
+    "/>
+    <path fill="none" stroke="#335599" stroke-width="0.5" d="
+      M0,-20
+      L-10,-60
+      M-5,-10
+      L-15,-40
+    "/>
+  </g>
+</svg>
 
 </body>
 </html>
