@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Bozuk Kanat Animasyonu</title>
+<title>Işıltılı Kanat Animasyonu</title>
 <style>
   body {
     margin: 0;
-    background: #000000;
+    background: #000;
     height: 100vh;
     display: flex;
     justify-content: center;
@@ -15,8 +15,8 @@
   }
 
   svg {
-    width: 320px;
-    height: 320px;
+    width: 350px;
+    height: 350px;
   }
 
   .wing-left, .wing-right {
@@ -45,81 +45,62 @@
     0%, 100% { transform: rotate(0deg); }
     50% { transform: rotate(28deg); }
   }
-
-  /* Kanat tüyü için çok katmanlı çizgiler */
-  .feather {
-    stroke: #eee;
-    stroke-width: 0.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-
-  /* Hafif kırık ve dağınık efekt için ekstra çizgiler */
-  .broken-line {
-    stroke: #ccc;
-    stroke-width: 1.2;
-    stroke-dasharray: 4 3;
-    stroke-linecap: round;
-  }
 </style>
 </head>
 <body>
 
-<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Bozuk Melek Kanatları Animasyonu">
+<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg" aria-label="Işıltılı Kanat Animasyonu">
 
   <defs>
-    <linearGradient id="whiteGradient" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#fff" stop-opacity="0.95"/>
-      <stop offset="100%" stop-color="#bbb" stop-opacity="0.5"/>
-    </linearGradient>
-    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
-      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#bbb" flood-opacity="0.4"/>
+    <!-- Glow (ışık) efekti -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#fff" flood-opacity="0.9"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#aaddff" flood-opacity="0.6"/>
     </filter>
+
+    <!-- Kanat degrade -->
+    <linearGradient id="wingGradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff" stop-opacity="1" />
+      <stop offset="100%" stop-color="#bbb" stop-opacity="0.3" />
+    </linearGradient>
   </defs>
 
   <!-- Sol Kanat -->
-  <g class="wing-left" filter="url(#shadow)" transform="translate(60, 140)">
-    <!-- Kanat Ana Formu -->
-    <path fill="url(#whiteGradient)" stroke="#ddd" stroke-width="2" d="
+  <g class="wing-left" filter="url(#glow)" transform="translate(75, 170)">
+    <path fill="url(#wingGradient)" stroke="#eee" stroke-width="2" d="
       M0,0
-      C-35,-70 -5,-135 25,-160
-      C50,-150 75,-90 50,-50
-      C40,-25 25,-15 0,0Z
+      C-40,-80 -10,-160 35,-190
+      C70,-180 100,-110 70,-60
+      C50,-30 25,-20 0,0Z
     "/>
 
-    <!-- Ana tüyler -->
-    <path class="feather" d="M0,-10 L-20,-60 M-5,-15 L-25,-75 M-10,-25 L-40,-95"/>
-    <path class="feather" d="M10,-10 L-10,-55 M15,-20 L-5,-70 M20,-30 L-10,-85"/>
-
-    <!-- Daha küçük tüyler -->
-    <path class="feather" d="M5,-40 L-15,-100 M-10,-60 L-35,-130 M15,-65 L-5,-130"/>
-
-    <!-- Kırık ve dağınık çizgiler -->
-    <path class="broken-line" d="M-5,-30 L-15,-45 M-25,-70 L-15,-85 M-10,-90 L-30,-110"/>
-    <path class="broken-line" d="M10,-40 L-5,-75 M20,-50 L-10,-90"/>
+    <!-- Kanat tüyleri -->
+    <path stroke="#ddd" stroke-width="1" fill="none" d="
+      M0,-15 L-25,-85 M-10,-20 L-45,-110 M-20,-40 L-60,-135 M-30,-65 L-70,-165
+    "/>
+    <path stroke="#ccc" stroke-width="0.6" fill="none" stroke-linecap="round" d="
+      M-15,-25 L-40,-90 M-25,-45 L-60,-115 M-40,-70 L-75,-145
+    "/>
   </g>
 
   <!-- Sağ Kanat -->
-  <g class="wing-right" filter="url(#shadow)" transform="translate(140, 140)">
-    <!-- Kanat Ana Formu -->
-    <path fill="url(#whiteGradient)" stroke="#ddd" stroke-width="2" d="
+  <g class="wing-right" filter="url(#glow)" transform="translate(145, 170)">
+    <path fill="url(#wingGradient)" stroke="#eee" stroke-width="2" d="
       M0,0
-      C35,-70 5,-135 -25,-160
-      C-50,-150 -75,-90 -50,-50
-      C-40,-25 -25,-15 0,0Z
+      C40,-80 10,-160 -35,-190
+      C-70,-180 -100,-110 -70,-60
+      C-50,-30 -25,-20 0,0Z
     "/>
 
-    <!-- Ana tüyler -->
-    <path class="feather" d="M0,-10 L20,-60 M5,-15 L25,-75 M10,-25 L40,-95"/>
-    <path class="feather" d="M-10,-10 L10,-55 M-15,-20 L5,-70 M-20,-30 L10,-85"/>
-
-    <!-- Daha küçük tüyler -->
-    <path class="feather" d="M-5,-40 L15,-100 M10,-60 L35,-130 M-15,-65 L5,-130"/>
-
-    <!-- Kırık ve dağınık çizgiler -->
-    <path class="broken-line" d="M5,-30 L15,-45 M25,-70 L15,-85 M10,-90 L30,-110"/>
-    <path class="broken-line" d="M-10,-40 L5,-75 M-20,-50 L10,-90"/>
+    <!-- Kanat tüyleri -->
+    <path stroke="#ddd" stroke-width="1" fill="none" d="
+      M0,-15 L25,-85 M10,-20 L45,-110 M20,-40 L60,-135 M30,-65 L70,-165
+    "/>
+    <path stroke="#ccc" stroke-width="0.6" fill="none" stroke-linecap="round" d="
+      M15,-25 L40,-90 M25,-45 L60,-115 M40,-70 L75,-145
+    "/>
   </g>
+
 </svg>
 
 </body>
