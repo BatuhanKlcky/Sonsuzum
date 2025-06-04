@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kalp ve Melek Kanadı Animasyonu</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: black;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let time = 0;
+const trails = [];
+
+function heartFunction(t, scale = 1) {
+  const x = 16 * Math.pow(Math.sin(t), 3);
+  const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+  return { x: x * scale, y: y * scale };
+}
+
+function drawWings(cx, cy, time) {
+  const wingLength = 80;
+  const wingCount = 15;
+
+  for (let side = -1; side <= 1; side += 2) {
+    for (let j = 0; j < wingCount; j++) {
+      const angle = j * 0.3 + time * 0.05;
+      const x = cx + side * (25 + j * 5);
+      const y = cy - Math.sin(angle + side * j * 0.3) * wingLength / (j + 1.5);
+      ctx.beginPath();
+      ctx.arc(x, y, 2, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 255, ${(1 - j / wingCount).toFixed(2)})`;
+      ctx.fill();
+    }
+  }
+}
+
+function animate() {
+  time += 0.02;
+  ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+
+  let trail = [];
+  for (let i = 0; i < Math.PI * 2; i += 0.05) {
+    let pos = heartFunction(i, 10 + 2 * Math.sin(time + i * 5));
+    trail.push({
+      x: cx + pos.x,
+      y: cy + pos.y,
+      color: `hsl(${(i * 180 / Math.PI + time * 50) % 360}, 100%, 70%)`
+    });
+  }
+  trails.push(trail);
+  if (trails.length > 50) trails.shift();
+
+  trails.forEach(t => {
+    t.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+    });
+  });
+
+  drawWings(cx, cy, time);
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>
+</html>
