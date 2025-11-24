@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dudu & Bubu'nun Canlı Dünyası</title>
+    <title>Dudu & Bubu'nun Canlı ve Yaramaz Dünyası</title>
     <style>
         /* --- GENEL TASARIM --- */
         body {
@@ -17,6 +17,8 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            /* Yaramaz Dudu için sayfa sürüklemeyi engelle */
+            touch-action: none;
         }
 
         .sticker-kabi {
@@ -28,6 +30,8 @@
             box-shadow: 0 15px 35px rgba(219, 39, 119, 0.15);
             text-align: center;
             border: 4px solid #fce7f3;
+            position: relative; /* Z-index yönetimi için */
+            z-index: 1; /* İçerik önde dursun */
         }
 
         h1 {
@@ -44,7 +48,6 @@
             justify-content: center;
             gap: 25px;
             padding: 20px;
-            /* Mouse galeri alanına girdiğinde bunu algılayacağız */
         }
 
         /* STICKER KARTI TEMEL HALİ */
@@ -62,7 +65,6 @@
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Zıplama efekti için özel geçiş */
             cursor: grab;
             position: relative;
-            
             /* Normalde hafifçe yüzme animasyonu */
             animation: yuzmeEfekti 3s ease-in-out infinite alternate;
         }
@@ -94,6 +96,7 @@
             border-color: #db2777;
             border-style: solid;
             cursor: grabbing;
+            animation-play-state: running !important; /* Kendi yüzme animasyonu devam etsin */
         }
 
         /* --- YÜZME ANİMASYONU TANIMI --- */
@@ -116,40 +119,162 @@
             color: #be185d;
             font-weight: bold;
         }
+
+        /* --- ÖZEL "PANTOLON" STICKER AYARLARI --- */
+        #ozel-sticker {
+            border-color: #db2777; /* Daha belirgin bir renk */
+            cursor: grab; /* Tutma imleci */
+            overflow: hidden; /* Dışarı taşanları gizle */
+        }
+
+        #ozel-sticker:active {
+             cursor: grabbing; /* Tutarken sıkma imleci */
+        }
+
+        /* Resimlerin üst üste binmesi için ayarlar */
+        #ozel-sticker .sticker-gorsel {
+            position: absolute; /* Üst üste binsinler */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%; /* Biraz küçülttük ki çekince taşmasın */
+            height: auto;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        /* Başlangıç durumları */
+        .normal-hali { opacity: 1; z-index: 2; }
+        .gif-hali { opacity: 0; z-index: 1; }
+
+        /* --- JAVASCRIPT TETİKLEYİNCE ÇALIŞACAK CSS --- */
+        /* .pantolon-indi sınıfı eklendiğinde ne olacak? */
+        #ozel-sticker.pantolon-indi .normal-hali {
+            opacity: 0; /* Normal resim kaybolsun */
+        }
+        
+        #ozel-sticker.pantolon-indi .gif-hali {
+            opacity: 1; /* GIF görünsün */
+            transform: translate(-50%, -40%); /* Hafifçe yukarı kaydır ki GIF tam otursun */
+        }
+
+        /* --- KÖŞE MASKOTU (Önceki koddan) --- */
+        .kose-maskotu {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 100px; /* Boyutunu buradan ayarla */
+            z-index: 10; /* Diğer içeriğin üzerinde dursun */
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.2));
+            animation: hafifZiplama 2s ease-in-out infinite alternate;
+        }
+
+        .kose-maskotu img {
+            width: 100%;
+            height: auto;
+        }
+
+        /* Maskotun hafifçe yukarı aşağı oynaması için animasyon */
+        @keyframes hafifZiplama {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-10px); }
+        }
     </style>
 </head>
 <body>
 
     <div class="sticker-kabi">
-        <h1>💖 Dudu & Bubu 💖</h1>
+        <h1>💖 Dudu & Bubu'nun Canlı ve Yaramaz Dünyası 💖</h1>
         
         <div class="galeri">
             <div class="sticker-item">
-                <img src="https://media.tenor.com/ySITUM2KYHYAAAAm/dudu-bubu.webp" alt="Dudu">
+                <img src="https://media.tenor.com/ySITUM2KYHYAAAAm/dudu-bubu.webp" alt="Dudu Öpücük">
             </div>
             <div class="sticker-item">
-                <img src="https://media.tenor.com/8qJ4hnUIKD0AAAAm/bubu-kiss-dudu-i-kiss-you.webp" alt="Bubu">
+                <img src="https://media.tenor.com/8qJ4hnUIKD0AAAAm/bubu-kiss-dudu-i-kiss-you.webp" alt="Bubu Öpücük">
+            </div>
+
+            <div class="sticker-item" id="ozel-sticker">
+                <img src="https://media.tenor.com/JdylR0UKlYkAAAAi/tkthao219-bubududu.gif" class="sticker-gorsel normal-hali" alt="Dudu Normal">
+                <img src="https://media.tenor.com/BKP6erkQWjMAAAAi/bubu-dudu-sseeyall.gif" class="sticker-gorsel gif-hali" alt="Dudu Pantolonu İndi">
             </div>
             <div class="sticker-item">
-                <img src="https://media.tenor.com/ywtzupqfI0QAAAAm/dudu-and-babies-dudu%27s-kids.webp" alt="Dudu">
+                <img src="https://media.tenor.com/ywtzupqfI0QAAAAm/dudu-and-babies-dudu%27s-kids.webp" alt="Dudu ve Yavruları">
             </div>
             <div class="sticker-item">
-                <img src="https://media.tenor.com/OLsUyDG6cHAAAAAm/yier-bubu.webp" alt="Bubu">
+                <img src="https://media.tenor.com/OLsUyDG6cHAAAAAm/yier-bubu.webp" alt="Bubu Yier">
             </div>
             <div class="sticker-item">
-                <img src="https://placehold.co/200x200/pink/white?text=Dudu+Love" alt="Love">
-            </div>
-            <div class="sticker-item">
-                <img src="https://placehold.co/200x200/orange/white?text=Bubu+Sleep" alt="Sleep">
+                <img src="https://placehold.co/150x150/orange/white?text=Bubu+Sleep" alt="Bubu Uyuyor">
             </div>
         </div>
 
-        <p class="indirme-notu">Birine dokun, diğerlerinin nasıl tepki verdiğini izle! ✨</p>
+        <p class="indirme-notu">Psst... Kırmızı çerçeveli Dudu'yu tutup aşağı çekmeyi denedin mi? 🤭</p>
     </div>
-<div class="kose-maskotu">
-        <img src="https://media1.tenor.com/m/oNNEO6WtgyoAAAAC/tkthao219-bubududu.gif" alt="Hoşgeldin bebekim">
-    </div> 
+
+    <div class="kose-maskotu">
+        <img src="https://media1.tenor.com/m/oNNEO6WtgyoAAAAC/tkthao219-bubududu.gif" alt="Hoşgeldin Bubu">
+    </div>
+
+    <script>
+        const ozelSticker = document.getElementById('ozel-sticker');
+        let baslangicY = 0;
+        let surukleniyor = false;
+
+        // --- MOUSE İLE ÇEKME ---
+        ozelSticker.addEventListener('mousedown', (e) => {
+            surukleniyor = true;
+            baslangicY = e.clientY; // Tıklanan yerin Y koordinatını al
+            ozelSticker.style.transition = 'none'; // Çekerken anlık tepki versin
+            e.preventDefault(); // Resim sürüklenmesini engelle
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!surukleniyor) return;
+            
+            let suankiY = e.clientY;
+            let fark = suankiY - baslangicY;
+
+            // Eğer 50 pikselden fazla aşağı çekildiyse
+            if (fark > 50) {
+                ozelSticker.classList.add('pantolon-indi');
+            } else {
+                ozelSticker.classList.remove('pantolon-indi');
+            }
+        });
+
+        // --- DOKUNMATİK EKRAN (TELEFON) İLE ÇEKME ---
+        ozelSticker.addEventListener('touchstart', (e) => {
+            surukleniyor = true;
+            baslangicY = e.touches[0].clientY; // İlk parmağın Y koordinatı
+            ozelSticker.style.transition = 'none'; // Çekerken anlık tepki versin
+            e.preventDefault(); // Sayfanın kaymasını engelle
+        }, { passive: false }); // preventDefault'u kullanabilmek için
+
+        document.addEventListener('touchmove', (e) => {
+            if (!surukleniyor) return;
+            let suankiY = e.touches[0].clientY;
+            let fark = suankiY - baslangicY;
+
+            if (fark > 50) { // 50 piksel aşağı çekince tetikle
+                ozelSticker.classList.add('pantolon-indi');
+            } else {
+                ozelSticker.classList.remove('pantolon-indi');
+            }
+            e.preventDefault(); // Sayfanın kaymasını engelle
+        }, { passive: false });
+
+        // --- BIRAKMA İŞLEMLERİ (Mouse veya Parmak) ---
+        function sifirla() {
+            if (!surukleniyor) return; // Zaten sürüklenmiyorsa bir şey yapma
+            surukleniyor = false;
+            ozelSticker.classList.remove('pantolon-indi');
+            ozelSticker.style.transition = 'all 0.3s ease'; // Yumuşakça geri dönsün
+        }
+
+        document.addEventListener('mouseup', sifirla);
+        document.addEventListener('touchend', sifirla);
+
+    </script>
+
 </body>
 </html>
-
-
