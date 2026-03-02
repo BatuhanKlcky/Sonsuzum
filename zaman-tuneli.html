@@ -992,7 +992,7 @@ Seni seviyorum. Sadece dün değil, bugün de ve eğer izin verirsen, yarın da 
     <p style="color: var(--text-color); margin-bottom: 20px; font-weight: 600;">Karar senin, ben her iki ihtimalde de buradayım...</p>
     
     <div style="display: flex; flex-wrap: wrap; justify-content: center;">
-        <a href="https://wa.me/905XXXXXXXXX?text=Seni%20dinlemeye%20hazırım..." class="decision-btn btn-primary">
+        <a href="https://wa.me/905372459764?text=Seni%20dinlemeye%20hazırım..." class="decision-btn btn-primary">
             <i class="fab fa-whatsapp"></i> Yarım kalanları beraber tamamlayalım mı?
         </a>
 
@@ -1170,7 +1170,12 @@ Seni seviyorum. Sadece dün değil, bugün de ve eğer izin verirsen, yarın da 
             progress.style.width = '0%';
             currentTimeElement.textContent = '0:00';
         });
-
+// Zaman ihtiyacı mesajını gösteren fonksiyon
+function showWaitMessage() {
+    const msg = document.getElementById('waitMessage');
+    msg.style.display = 'block';
+    msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
         // Yaratıcı linkine tıklandığında
         document.getElementById('creatorLink').addEventListener('click', function(e) {
             e.preventDefault();
