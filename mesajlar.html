@@ -119,7 +119,8 @@
     <div class="password-box">
         <h2 style="color:#ff758f; font-family:'Dancing Script'">Giriş Yap</h2>
         <input type="password" id="passwordInput" class="password-input" placeholder="Şifre...">
-<button type="button" onclick="sifreKontrolEt()" class="submit-btn">Aç</button>
+        <button type="button" onclick="sifreKontrolEt()" class="submit-btn" id="submitPassword">Aç</button>
+        <p id="errorMsg" style="color: red; display: none; margin-top: 10px; font-size: 14px;">Hatalı Şifre!</p>
     </div>
 </div>
 
@@ -769,52 +770,43 @@ Seninle olmak, her mevsimi bahara çevirmek gibi..."</p>
 
 
 <script>
-// Şifre kontrol fonksiyonunu dışarı alıyoruz ki buton her yerden erişebilsin
 function sifreKontrolEt() {
-    const passInput = document.getElementById('passwordInput');
-    const modal = document.getElementById('passwordModal');
-    const content = document.getElementById('mainContent');
-    const audio = document.getElementById('myAudio');
-    const errorMsg = document.getElementById('errorMsg');
+    // Elemanları değişkenlere atıyoruz
+    const pInput = document.getElementById('passwordInput');
+    const pModal = document.getElementById('passwordModal');
+    const pContent = document.getElementById('mainContent'); // Mesajların olduğu ana div
+    const pAudio = document.getElementById('myAudio');
+    const eMsg = document.getElementById('errorMsg');
 
-    const enteredPass = passInput.value.trim();
-
-    if (enteredPass === "240424") {
-        // Şifre doğruysa
-        if (modal) modal.setAttribute('style', 'display: none !important');
-        if (content) content.style.display = "block";
+    // Şifre kontrolü
+    if (pInput.value.trim() === "240424") {
+        // Şifre doğruysa: Modal'ı tamamen yok et, içeriği göster
+        if (pModal) {
+            pModal.style.setProperty('display', 'none', 'important');
+        }
+        if (pContent) {
+            pContent.style.display = "block";
+        }
         
-        // Müziği Başlat
-        if (audio) {
-            audio.play().catch(e => console.log("Müzik etkileşim bekliyor."));
+        // Müzik varsa başlat
+        if (pAudio) {
+            pAudio.play().catch(e => console.log("Müzik etkileşim bekliyor."));
         }
     } else {
         // Şifre yanlışsa
-        if (errorMsg) {
-            errorMsg.style.display = "block";
-            errorMsg.innerText = "Hatalı Mesaj Şifresi!";
-        }
-        alert("Hatalı şifre girdiniz!");
+        if (eMsg) eMsg.style.display = "block";
+        pInput.value = ""; // Kutuyu temizle
+        alert("Hatalı şifre!");
     }
 }
 
-// Sayfa yüklendiğinde yapılacaklar
-document.addEventListener('DOMContentLoaded', () => {
-    const modal = document.getElementById('passwordModal');
-    const content = document.getElementById('mainContent');
-    const passInput = document.getElementById('passwordInput');
-
-    // Başlangıç durumu
-    if(modal) modal.setAttribute('style', 'display: flex !important');
-    if(content) content.style.display = "none";
-
-    // Enter tuşu desteği
-    if(passInput) {
-        passInput.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") {
-                sifreKontrolEt();
-            }
-        });
+// Enter tuşu basıldığında da çalışması için:
+document.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        const modal = document.getElementById('passwordModal');
+        if (modal && modal.style.display !== 'none') {
+            sifreKontrolEt();
+        }
     }
 });
 
