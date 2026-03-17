@@ -78,6 +78,10 @@
     </style>
 </head>
 <body>
+    <audio id="myAudio" loop>
+    <source src="İDİL ♫ Duygusal Piyano Fon Müziği.mp3" type="audio/mpeg">
+    Tarayıcınız ses öğesini desteklemiyor.
+</audio>
 
     <div class="menu-toggle" id="menuBtn"><i class="fas fa-bars"></i></div>
 
@@ -749,12 +753,19 @@ Seninle olmak, her mevsimi bahara çevirmek gibi..."</p>
     const modal = document.getElementById('passwordModal');
     const content = document.getElementById('mainContent');
 
-    submitBtn.onclick = () => {
-        if(passInput.value === "240424") {
-            modal.style.display = "none";
-            content.style.display = "block";
-        }
-    };
+submitBtn.onclick = () => {
+    // Şifren senin orijinal şifren: 240424
+    if(passInput.value === "240424") {
+        modal.style.display = "none";
+        content.style.display = "block";
+        
+        // MÜZİĞİ BAŞLATAN KISIM
+        const musicContainer = document.getElementById('music-player');
+        musicContainer.style.display = "block";
+    } else {
+        document.getElementById('errorMsg').style.display = "block";
+    }
+};
 
     // Hem toggleMsg hem de toggleMessage olarak çalışacak şekilde ayarlandı
 function toggleMessage(btn) {
