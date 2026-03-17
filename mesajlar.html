@@ -119,7 +119,7 @@
     <div class="password-box">
         <h2 style="color:#ff758f; font-family:'Dancing Script'">Giriş Yap</h2>
         <input type="password" id="passwordInput" class="password-input" placeholder="Şifre...">
-        <button type="button" onclick="sifreKontrolEt()" class="submit-btn" id="submitPassword">Aç</button>
+        <button type="button" onclick="dogrula()" class="submit-btn">Aç</button>
         <p id="errorMsg" style="color: red; display: none; margin-top: 10px; font-size: 14px;">Hatalı Şifre!</p>
     </div>
 </div>
@@ -770,74 +770,60 @@ Seninle olmak, her mevsimi bahara çevirmek gibi..."</p>
 
 
 <script>
-function sifreKontrolEt() {
-    // Elemanları değişkenlere atıyoruz
-    const pInput = document.getElementById('passwordInput');
-    const pModal = document.getElementById('passwordModal');
-    const pContent = document.getElementById('mainContent'); // Mesajların olduğu ana div
-    const pAudio = document.getElementById('myAudio');
-    const eMsg = document.getElementById('errorMsg');
+// 1. Fonksiyonu en sade haliyle tanımlıyoruz
+function dogrula() {
+    // Elemanları o anki halleriyle yakalayalım
+    var sifreKutusu = document.getElementById('passwordInput');
+    var panel = document.getElementById('passwordModal');
+    var icerik = document.getElementById('mainContent');
+    var ses = document.getElementById('myAudio');
 
-    // Şifre kontrolü
-    if (pInput.value.trim() === "240424") {
-        // Şifre doğruysa: Modal'ı tamamen yok et, içeriği göster
-        if (pModal) {
-            pModal.style.setProperty('display', 'none', 'important');
-        }
-        if (pContent) {
-            pContent.style.display = "block";
-        }
+    // Şifre kontrolü (Boşlukları silerek)
+    if (sifreKutusu.value.trim() === "240424") {
         
-        // Müzik varsa başlat
-        if (pAudio) {
-            pAudio.play().catch(e => console.log("Müzik etkileşim bekliyor."));
+        // Paneli kapat, içeriği aç (Zorlayıcı yöntemle)
+        panel.style.cssText = "display: none !important";
+        icerik.style.display = "block";
+
+        // Müziği oynatmayı dene
+        if (ses) {
+            ses.play().catch(function(hata) {
+                console.log("Müzik için etkileşim gerekiyor");
+            });
         }
     } else {
-        // Şifre yanlışsa
-        if (eMsg) eMsg.style.display = "block";
-        pInput.value = ""; // Kutuyu temizle
-        alert("Hatalı şifre!");
+        alert("Şifre hatalı, lütfen tekrar deneyin.");
+        sifreKutusu.value = ""; // Kutuyu temizle
     }
 }
 
-// Enter tuşu basıldığında da çalışması için:
-document.addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        const modal = document.getElementById('passwordModal');
-        if (modal && modal.style.display !== 'none') {
-            sifreKontrolEt();
-        }
-    }
-});
-
-// Mesaj açma fonksiyonu
+// 2. Mesajları açıp kapatan yardımcı fonksiyon
 function toggleMessage(btn) {
-    const panel = btn.nextElementSibling;
-    if (panel.style.display === "block") {
-        panel.style.display = "none";
+    var mesaj = btn.nextElementSibling;
+    if (mesaj.style.display === "block") {
+        mesaj.style.display = "none";
         btn.innerHTML = 'Mesajı Oku ▼';
     } else {
-        panel.style.display = "block";
+        mesaj.style.display = "block";
         btn.innerHTML = 'Kapat ▲';
     }
 }
-const toggleMsg = toggleMessage;
+var toggleMsg = toggleMessage; // Yedek isim
 
-// Menü Kontrolü
-const menuBtn = document.getElementById('menuBtn');
-const sidebar = document.getElementById('sidebarMenu');
+// 3. Menü (Sidebar) Kontrolü
+var mBtn = document.getElementById('menuBtn');
+var sBar = document.getElementById('sidebarMenu');
 
-if (menuBtn && sidebar) {
-    menuBtn.onclick = (e) => {
+if (mBtn && sBar) {
+    mBtn.onclick = function(e) {
         e.stopPropagation();
-        sidebar.classList.toggle('active');
+        sBar.classList.toggle('active');
     };
-
-    document.addEventListener('click', (e) => {
-        if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
-            sidebar.classList.remove('active');
+    document.onclick = function(e) {
+        if (!sBar.contains(e.target) && e.target !== mBtn) {
+            sBar.classList.remove('active');
         }
-    });
+    };
 }
     <script>
 </body>
