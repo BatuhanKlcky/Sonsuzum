@@ -792,18 +792,6 @@ if (submitBtn) {
     };
 }
 
-// 2. OTOMATİK GİRİŞ (Zaten şifre girilmişse)
-window.onload = () => {
-    if (localStorage.getItem('isLoggedIn') === 'true') {
-        if (modal) modal.style.display = "none";
-        if (content) content.style.display = "block";
-        
-        // Müzik için ilk tıklamada çalma yetkisi al
-        document.body.addEventListener('click', () => {
-            if (audio) audio.play();
-        }, { once: true });
-    }
-};
 
 // 3. MESAJ AÇ/KAPAT
 function toggleMessage(btn) {
