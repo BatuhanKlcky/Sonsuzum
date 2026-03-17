@@ -768,35 +768,46 @@ Seninle olmak, her mevsimi bahara çevirmek gibi..."</p>
 
 
 
-
 <script>
-    const passInput = document.getElementById('passwordInput');
-    const submitBtn = document.getElementById('submitPassword');
-    const modal = document.getElementById('passwordModal');
-    const content = document.getElementById('mainContent');
-    const audio = document.getElementById('myAudio');
-    const errorMsg = document.getElementById('errorMsg');
+const passInput = document.getElementById('passwordInput');
+const submitBtn = document.getElementById('submitPassword');
+const modal = document.getElementById('passwordModal');
+const content = document.getElementById('mainContent');
+const audio = document.getElementById('myAudio');
+const errorMsg = document.getElementById('errorMsg');
 
-if(passInput.value === "240424") {
-        localStorage.setItem('isLoggedIn', 'true');
-        
-        // Önce öğeler sayfada var mı diye kontrol et (Hata almamak için)
-        if(modal) modal.style.display = "none";
-        if(content) content.style.display = "block";
-        
-        // Müzik varsa çal
-        if(audio) {
-            audio.play().catch(e => console.log("Müzik etkileşim bekliyor."));
+// 1. ŞİFRE KONTROLÜ (Giriş Butonuna Basınca)
+if (submitBtn) {
+    submitBtn.onclick = () => {
+        if (passInput.value === "240424") {
+            localStorage.setItem('isLoggedIn', 'true');
+            if (modal) modal.style.display = "none";
+            if (content) content.style.display = "block";
+            if (audio) {
+                audio.play().catch(e => console.log("Müzik etkileşim bekliyor."));
+            }
+        } else {
+            if (errorMsg) errorMsg.style.display = "block";
         }
-    } else {
-        if(errorMsg) errorMsg.style.display = "block";
+    };
+}
+
+// 2. OTOMATİK GİRİŞ (Zaten şifre girilmişse)
+window.onload = () => {
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+        if (modal) modal.style.display = "none";
+        if (content) content.style.display = "block";
+        
+        // Müzik için ilk tıklamada çalma yetkisi al
+        document.body.addEventListener('click', () => {
+            if (audio) audio.play();
+        }, { once: true });
     }
 };
 
-    // Hem toggleMsg hem de toggleMessage olarak çalışacak şekilde ayarlandı
+// 3. MESAJ AÇ/KAPAT
 function toggleMessage(btn) {
     const panel = btn.nextElementSibling;
-    
     if (panel.style.display === "block") {
         panel.style.display = "none";
         btn.innerHTML = 'Mesajı Oku ▼';
@@ -805,23 +816,23 @@ function toggleMessage(btn) {
         btn.innerHTML = 'Kapat ▲';
     }
 }
-
-// Eğer bazı butonlar hala toggleMsg arıyorsa o da çalışsın diye:
 const toggleMsg = toggleMessage;
-    // Menü Aç/Kapat Fonksiyonu
+
+// 4. MENÜ KONTROLÜ
 const menuBtn = document.getElementById('menuBtn');
 const sidebar = document.getElementById('sidebarMenu');
 
-menuBtn.onclick = () => {
-    sidebar.classList.toggle('active');
-};
+if (menuBtn && sidebar) {
+    menuBtn.onclick = () => {
+        sidebar.classList.toggle('active');
+    };
 
-// Boşluğa tıklayınca menüyü kapatır
-document.addEventListener('click', (e) => {
-    if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
-        sidebar.classList.remove('active');
-    }
-});
-</script>
+    document.addEventListener('click', (e) => {
+        if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+            sidebar.classList.remove('active');
+        }
+    });
+}
+    <script>
 </body>
 </html>
