@@ -769,31 +769,51 @@ Seninle olmak, her mevsimi bahara çevirmek gibi..."</p>
 
 
 <script>
+// 1. Elemanları Tanımla
 const passInput = document.getElementById('passwordInput');
 const submitBtn = document.getElementById('submitPassword');
 const modal = document.getElementById('passwordModal');
 const content = document.getElementById('mainContent');
 const audio = document.getElementById('myAudio');
 const errorMsg = document.getElementById('errorMsg');
+const menuBtn = document.getElementById('menuBtn');
+const sidebar = document.getElementById('sidebarMenu');
 
-// 1. ŞİFRE KONTROLÜ (Giriş Butonuna Basınca)
+// 2. Sayfa Açıldığında Şifre Ekranını Zorunlu Tut
+window.onload = () => {
+    if(modal) modal.style.display = "flex"; 
+    if(content) content.style.display = "none"; 
+};
+
+// 3. Şifre Kontrolü
 if (submitBtn) {
-    submitBtn.onclick = () => {
-        if (passInput.value === "240424") {
-            localStorage.setItem('isLoggedIn', 'true');
+    submitBtn.onclick = function() {
+        const enteredPass = passInput.value.trim();
+        
+        if (enteredPass === "240424") { 
             if (modal) modal.style.display = "none";
             if (content) content.style.display = "block";
+            
             if (audio) {
                 audio.play().catch(e => console.log("Müzik etkileşim bekliyor."));
             }
         } else {
-            if (errorMsg) errorMsg.style.display = "block";
+            if (errorMsg) {
+                errorMsg.style.display = "block";
+                errorMsg.innerText = "Hatalı Mesaj Şifresi!";
+            }
         }
     };
 }
 
+// 4. Enter Tuşu Desteği
+if (passInput) {
+    passInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") submitBtn.click();
+    });
+}
 
-// 3. MESAJ AÇ/KAPAT
+// 5. Mesaj Aç/Kapat (Accordion)
 function toggleMessage(btn) {
     const panel = btn.nextElementSibling;
     if (panel.style.display === "block") {
@@ -806,12 +826,10 @@ function toggleMessage(btn) {
 }
 const toggleMsg = toggleMessage;
 
-// 4. MENÜ KONTROLÜ
-const menuBtn = document.getElementById('menuBtn');
-const sidebar = document.getElementById('sidebarMenu');
-
+// 6. Menü Kontrolü (Sidebar)
 if (menuBtn && sidebar) {
-    menuBtn.onclick = () => {
+    menuBtn.onclick = (e) => {
+        e.stopPropagation(); // Tıklamanın dışarı sızmasını engelle
         sidebar.classList.toggle('active');
     };
 
