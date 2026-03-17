@@ -769,62 +769,56 @@ Seninle olmak, her mevsimi bahara çevirmek gibi..."</p>
 
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Elemanları Tanımla
+// Şifre kontrol fonksiyonunu dışarı alıyoruz ki buton her yerden erişebilsin
+function sifreKontrolEt() {
     const passInput = document.getElementById('passwordInput');
-    const submitBtn = document.getElementById('submitPassword');
     const modal = document.getElementById('passwordModal');
     const content = document.getElementById('mainContent');
     const audio = document.getElementById('myAudio');
     const errorMsg = document.getElementById('errorMsg');
 
-    // Sayfa açılır açılmaz durumu garantiye alalım
+    const enteredPass = passInput.value.trim();
+
+    if (enteredPass === "240424") {
+        // Şifre doğruysa
+        if (modal) modal.setAttribute('style', 'display: none !important');
+        if (content) content.style.display = "block";
+        
+        // Müziği Başlat
+        if (audio) {
+            audio.play().catch(e => console.log("Müzik etkileşim bekliyor."));
+        }
+    } else {
+        // Şifre yanlışsa
+        if (errorMsg) {
+            errorMsg.style.display = "block";
+            errorMsg.innerText = "Hatalı Mesaj Şifresi!";
+        }
+        alert("Hatalı şifre girdiniz!");
+    }
+}
+
+// Sayfa yüklendiğinde yapılacaklar
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('passwordModal');
+    const content = document.getElementById('mainContent');
+    const passInput = document.getElementById('passwordInput');
+
+    // Başlangıç durumu
     if(modal) modal.setAttribute('style', 'display: flex !important');
     if(content) content.style.display = "none";
 
-    // 2. Şifre Kontrolü
-    if (submitBtn) {
-        submitBtn.onclick = function() {
-            const enteredPass = passInput.value.trim();
-            console.log("Girilen şifre:", enteredPass); // Tarayıcı konsoluna yazar
-
-            if (enteredPass === "240424") { 
-                // ŞİFRE DOĞRUYSA YAPILACAKLAR
-                if (modal) {
-                    modal.setAttribute('style', 'display: none !important');
-                    console.log("Modal gizlendi");
-                }
-                if (content) {
-                    content.style.display = "block";
-                    console.log("İçerik gösterildi");
-                }
-                
-                // Müziği Başlat
-                if (audio) {
-                    audio.play().catch(e => console.log("Müzik etkileşim bekliyor."));
-                }
-                
-                // Başarılı giriş bildirimi (Bunu testten sonra silebilirsin)
-                alert("Şifre doğru! İçerik yükleniyor...");
-
-            } else {
-                // ŞİFRE YANLIŞSA
-                if (errorMsg) {
-                    errorMsg.style.display = "block";
-                    errorMsg.innerText = "Hatalı Mesaj Şifresi!";
-                }
-                alert("Hatalı şifre girdiniz!");
-            }
-        };
-    }
-
     // Enter tuşu desteği
-    passInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") submitBtn.click();
-    });
+    if(passInput) {
+        passInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                sifreKontrolEt();
+            }
+        });
+    }
 });
 
-// Mesaj açma fonksiyonu (Dışarıda kalmalı)
+// Mesaj açma fonksiyonu
 function toggleMessage(btn) {
     const panel = btn.nextElementSibling;
     if (panel.style.display === "block") {
@@ -836,6 +830,23 @@ function toggleMessage(btn) {
     }
 }
 const toggleMsg = toggleMessage;
+
+// Menü Kontrolü
+const menuBtn = document.getElementById('menuBtn');
+const sidebar = document.getElementById('sidebarMenu');
+
+if (menuBtn && sidebar) {
+    menuBtn.onclick = (e) => {
+        e.stopPropagation();
+        sidebar.classList.toggle('active');
+    };
+
+    document.addEventListener('click', (e) => {
+        if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+            sidebar.classList.remove('active');
+        }
+    });
+}
     <script>
 </body>
 </html>
