@@ -769,51 +769,62 @@ Seninle olmak, her mevsimi bahara çevirmek gibi..."</p>
 
 
 <script>
-// 1. Elemanları Tanımla
-const passInput = document.getElementById('passwordInput');
-const submitBtn = document.getElementById('submitPassword');
-const modal = document.getElementById('passwordModal');
-const content = document.getElementById('mainContent');
-const audio = document.getElementById('myAudio');
-const errorMsg = document.getElementById('errorMsg');
-const menuBtn = document.getElementById('menuBtn');
-const sidebar = document.getElementById('sidebarMenu');
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Elemanları Tanımla
+    const passInput = document.getElementById('passwordInput');
+    const submitBtn = document.getElementById('submitPassword');
+    const modal = document.getElementById('passwordModal');
+    const content = document.getElementById('mainContent');
+    const audio = document.getElementById('myAudio');
+    const errorMsg = document.getElementById('errorMsg');
 
-// 2. Sayfa Açıldığında Şifre Ekranını Zorunlu Tut
-window.onload = () => {
-    if(modal) modal.style.display = "flex"; 
-    if(content) content.style.display = "none"; 
-};
+    // Sayfa açılır açılmaz durumu garantiye alalım
+    if(modal) modal.setAttribute('style', 'display: flex !important');
+    if(content) content.style.display = "none";
 
-// 3. Şifre Kontrolü
-if (submitBtn) {
-    submitBtn.onclick = function() {
-        const enteredPass = passInput.value.trim();
-        
-        if (enteredPass === "240424") { 
-            if (modal) modal.style.display = "none";
-            if (content) content.style.display = "block";
-            
-            if (audio) {
-                audio.play().catch(e => console.log("Müzik etkileşim bekliyor."));
+    // 2. Şifre Kontrolü
+    if (submitBtn) {
+        submitBtn.onclick = function() {
+            const enteredPass = passInput.value.trim();
+            console.log("Girilen şifre:", enteredPass); // Tarayıcı konsoluna yazar
+
+            if (enteredPass === "240424") { 
+                // ŞİFRE DOĞRUYSA YAPILACAKLAR
+                if (modal) {
+                    modal.setAttribute('style', 'display: none !important');
+                    console.log("Modal gizlendi");
+                }
+                if (content) {
+                    content.style.display = "block";
+                    console.log("İçerik gösterildi");
+                }
+                
+                // Müziği Başlat
+                if (audio) {
+                    audio.play().catch(e => console.log("Müzik etkileşim bekliyor."));
+                }
+                
+                // Başarılı giriş bildirimi (Bunu testten sonra silebilirsin)
+                alert("Şifre doğru! İçerik yükleniyor...");
+
+            } else {
+                // ŞİFRE YANLIŞSA
+                if (errorMsg) {
+                    errorMsg.style.display = "block";
+                    errorMsg.innerText = "Hatalı Mesaj Şifresi!";
+                }
+                alert("Hatalı şifre girdiniz!");
             }
-        } else {
-            if (errorMsg) {
-                errorMsg.style.display = "block";
-                errorMsg.innerText = "Hatalı Mesaj Şifresi!";
-            }
-        }
-    };
-}
+        };
+    }
 
-// 4. Enter Tuşu Desteği
-if (passInput) {
+    // Enter tuşu desteği
     passInput.addEventListener("keypress", (e) => {
         if (e.key === "Enter") submitBtn.click();
     });
-}
+});
 
-// 5. Mesaj Aç/Kapat (Accordion)
+// Mesaj açma fonksiyonu (Dışarıda kalmalı)
 function toggleMessage(btn) {
     const panel = btn.nextElementSibling;
     if (panel.style.display === "block") {
@@ -825,20 +836,6 @@ function toggleMessage(btn) {
     }
 }
 const toggleMsg = toggleMessage;
-
-// 6. Menü Kontrolü (Sidebar)
-if (menuBtn && sidebar) {
-    menuBtn.onclick = (e) => {
-        e.stopPropagation(); // Tıklamanın dışarı sızmasını engelle
-        sidebar.classList.toggle('active');
-    };
-
-    document.addEventListener('click', (e) => {
-        if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
-            sidebar.classList.remove('active');
-        }
-    });
-}
     <script>
 </body>
 </html>
