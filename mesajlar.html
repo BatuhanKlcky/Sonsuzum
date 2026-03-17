@@ -774,18 +774,22 @@ Seninle olmak, her mevsimi bahara çevirmek gibi..."</p>
     const submitBtn = document.getElementById('submitPassword');
     const modal = document.getElementById('passwordModal');
     const content = document.getElementById('mainContent');
+    const audio = document.getElementById('myAudio');
+    const errorMsg = document.getElementById('errorMsg');
 
-submitBtn.onclick = () => {
-    // Şifren senin orijinal şifren: 240424
-    if(passInput.value === "240424") {
-        modal.style.display = "none";
-        content.style.display = "block";
+if(passInput.value === "240424") {
+        localStorage.setItem('isLoggedIn', 'true');
         
-        // MÜZİĞİ BAŞLATAN KISIM
-        const musicContainer = document.getElementById('music-player');
-        musicContainer.style.display = "block";
+        // Önce öğeler sayfada var mı diye kontrol et (Hata almamak için)
+        if(modal) modal.style.display = "none";
+        if(content) content.style.display = "block";
+        
+        // Müzik varsa çal
+        if(audio) {
+            audio.play().catch(e => console.log("Müzik etkileşim bekliyor."));
+        }
     } else {
-        document.getElementById('errorMsg').style.display = "block";
+        if(errorMsg) errorMsg.style.display = "block";
     }
 };
 
