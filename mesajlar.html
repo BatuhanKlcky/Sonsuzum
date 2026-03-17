@@ -756,12 +756,21 @@ Seninle olmak, her mevsimi bahara çevirmek gibi..."</p>
         }
     };
 
-    function toggleMsg(btn) {
-        const panel = btn.nextElementSibling;
-        const isVisible = panel.style.display === "block";
-        panel.style.display = isVisible ? "none" : "block";
-        btn.innerText = isVisible ? 'Mesajı Oku ▼' : 'Kapat ▲';
+    // Hem toggleMsg hem de toggleMessage olarak çalışacak şekilde ayarlandı
+function toggleMessage(btn) {
+    const panel = btn.nextElementSibling;
+    
+    if (panel.style.display === "block") {
+        panel.style.display = "none";
+        btn.innerHTML = 'Mesajı Oku ▼';
+    } else {
+        panel.style.display = "block";
+        btn.innerHTML = 'Kapat ▲';
     }
+}
+
+// Eğer bazı butonlar hala toggleMsg arıyorsa o da çalışsın diye:
+const toggleMsg = toggleMessage;
     // Menü Aç/Kapat Fonksiyonu
 const menuBtn = document.getElementById('menuBtn');
 const sidebar = document.getElementById('sidebarMenu');
