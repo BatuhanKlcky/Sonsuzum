@@ -119,11 +119,37 @@
     <div class="password-box">
         <h2 style="color:#ff758f; font-family:'Dancing Script'">Giriş Yap</h2>
         <input type="password" id="passwordInput" class="password-input" placeholder="Şifre...">
+        
+        <script>
+            function dogrula() {
+                var sifre = document.getElementById('passwordInput').value.trim();
+                var panel = document.getElementById('passwordModal');
+                var icerik = document.getElementById('mainContent');
+                var ses = document.getElementById('myAudio');
+                var hataYazisi = document.getElementById('errorMsg');
+
+                if (sifre === "240424") {
+                    // Paneli gizle
+                    panel.style.setProperty('display', 'none', 'important');
+                    // İçeriği göster
+                    if(icerik) {
+                        icerik.style.display = "block";
+                    }
+                    // Müziği çal
+                    if(ses) {
+                        ses.play().catch(function(e) { console.log("Müzik etkileşim bekliyor"); });
+                    }
+                } else {
+                    if(hataYazisi) hataYazisi.style.display = "block";
+                    alert("Şifre Yanlış!");
+                }
+            }
+        </script>
+
         <button type="button" onclick="dogrula()" class="submit-btn">Aç</button>
         <p id="errorMsg" style="color: red; display: none; margin-top: 10px; font-size: 14px;">Hatalı Şifre!</p>
     </div>
 </div>
-
 <div class="container" id="mainContent" style="display:none;">
     <header><h1>Özel Mesajlar</h1></header>
 
@@ -770,34 +796,7 @@ Seninle olmak, her mevsimi bahara çevirmek gibi..."</p>
 
 
 <script>
-// 1. Fonksiyonu en sade haliyle tanımlıyoruz
-function dogrula() {
-    // Elemanları o anki halleriyle yakalayalım
-    var sifreKutusu = document.getElementById('passwordInput');
-    var panel = document.getElementById('passwordModal');
-    var icerik = document.getElementById('mainContent');
-    var ses = document.getElementById('myAudio');
-
-    // Şifre kontrolü (Boşlukları silerek)
-    if (sifreKutusu.value.trim() === "240424") {
-        
-        // Paneli kapat, içeriği aç (Zorlayıcı yöntemle)
-        panel.style.cssText = "display: none !important";
-        icerik.style.display = "block";
-
-        // Müziği oynatmayı dene
-        if (ses) {
-            ses.play().catch(function(hata) {
-                console.log("Müzik için etkileşim gerekiyor");
-            });
-        }
-    } else {
-        alert("Şifre hatalı, lütfen tekrar deneyin.");
-        sifreKutusu.value = ""; // Kutuyu temizle
-    }
-}
-
-// 2. Mesajları açıp kapatan yardımcı fonksiyon
+// 1. Mesajları Aç/Kapat Fonksiyonu
 function toggleMessage(btn) {
     var mesaj = btn.nextElementSibling;
     if (mesaj.style.display === "block") {
@@ -808,9 +807,9 @@ function toggleMessage(btn) {
         btn.innerHTML = 'Kapat ▲';
     }
 }
-var toggleMsg = toggleMessage; // Yedek isim
+var toggleMsg = toggleMessage;
 
-// 3. Menü (Sidebar) Kontrolü
+// 2. Yan Menü (Sidebar) Kontrolü
 var mBtn = document.getElementById('menuBtn');
 var sBar = document.getElementById('sidebarMenu');
 
@@ -825,6 +824,6 @@ if (mBtn && sBar) {
         }
     };
 }
-    <script>
+</script>
 </body>
 </html>
