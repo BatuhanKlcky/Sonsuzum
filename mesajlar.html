@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head> 
-            <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
+           <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
 
 <script>
   const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
@@ -9,39 +9,60 @@
   const client = supabase.createClient(supabaseUrl, supabaseKey);
 
   let visitStart = Date.now();
+  let rowId = null; // Veritabanından dönen ID'yi burada saklayacağız
 
-  // IP adresini al
-  fetch('https://api.ipify.org?format=json')
-    .then(response => response.json())
-    .then(ipData => {
-      const page_url = window.location.href;
-      const user_agent = navigator.userAgent;
-      const screen_resolution = `${window.screen.width}x${window.screen.height}`;
-      const ip_address = ipData.ip;
+  async function logVisitStart() {
+    try {
+      // 1. IP Adresini al
+      const ipResponse = await fetch('https://api.ipify.org?format=json');
+      const ipData = await ipResponse.json();
 
-      // Sayfa kapanınca ziyaret kaydet
-      window.addEventListener('beforeunload', async () => {
-        const visitEnd = Date.now();
-        const time_spent = Math.floor((visitEnd - visitStart) / 1000);
+      // 2. İlk kaydı oluştur (Sayfa açılır açılmaz)
+      const { data, error } = await client
+        .from('visitor_logs')
+        .insert([{
+          page_url: window.location.href,
+          ip_address: ipData.ip,
+          user_agent: navigator.userAgent,
+          screen_resolution: `${window.screen.width}x${window.screen.height}`,
+          time_spent: 0 // Başlangıçta 0
+        }])
+        .select(); // ID'yi almak için select ekliyoruz
 
-        const { error } = await client
-          .from('visitor_logs')
-          .insert([{
-            page_url,
-            ip_address,
-            user_agent,
-            screen_resolution,
-            time_spent
-          }]);
+      if (error) throw error;
+      if (data && data.length > 0) {
+        rowId = data[0].id; // Oluşturulan satırın ID'sini kaydet
+        console.log("Ziyaret başlatıldı, ID:", rowId);
+      }
+    } catch (err) {
+      console.error("Başlatma hatası:", err.message);
+    }
+  }
 
-        if (error) {
-          console.error('Ziyaretçi kaydedilirken hata:', error);
-        } else {
-          console.log('Ziyaret kaydedildi!');
-        }
+  // Sayfa kapanırken veya sekme değiştirildiğinde çalışır
+  window.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden' && rowId) {
+      const visitEnd = Date.now();
+      const timeSpent = Math.floor((visitEnd - visitStart) / 1000);
+
+      // Sayfa kapanırken Supabase SDK'sı yerine 'keepalive' destekli fetch kullanıyoruz
+      // Bu, bağlantı kopsa bile verinin sunucuya ulaşmasını sağlar.
+      fetch(`${supabaseUrl}/rest/v1/visitor_logs?id=eq.${rowId}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ time_spent: timeSpent }),
+        keepalive: true
       });
-    });
-        
+    }
+  });
+
+  // Fonksiyonu çalıştır
+  logVisitStart();
 </script>
         
     <meta charset="UTF-8">
