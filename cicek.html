@@ -3,22 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Çiçek Tarlası</title>
+    <title>Sanal Çiçek Bahçem</title>
     <style>
-        * {
-            padding: 0;
-            margin: 0;
-            box-sizing: border-box;
-        }
+        * { padding: 0; margin: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
 
         :root {
-            --color-bg: linear-gradient(to top, #001a33, #000); /* Gece gökyüzü */
+            --color-bg: linear-gradient(to top, #001a33, #000);
             --line-color: linear-gradient(to left top, #82ff86 20%, #144425, #104e1c);
             --leaf-color: radial-gradient(circle, #82ff86, #104e1c);
             
-            /* Varsayılan Ayçiçeği Renkleri */
-            --flower-center: radial-gradient(circle, #000, #ff5e00);
-            --petal-color: radial-gradient(circle, #ff5e00, #ffbb00);
+            /* Dinamik Değişkenler (JS ile değişecek) */
+            --growth: 1; /* Çiçek boyutu */
+            --health-color: 1; /* Renk doygunluğu */
         }
 
         body {
@@ -28,14 +24,47 @@
             align-items: flex-end;
             justify-content: center;
             overflow: hidden;
+            perspective: 1000px;
         }
+
+        /* --- UI PANELİ --- */
+        .ui-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            color: white;
+            z-index: 100;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .water-btn {
+            background: #00d4ff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .water-btn:hover { background: #008cb3; transform: scale(1.05); }
+        .water-btn:active { transform: scale(0.95); }
 
         /* --- ÇİÇEK GENEL YAPISI --- */
         .flower_wrapper {
             position: absolute;
             bottom: 2vmin;
-            animation: moving-flower-1 4s linear infinite;
             transform-origin: bottom center;
+            /* JS'den gelen büyüme ve sağlık değerlerini uyguluyoruz */
+            transform: scale(var(--growth));
+            filter: saturate(var(--health-color)) brightness(var(--health-color));
+            transition: all 1s ease-in-out;
         }
 
         .flower_stem {
@@ -47,182 +76,176 @@
 
         .flower_center {
             position: absolute;
-            top: 0vmin;
-            left: 50%;
-            z-index: 5;
+            top: 0vmin; left: 50%; z-index: 5;
             transform: translateX(-50%);
-            width: 15vmin;
-            height: 15vmin;
+            width: 15vmin; height: 15vmin;
             border-radius: 50%;
-            background: var(--flower-center);
-            animation: open-flower-middle 2s 0.4s backwards;
+            background: radial-gradient(circle, #000, #ff5e00);
         }
 
         .flower_petal {
             position: absolute;
-            left: 50%;
-            z-index: 3;
-            bottom: 50vmin;
+            left: 50%; z-index: 3; bottom: 50vmin;
             transform: translateX(-50%);
-            width: 6vmin;
-            height: 18vmin;
-            background: var(--petal-color);
+            width: 6vmin; height: 18vmin;
             border-radius: 50% 50% 50% 50% / 80% 80% 20% 20%;
             transform-origin: center bottom;
-            animation: open-flower 2s 1s backwards;
         }
 
-        /* --- FARKLI ÇİÇEK TÜRLERİ --- */
-        
-        /* GÜL TASARIMI */
-        .rose {
-            --petal-color: radial-gradient(circle, #ff0033, #80001a);
-            --flower-center: radial-gradient(circle, #4d000f, #ff0033);
-        }
-        .rose .flower_petal {
-            width: 8vmin; /* Güllerin yaprakları biraz daha geniştir */
-            border-radius: 50% 50% 10% 10%;
-        }
+        /* Renk Varyasyonları */
+        .sunflower { --petal-bg: radial-gradient(circle, #ff5e00, #ffbb00); }
+        .rose { --petal-bg: radial-gradient(circle, #ff0033, #80001a); }
+        .blue-flower { --petal-bg: radial-gradient(circle, #00d4ff, #003366); }
 
-        /* MAVİ ÇİÇEK TASARIMI */
-        .blue-flower {
-            --petal-color: radial-gradient(circle, #00d4ff, #003366);
-            --flower-center: radial-gradient(circle, #001a33, #00d4ff);
-        }
+        .flower_petal { background: var(--petal-bg); }
 
-        /* Konumlandırmalar */
-        .f1 { left: 20%; transform: scale(0.8); }
-        .f2 { left: 50%; transform: scale(1.1); z-index: 10; } /* Merkezdeki büyük ayçiçeği */
-        .f3 { left: 80%; transform: scale(0.9); }
-        .f4 { left: 35%; transform: scale(0.7); opacity: 0.8; }
-        .f5 { left: 65%; transform: scale(0.75); opacity: 0.8; }
+        /* Yaprak Dizilimi */
+        .p-2 { transform: translateX(-50%) rotate(30deg); }
+        .p-3 { transform: translateX(-50%) rotate(60deg); }
+        .p-4 { transform: translateX(-50%) rotate(90deg); }
+        .p-5 { transform: translateX(-50%) rotate(120deg); }
+        .p-6 { transform: translateX(-50%) rotate(150deg); }
+        .p-7 { transform: translateX(-50%) rotate(180deg); }
+        .p-8 { transform: translateX(-50%) rotate(210deg); }
+        .p-9 { transform: translateX(-50%) rotate(240deg); }
+        .p-10 { transform: translateX(-50%) rotate(270deg); }
+        .p-11 { transform: translateX(-50%) rotate(300deg); }
+        .p-12 { transform: translateX(-50%) rotate(330deg); }
 
-        /* Yaprak Pozisyonları (Döngü ile oluşturulan 12 yaprak) */
-        .p-2  { transform: translateX(-50%) rotate(-30deg); }
-        .p-3  { transform: translateX(-50%) rotate(-60deg); }
-        .p-4  { transform: translateX(-50%) rotate(-90deg); }
-        .p-5  { transform: translateX(-50%) rotate(-120deg); }
-        .p-6  { transform: translateX(-50%) rotate(-150deg); }
-        .p-7  { transform: translateX(-50%) rotate(30deg); }
-        .p-8  { transform: translateX(-50%) rotate(60deg); }
-        .p-9  { transform: translateX(-50%) rotate(90deg); }
-        .p-10 { transform: translateX(-50%) rotate(120deg); }
-        .p-11 { transform: translateX(-50%) rotate(150deg); }
-        .p-12 { transform: translateX(-50%) rotate(180deg); }
+        /* Konumlar */
+        .f1 { left: 25%; }
+        .f2 { left: 50%; }
+        .f3 { left: 75%; }
 
-        .flower_leaf {
-            position: absolute;
-            left: 50%;
-            bottom: 15vmin;
-            width: 5vmin;
-            height: 12vmin;
-            background: var(--leaf-color);
-            border-radius: 10vmin 2vmin 10vmin 2vmin;
-            transform-origin: center bottom;
-        }
-        .leaf-1 { transform: translateX(-100%) rotate(-45deg); }
-        .leaf-2 { transform: translateX(0%) rotate(45deg); bottom: 20vmin; }
-
-        /* --- ATEŞ BÖCEKLERİ VE IŞIKLAR --- */
+        /* Ateş Böcekleri */
         .light {
             position: absolute;
-            width: 1vmin;
-            height: 1vmin;
+            width: 1vmin; height: 1vmin;
             background-color: #fffb00;
             border-radius: 50%;
             filter: blur(0.2vmin);
-            animation: light-ans-background 6s infinite;
+            animation: light-move 6s infinite;
         }
 
-        /* --- ANİMASYONLAR --- */
-        @keyframes open-flower {
-            0% { transform: translateX(-50%) rotate(0) scale(0); opacity: 0; }
-        }
-
-        @keyframes open-flower-middle {
-            0% { opacity: 0; transform: translateX(-50%) scale(0); }
-        }
-
-        @keyframes light-ans-background {
-            0%, 100% { opacity: 0; transform: translateY(0); }
-            50% { opacity: 1; transform: translateY(-50vh) translateX(5vw); }
-        }
-
-        @keyframes moving-flower-1 {
-            0%, 100% { transform: rotate(-2deg); }
-            50% { transform: rotate(2deg); }
+        @keyframes light-move {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            50% { transform: translateY(-40vh) translateX(10vw); opacity: 1; }
         }
     </style>
 </head>
 <body>
 
-    <div class="flower_wrapper rose f1">
-        <div class="flower_stem"></div>
-        <div class="flower_center"></div>
-        <div class="flower_petal"></div>
-        <div class="flower_petal p-2"></div>
-        <div class="flower_petal p-3"></div>
-        <div class="flower_petal p-4"></div>
-        <div class="flower_petal p-5"></div>
-        <div class="flower_petal p-6"></div>
-        <div class="flower_petal p-7"></div>
-        <div class="flower_petal p-8"></div>
-        <div class="flower_petal p-9"></div>
-        <div class="flower_petal p-10"></div>
-        <div class="flower_petal p-11"></div>
-        <div class="flower_petal p-12"></div>
-        <div class="flower_leaf leaf-1"></div>
+    <div class="ui-panel">
+        <h3>Bahçıvan Paneli</h3>
+        <p id="status-text">Çiçekler mutlu!</p>
+        <p>Sağlık: <span id="health-val">100</span>%</p>
+        <button class="water-btn" onclick="waterFlowers()">💧 Çiçekleri Sula</button>
+        <p style="font-size: 12px; margin-top: 10px; opacity: 0.7;">Her gün sulamazsan solarlar...</p>
     </div>
 
-    <div class="flower_wrapper blue-flower f4">
-        <div class="flower_stem" style="height: 40vmin;"></div>
-        <div class="flower_center" style="width: 10vmin; height: 10vmin;"></div>
-        <div class="flower_petal" style="bottom: 32vmin;"></div>
-        <div class="flower_petal p-2" style="bottom: 32vmin;"></div>
-        <div class="flower_petal p-4" style="bottom: 32vmin;"></div>
-        <div class="flower_petal p-6" style="bottom: 32vmin;"></div>
-        <div class="flower_petal p-8" style="bottom: 32vmin;"></div>
-        <div class="flower_petal p-10" style="bottom: 32vmin;"></div>
-        <div class="flower_petal p-12" style="bottom: 32vmin;"></div>
-    </div>
+    <div id="garden">
+        <div class="flower_wrapper rose f1">
+            <div class="flower_stem"></div><div class="flower_center"></div>
+            <div class="flower_petal"></div><div class="flower_petal p-2"></div><div class="flower_petal p-3"></div>
+            <div class="flower_petal p-4"></div><div class="flower_petal p-5"></div><div class="flower_petal p-6"></div>
+            <div class="flower_petal p-7"></div><div class="flower_petal p-8"></div><div class="flower_petal p-9"></div>
+            <div class="flower_petal p-10"></div><div class="flower_petal p-11"></div><div class="flower_petal p-12"></div>
+        </div>
 
-    <div class="flower_wrapper f2">
-        <div class="flower_stem"></div>
-        <div class="flower_center"></div>
-        <div class="flower_petal"></div>
-        <div class="flower_petal p-2"></div>
-        <div class="flower_petal p-3"></div>
-        <div class="flower_petal p-4"></div>
-        <div class="flower_petal p-5"></div>
-        <div class="flower_petal p-6"></div>
-        <div class="flower_petal p-7"></div>
-        <div class="flower_petal p-8"></div>
-        <div class="flower_petal p-9"></div>
-        <div class="flower_petal p-10"></div>
-        <div class="flower_petal p-11"></div>
-        <div class="flower_petal p-12"></div>
-        <div class="flower_leaf leaf-1"></div>
-        <div class="flower_leaf leaf-2"></div>
-    </div>
+        <div class="flower_wrapper sunflower f2">
+            <div class="flower_stem"></div><div class="flower_center"></div>
+            <div class="flower_petal"></div><div class="flower_petal p-2"></div><div class="flower_petal p-4"></div>
+            <div class="flower_petal p-6"></div><div class="flower_petal p-8"></div><div class="flower_petal p-10"></div>
+            <div class="flower_petal p-12"></div>
+        </div>
 
-    <div class="flower_wrapper rose f3">
-        <div class="flower_stem"></div>
-        <div class="flower_center"></div>
-        <div class="flower_petal"></div>
-        <div class="flower_petal p-2"></div>
-        <div class="flower_petal p-4"></div>
-        <div class="flower_petal p-6"></div>
-        <div class="flower_petal p-8"></div>
-        <div class="flower_petal p-10"></div>
-        <div class="flower_petal p-12"></div>
-        <div class="flower_leaf leaf-2"></div>
+        <div class="flower_wrapper blue-flower f3">
+            <div class="flower_stem"></div><div class="flower_center"></div>
+            <div class="flower_petal"></div><div class="flower_petal p-2"></div><div class="flower_petal p-3"></div>
+            <div class="flower_petal p-4"></div><div class="flower_petal p-5"></div><div class="flower_petal p-6"></div>
+            <div class="flower_petal p-7"></div><div class="flower_petal p-8"></div><div class="flower_petal p-9"></div>
+            <div class="flower_petal p-10"></div><div class="flower_petal p-11"></div><div class="flower_petal p-12"></div>
+        </div>
     </div>
 
     <div class="light" style="left: 10%; animation-delay: 1s;"></div>
-    <div class="light" style="left: 30%; animation-delay: 3s;"></div>
-    <div class="light" style="left: 50%; animation-delay: 0s;"></div>
-    <div class="light" style="left: 70%; animation-delay: 5s;"></div>
-    <div class="light" style="left: 90%; animation-delay: 2s;"></div>
+    <div class="light" style="left: 40%; animation-delay: 3s;"></div>
+    <div class="light" style="left: 80%; animation-delay: 5s;"></div>
 
+    <script>
+        // --- OYUN MANTIĞI ---
+        let state = {
+            health: 1.0, // 0.2 ile 1.5 arası
+            lastWatered: Date.now()
+        };
+
+        // Hafızadan verileri yükle
+        function loadGame() {
+            const saved = localStorage.getItem('flowerGarden');
+            if (saved) {
+                state = JSON.parse(saved);
+                calculateWithering();
+            }
+            updateVisuals();
+        }
+
+        // Geçen zamanı hesapla ve çiçekleri soldur
+        function calculateWithering() {
+            const now = Date.now();
+            const hoursPassed = (now - state.lastWatered) / (1000 * 60 * 60);
+            
+            // Her 1 saatte %1 sağlık kaybederler (24 saatte %24 eder)
+            // Eğer 3 gün sulamazsan tamamen solarlar
+            if (hoursPassed > 1) {
+                state.health -= (hoursPassed * 0.01);
+                if (state.health < 0.2) state.health = 0.2;
+            }
+        }
+
+        // Çiçekleri sula
+        function waterFlowers() {
+            state.health += 0.2; // Her sulama %20 canlandırır
+            if (state.health > 1.5) state.health = 1.5; // Maksimum büyüme sınırı
+            state.lastWatered = Date.now();
+            
+            saveGame();
+            updateVisuals();
+            
+            // Basit bir geri bildirim
+            const btn = document.querySelector('.water-btn');
+            btn.textContent = "✨ Sulandı!";
+            setTimeout(() => btn.textContent = "💧 Çiçekleri Sula", 1000);
+        }
+
+        function saveGame() {
+            localStorage.setItem('flowerGarden', JSON.stringify(state));
+        }
+
+        function updateVisuals() {
+            // CSS değişkenlerini güncelle
+            document.documentElement.style.setProperty('--growth', state.health);
+            document.documentElement.style.setProperty('--health-color', state.health);
+
+            // UI metinlerini güncelle
+            const healthPercent = Math.round(state.health * 100);
+            document.getElementById('health-val').textContent = healthPercent;
+
+            const status = document.getElementById('status-text');
+            if (healthPercent > 120) status.textContent = "Çiçekler devasa oldu! 🌟";
+            else if (healthPercent > 80) status.textContent = "Çiçekler çok mutlu. 😊";
+            else if (healthPercent > 40) status.textContent = "Çiçekler biraz susamış. 💧";
+            else status.textContent = "Çiçekler ölmek üzere! 🥀";
+        }
+
+        // Sayfa açıldığında başlat
+        loadGame();
+
+        // Her dakika kontrol et (arka planda açık kalırsa diye)
+        setInterval(() => {
+            calculateWithering();
+            updateVisuals();
+        }, 60000);
+
+    </script>
 </body>
 </html>
