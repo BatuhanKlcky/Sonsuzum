@@ -3,102 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gelişmiş Sanal Bahçem</title>
+    <title>Yaşayan Bahçe - Final</title>
     <style>
         * { padding: 0; margin: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
 
         :root {
             --growth: 1;
             --health-color: 1;
-            /* Daha yumuşak gece/gündüz renkleri */
-            --sky-1: #00111e;
-            --sky-2: #002639;
+            --sky-1: #000811;
+            --sky-2: #001a33;
         }
 
         body {
-            /* Arka planı daha derin bir degrade yaptım */
-            background: radial-gradient(circle at center bottom, var(--sky-2), var(--sky-1));
+            background: linear-gradient(to top, var(--sky-2), var(--sky-1));
             height: 100vh;
             display: flex;
             align-items: flex-end;
             justify-content: center;
             overflow: hidden;
-            transition: all 2s ease;
+            transition: background 2s ease;
         }
 
-        /* YILDIZLAR EKLEDİM (Arka planın boş kalmaması için) */
-        .stars {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: url('https://www.transparenttextures.com/patterns/stardust.png');
-            opacity: 0.3;
-            pointer-events: none;
-        }
-
-        /* --- UI PANELİ (Modernize Edildi) --- */
+        /* --- UI PANEL --- */
         .ui-panel {
             position: fixed;
             top: 20px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(15px);
             padding: 20px;
-            border-radius: 25px;
+            border-radius: 20px;
             color: white;
             z-index: 100;
             text-align: center;
             border: 1px solid rgba(255,255,255,0.1);
-            width: 85%;
-            max-width: 350px;
+            width: 280px;
         }
 
         .water-btn {
-            background: linear-gradient(45deg, #00d4ff, #008cb3);
+            background: #00d4ff;
             border: none;
             width: 100%;
-            padding: 15px;
-            border-radius: 15px;
+            padding: 12px;
+            border-radius: 12px;
             color: white;
             font-weight: bold;
-            font-size: 1.1rem;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
+            transition: transform 0.1s, background 0.3s;
             margin-top: 10px;
         }
+
+        .water-btn:active { transform: scale(0.9); background: #008cb3; }
 
         /* --- ÇİÇEKLER --- */
         .flower_wrapper {
             position: absolute;
-            bottom: 30px;
+            bottom: 40px;
             transform-origin: bottom center;
+            /* Sulayınca büyüme hissi veren asıl kısım burası */
             transform: scale(var(--growth));
             filter: saturate(var(--health-color)) brightness(var(--health-color));
-            transition: transform 1.5s cubic-bezier(0.17, 0.67, 0.83, 0.67), filter 2s;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* Çiçeklerin yerleşimi */
         .f1 { left: 15%; } .f2 { left: 50%; } .f3 { left: 85%; }
 
         .flower_stem {
-            width: 12px;
-            height: 55vmin;
-            background: linear-gradient(to top, #1a4a2e, #34a853);
-            border-radius: 10px;
+            width: 10px; height: 50vmin;
+            background: linear-gradient(to top, #133a1f, #2ecc71);
+            border-radius: 5px;
         }
 
         .flower_center {
-            position: absolute;
-            top: 0; left: 50%; transform: translateX(-50%);
-            width: 12vmin; height: 12vmin;
-            border-radius: 50%;
-            background: radial-gradient(circle, #4b2c00, #ff8c00);
-            z-index: 5;
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 10vmin; height: 10vmin; border-radius: 50%;
+            background: radial-gradient(circle, #4b2c00, #ff8c00); z-index: 5;
         }
 
         .flower_petal {
-            position: absolute;
-            left: 50%; bottom: 48vmin;
-            width: 6vmin; height: 18vmin;
-            transform-origin: center bottom;
+            position: absolute; left: 50%; bottom: 45vmin;
+            width: 5vmin; height: 15vmin; transform-origin: center bottom;
             border-radius: 50% 50% 20% 20%;
         }
 
@@ -106,7 +89,7 @@
         .sunflower .flower_petal { background: radial-gradient(circle, #ffcc00, #ff8c00); }
         .blue .flower_petal { background: radial-gradient(circle, #00d4ff, #0056b3); }
 
-        /* Yaprak rotasyonları */
+        /* Yaprak Açıları */
         .p1 { transform: translateX(-50%) rotate(0deg); }
         .p2 { transform: translateX(-50%) rotate(45deg); }
         .p3 { transform: translateX(-50%) rotate(90deg); }
@@ -116,94 +99,92 @@
         .p7 { transform: translateX(-50%) rotate(270deg); }
         .p8 { transform: translateX(-50%) rotate(315deg); }
 
+        /* Yağmur/Su Efekti */
+        .drop {
+            position: absolute; width: 2px; height: 15px; background: #00d4ff;
+            top: -20px; animation: fall 0.5s linear forwards;
+        }
+        @keyframes fall { to { transform: translateY(100vh); opacity: 0; } }
     </style>
 </head>
 <body>
 
-    <div class="stars"></div>
-
     <div class="ui-panel">
-        <h2 id="time-txt">00:00</h2>
-        <p id="status" style="margin: 5px 0; font-size: 0.9rem; opacity: 0.8;">Bahçen Dinleniyor...</p>
-        <div style="margin: 10px 0;">Sağlık: %<span id="hp">100</span></div>
+        <h2 id="time">00:00</h2>
+        <div style="margin: 5px 0;">Sağlık: %<span id="hp">100</span></div>
         <button class="water-btn" onclick="giveWater()">💧 CAN SUYU VER</button>
-        <p id="advice" style="font-size: 0.75rem; margin-top: 8px; color: #00d4ff;"></p>
+        <p id="msg" style="font-size: 11px; margin-top: 5px; color: #aaa;">Gece uykusu vakti...</p>
     </div>
 
     <div id="garden">
-        <div class="flower_wrapper rose f1">
-            <div class="flower_stem"></div><div class="flower_center"></div>
-            <div class="flower_petal p1"></div><div class="flower_petal p2"></div><div class="flower_petal p3"></div><div class="flower_petal p4"></div><div class="flower_petal p5"></div><div class="flower_petal p6"></div><div class="flower_petal p7"></div><div class="flower_petal p8"></div>
-        </div>
-        <div class="flower_wrapper sunflower f2">
-            <div class="flower_stem"></div><div class="flower_center"></div>
-            <div class="flower_petal p1"></div><div class="flower_petal p2"></div><div class="flower_petal p3"></div><div class="flower_petal p4"></div><div class="flower_petal p5"></div><div class="flower_petal p6"></div><div class="flower_petal p7"></div><div class="flower_petal p8"></div>
-        </div>
-        <div class="flower_wrapper blue f3">
-            <div class="flower_stem"></div><div class="flower_center"></div>
-            <div class="flower_petal p1"></div><div class="flower_petal p2"></div><div class="flower_petal p3"></div><div class="flower_petal p4"></div><div class="flower_petal p5"></div><div class="flower_petal p6"></div><div class="flower_petal p7"></div><div class="flower_petal p8"></div>
-        </div>
+        <div class="flower_wrapper rose f1"><div class="flower_stem"></div><div class="flower_center"></div><div class="flower_petal p1"></div><div class="flower_petal p2"></div><div class="flower_petal p3"></div><div class="flower_petal p4"></div><div class="flower_petal p5"></div><div class="flower_petal p6"></div><div class="flower_petal p7"></div><div class="flower_petal p8"></div></div>
+        <div class="flower_wrapper sunflower f2"><div class="flower_stem"></div><div class="flower_center"></div><div class="flower_petal p1"></div><div class="flower_petal p2"></div><div class="flower_petal p3"></div><div class="flower_petal p4"></div><div class="flower_petal p5"></div><div class="flower_petal p6"></div><div class="flower_petal p7"></div><div class="flower_petal p8"></div></div>
+        <div class="flower_wrapper blue f3"><div class="flower_stem"></div><div class="flower_center"></div><div class="flower_petal p1"></div><div class="flower_petal p2"></div><div class="flower_petal p3"></div><div class="flower_petal p4"></div><div class="flower_petal p5"></div><div class="flower_petal p6"></div><div class="flower_petal p7"></div><div class="flower_petal p8"></div></div>
     </div>
 
     <script>
-        let gardenState = {
-            health: 1.0,
-            lastWater: Date.now()
-        };
+        let health = 1.0;
+        let lastWater = Date.now();
 
-        function init() {
-            const saved = localStorage.getItem('garden_pro');
-            if(saved) gardenState = JSON.parse(saved);
-            update();
-            setInterval(update, 1000);
+        // Sayfa yüklendiğinde hafızadan al
+        if(localStorage.getItem('garden_save')) {
+            const data = JSON.parse(localStorage.getItem('garden_save'));
+            health = data.h;
+            lastWater = data.lw;
         }
 
         function update() {
             const now = new Date();
-            document.getElementById('time-txt').textContent = now.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
+            const h = now.getHours();
+            
+            // Saati güncelle
+            document.getElementById('time').textContent = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
 
-            // Sağlık düşüş hızı (Daha yavaş hale getirdim: saatte %1 düşer)
-            const hoursSince = (Date.now() - gardenState.lastWater) / (1000 * 60 * 60);
-            gardenState.health = Math.max(0.2, 1.1 - (hoursSince * 0.01)); 
-
-            // Arka Plan Renkleri (Saate Göre)
-            const hour = now.getHours();
-            const root = document.documentElement;
-            if(hour >= 6 && hour < 18) { // Gündüz
-                root.style.setProperty('--sky-1', '#1e90ff');
-                root.style.setProperty('--sky-2', '#87ceeb');
-                document.getElementById('status').textContent = "Güneş Çiçekleri Besliyor ☀️";
-            } else { // Gece
-                root.style.setProperty('--sky-1', '#000811');
-                root.style.setProperty('--sky-2', '#001a33');
-                document.getElementById('status').textContent = "Çiçekler Gece Uykusunda ✨";
-            }
+            // Zamanla solma (Saatte %2 azalır)
+            const hoursPassed = (Date.now() - lastWater) / (1000 * 60 * 60);
+            const currentHealth = Math.max(0.3, health - (hoursPassed * 0.02));
 
             // Görselleri Uygula
-            root.style.setProperty('--growth', gardenState.health);
-            root.style.setProperty('--health-color', gardenState.health);
-            document.getElementById('hp').textContent = Math.round(gardenState.health * 100);
+            document.documentElement.style.setProperty('--growth', currentHealth);
+            document.documentElement.style.setProperty('--health-color', currentHealth);
+            document.getElementById('hp').textContent = Math.round(currentHealth * 100);
 
-            // Tavsiye
-            const nextWater = new Date(gardenState.lastWater + (10 * 60 * 60 * 1000)); // 10 saat sonra
-            document.getElementById('advice').textContent = `Tavsiye: Bir sonraki sulama ${nextWater.getHours()}:00 civarı.`;
+            // Gece - Gündüz Renkleri
+            const root = document.documentElement;
+            if(h >= 6 && h < 19) {
+                root.style.setProperty('--sky-1', '#00d4ff');
+                root.style.setProperty('--sky-2', '#ffffff');
+                document.getElementById('msg').textContent = "Güneş parlıyor! ☀️";
+            } else {
+                root.style.setProperty('--sky-1', '#000811');
+                root.style.setProperty('--sky-2', '#001a33');
+                document.getElementById('msg').textContent = "Çiçekler gece uykusunda... ✨";
+            }
         }
 
         function giveWater() {
-            // Sulayınca geri düşmemesi için limiti artırdım
-            gardenState.health = Math.min(1.5, gardenState.health + 0.15);
-            gardenState.lastWater = Date.now();
-            localStorage.setItem('garden_pro', JSON.stringify(gardenState));
+            // Sağlığı artır (Maksimum %150)
+            health = Math.min(1.5, health + 0.1);
+            lastWater = Date.now();
             
-            // Animasyonel bir geri bildirim
-            const btn = document.querySelector('.water-btn');
-            btn.style.transform = "scale(0.9)";
-            setTimeout(() => btn.style.transform = "scale(1)", 100);
-            
+            // Hafızaya kaydet
+            localStorage.setItem('garden_save', JSON.stringify({h: health, lw: lastWater}));
+
+            // Su damlası efekti
+            for(let i=0; i<10; i++) {
+                let drop = document.createElement('div');
+                drop.className = 'drop';
+                drop.style.left = Math.random() * 100 + "vw";
+                drop.style.animationDelay = Math.random() * 0.2 + "s";
+                document.body.appendChild(drop);
+                setTimeout(() => drop.remove(), 600);
+            }
+
             update();
         }
 
-        init();
+        setInterval(update, 1000);
+        update();
     </script>
 </body>
 </html>
