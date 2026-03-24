@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sanal Bahçe - Sorunsuz Sürüm</title>
+    <title>Sanal Bahçe - Limitli Sürüm</title>
     <style>
         * { padding: 0; margin: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; touch-action: manipulation; }
 
@@ -20,14 +20,12 @@
             overflow: hidden; transition: all 2s ease;
         }
 
-        /* --- UI PANEL --- */
         .ui-panel {
             position: fixed; top: 20px;
             background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px);
             padding: 20px; border-radius: 20px; color: white;
             z-index: 100; text-align: center; width: 280px;
             border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         .water-btn {
@@ -36,18 +34,17 @@
             cursor: pointer; margin-top: 10px; transition: 0.1s;
         }
 
-        .water-btn:active { transform: scale(0.9); background: #008cb3; }
+        .water-btn:active { transform: scale(0.95); }
+        .water-btn:disabled { background: #444; cursor: not-allowed; opacity: 0.6; }
 
-        /* --- KARAKTERLER --- */
         .character { position: absolute; font-size: 45px; z-index: 20; pointer-events: none; }
-        .cat { bottom: 20px; left: 20px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
+        .cat { bottom: 20px; left: 20px; }
         .bird { top: 20%; left: -60px; animation: bird-fly 15s infinite linear; }
         .butterfly { font-size: 30px; position: absolute; animation: flutter 8s infinite ease-in-out; }
 
         @keyframes bird-fly { 0% { left: -60px; } 100% { left: 110%; } }
         @keyframes flutter { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(40px, -40px); } }
 
-        /* --- ÇİÇEKLER --- */
         .flower_wrapper {
             position: absolute; bottom: 40px; transform-origin: bottom center;
             transform: scale(var(--growth));
@@ -55,12 +52,11 @@
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
-        /* Sulama anında çiçeklerin sallanma animasyonu */
         .watering-anim { animation: shake 0.5s ease; }
         @keyframes shake {
             0%, 100% { transform: scale(var(--growth)) rotate(0); }
-            25% { transform: scale(calc(var(--growth) * 1.1)) rotate(-5deg); }
-            75% { transform: scale(calc(var(--growth) * 1.1)) rotate(5deg); }
+            25% { transform: scale(calc(var(--growth) * 1.05)) rotate(-3deg); }
+            75% { transform: scale(calc(var(--growth) * 1.05)) rotate(3deg); }
         }
 
         .f1 { left: 15%; } .f2 { left: 50%; } .f3 { left: 85%; }
@@ -90,27 +86,23 @@
     <div class="ui-panel">
         <h2 id="clock">00:00</h2>
         <div style="margin: 10px 0; font-weight: bold;">Sağlık: %<span id="hp">--</span></div>
-        <div style="font-size: 12px; color: #888;">Toplam Sulama: <span id="count">0</span></div>
-        <button class="water-btn" onclick="giveWater()">💧 CAN SUYU VER</button>
+        <div style="font-size: 12px; color: #888;">Toplam Başarılı Sulama: <span id="count">0</span></div>
+        <button id="wBtn" class="water-btn" onclick="giveWater()">💧 CAN SUYU VER</button>
         <p id="info" style="font-size: 12px; margin-top: 8px; color: #00d4ff;"></p>
     </div>
 
     <div id="garden">
-        <div id="flower-rose" class="flower_wrapper rose f1"><div class="flower_stem"></div><div class="flower_center"></div><div class="flower_petal p1"></div><div class="flower_petal p2"></div><div class="flower_petal p3"></div><div class="flower_petal p4"></div><div class="flower_petal p5"></div><div class="flower_petal p6"></div><div class="flower_petal p7"></div><div class="flower_petal p8"></div></div>
-        <div id="flower-sun" class="flower_wrapper sunflower f2"><div class="flower_stem"></div><div class="flower_center"></div><div class="flower_petal p1"></div><div class="flower_petal p2"></div><div class="flower_petal p3"></div><div class="flower_petal p4"></div><div class="flower_petal p5"></div><div class="flower_petal p6"></div><div class="flower_petal p7"></div><div class="flower_petal p8"></div></div>
-        <div id="flower-blue" class="flower_wrapper blue f3"><div class="flower_stem"></div><div class="flower_center"></div><div class="flower_petal p1"></div><div class="flower_petal p2"></div><div class="flower_petal p3"></div><div class="flower_petal p4"></div><div class="flower_petal p5"></div><div class="flower_petal p6"></div><div class="flower_petal p7"></div><div class="flower_petal p8"></div></div>
+        <div class="flower_wrapper rose f1"><div class="flower_stem"></div><div class="flower_center"></div><div class="flower_petal p1"></div><div class="flower_petal p2"></div><div class="flower_petal p3"></div><div class="flower_petal p4"></div><div class="flower_petal p5"></div><div class="flower_petal p6"></div><div class="flower_petal p7"></div><div class="flower_petal p8"></div></div>
+        <div class="flower_wrapper sunflower f2"><div class="flower_stem"></div><div class="flower_center"></div><div class="flower_petal p1"></div><div class="flower_petal p2"></div><div class="flower_petal p3"></div><div class="flower_petal p4"></div><div class="flower_petal p5"></div><div class="flower_petal p6"></div><div class="flower_petal p7"></div><div class="flower_petal p8"></div></div>
+        <div class="flower_wrapper blue f3"><div class="flower_stem"></div><div class="flower_center"></div><div class="flower_petal p1"></div><div class="flower_petal p2"></div><div class="flower_petal p3"></div><div class="flower_petal p4"></div><div class="flower_petal p5"></div><div class="flower_petal p6"></div><div class="flower_petal p7"></div><div class="flower_petal p8"></div></div>
     </div>
 
     <script>
-        // Veri Yapısı (Eğer hatalıysa sıfırlanır)
         let gData = { h: 1.0, last: Date.now(), total: 0 };
 
         function init() {
-            try {
-                const saved = localStorage.getItem('garden_v10');
-                if(saved) gData = JSON.parse(saved);
-            } catch(e) { console.log("Sıfırlandı"); }
-            
+            const saved = localStorage.getItem('garden_v11');
+            if(saved) gData = JSON.parse(saved);
             update();
             setInterval(update, 1000);
         }
@@ -119,46 +111,62 @@
             const now = new Date();
             document.getElementById('clock').textContent = now.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
 
-            // Zamanla solma
             const diff = (Date.now() - gData.last) / 3600000;
-            const currentH = Math.max(0.3, gData.h - (diff * 0.02));
+            // Mevcut sağlığı hesapla
+            let currentH = Math.max(0.3, gData.h - (diff * 0.02));
 
             // Görseli Güncelle
             document.documentElement.style.setProperty('--growth', currentH);
-            document.getElementById('hp').textContent = Math.round(currentH * 100);
+            const displayHP = Math.round(currentH * 100);
+            document.getElementById('hp').textContent = displayHP;
             document.getElementById('count').textContent = gData.total;
+
+            // BUTON KONTROLÜ: %150 ve üzeri ise butonu pasif yap veya uyarı ver
+            const btn = document.getElementById('wBtn');
+            if(displayHP >= 150) {
+                btn.textContent = "ÇİÇEKLER DOYDU ✅";
+                // btn.disabled = true; // İstersen tamamen tıklanmaz yapabilirsin
+            } else {
+                btn.textContent = "💧 CAN SUYU VER";
+                btn.disabled = false;
+            }
 
             // Gece - Gündüz
             const hr = now.getHours();
             if(hr >= 6 && hr < 19) {
                 document.documentElement.style.setProperty('--sky-1', '#00d4ff');
                 document.documentElement.style.setProperty('--sky-2', '#ffffff');
-                document.getElementById('info').textContent = "Hava Gündüz ☀️";
+                document.getElementById('info').textContent = displayHP >= 150 ? "Çiçekler tamamen doydu!" : "Hava Gündüz ☀️";
             } else {
                 document.documentElement.style.setProperty('--sky-1', '#000811');
                 document.documentElement.style.setProperty('--sky-2', '#001a33');
-                document.getElementById('info').textContent = "Hava Gece ✨";
+                document.getElementById('info').textContent = displayHP >= 150 ? "Gece uykusu ve tam sağlık!" : "Hava Gece ✨";
             }
         }
 
         function giveWater() {
-            // Sesi çal
+            // Mevcut durumu kontrol et (Tam sayı üzerinden kontrol daha güvenlidir)
+            const currentHPDisplay = parseInt(document.getElementById('hp').textContent);
+
+            if(currentHPDisplay >= 150) {
+                // %150 ve üstü ise hiçbir şey yapma ve fonksiyondan çık
+                return;
+            }
+
+            // Eğer %150'den azsa işlemleri yap:
             const s = document.getElementById('snd');
             s.currentTime = 0; s.play().catch(()=>{});
 
-            // Veriyi güncelle
             gData.h = Math.min(1.5, gData.h + 0.1);
             gData.last = Date.now();
             gData.total += 1;
             
-            // Kaydet
-            localStorage.setItem('garden_v10', JSON.stringify(gData));
+            localStorage.setItem('garden_v11', JSON.stringify(gData));
 
-            // Çiçeklere sallanma animasyonu ekle
             const flowers = document.querySelectorAll('.flower_wrapper');
             flowers.forEach(f => {
                 f.classList.remove('watering-anim');
-                void f.offsetWidth; // DOM'u tetikle
+                void f.offsetWidth;
                 f.classList.add('watering-anim');
             });
 
