@@ -3,46 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gerçekçi Bahçe Sistemi</title>
+    <title>Garden Sim</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <style>
         * { padding: 0; margin: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { margin: 0; overflow: hidden; background: #050508; }
+        body { margin: 0; overflow: hidden; background: #020205; cursor: crosshair; }
 
-        /* UI */
         .ui-container {
             position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
             display: flex; flex-direction: column; gap: 10px; width: 340px; z-index: 1000;
         }
         .ui-panel {
-            background: rgba(10, 15, 25, 0.95); backdrop-filter: blur(20px);
+            background: rgba(10, 15, 25, 0.98); backdrop-filter: blur(20px);
             padding: 20px; border-radius: 25px; color: white;
-            text-align: center; border: 1px solid rgba(0, 212, 255, 0.2);
-            box-shadow: 0 15px 50px rgba(0,0,0,0.9);
+            text-align: center; border: 1px solid rgba(0, 212, 255, 0.15);
+            box-shadow: 0 15px 60px rgba(0,0,0,1);
         }
         .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
         button {
             border: none; padding: 14px; border-radius: 15px; color: white; 
             font-weight: 800; cursor: pointer; transition: 0.2s;
-            text-transform: uppercase; font-size: 11px;
+            text-transform: uppercase; font-size: 10px; letter-spacing: 1px;
         }
         .btn-water { background: linear-gradient(135deg, #00d4ff, #0077ff); }
         .btn-seed { background: linear-gradient(135deg, #2ecc71, #27ae60); }
         button:active { transform: scale(0.95); }
         
-        #clock { font-size: 24px; color: #00d4ff; margin-bottom: 5px; font-weight: 300; }
-        .stats { font-size: 11px; color: #888; letter-spacing: 1px; }
+        #clock { font-size: 24px; color: #00d4ff; margin-bottom: 5px; font-weight: 200; }
+        .stats { font-size: 10px; color: #666; text-transform: uppercase; }
+        b { color: #fff; }
 
-        /* KELEBEK CSS (Eski Sarı Renk) */
         #butterfly-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
         .b-wrap { position: absolute; transform-style: preserve-3d; }
         .butterfly { position: relative; width: 30px; height: 30px; transform-style: preserve-3d; transform: rotateX(45deg); }
         .wing { position: absolute; width: 15px; height: 30px; fill: #ffdf00; filter: drop-shadow(0 0 5px gold); }
-        .wing.l { transform-origin: right center; animation: flap-l 0.3s ease-in-out infinite; }
-        .wing.r { left: 15px; transform-origin: left center; animation: flap-r 0.3s ease-in-out infinite; }
-        @keyframes flap-l { 0%,100% {transform: rotateY(0deg);} 50% {transform: rotateY(70deg);} }
-        @keyframes flap-r { 0%,100% {transform: rotateY(0deg);} 50% {transform: rotateY(-70deg);} }
+        .wing.l { transform-origin: right center; animation: flap-l 0.35s ease-in-out infinite; }
+        .wing.r { left: 15px; transform-origin: left center; animation: flap-r 0.35s ease-in-out infinite; }
+        @keyframes flap-l { 0%,100% {transform: rotateY(0deg);} 50% {transform: rotateY(75deg);} }
+        @keyframes flap-r { 0%,100% {transform: rotateY(0deg);} 50% {transform: rotateY(-75deg);} }
         .svg-defs { position: absolute; width: 0; height: 0; }
     </style>
 </head>
@@ -58,8 +57,8 @@
 
     <div class="ui-container">
         <div class="ui-panel">
-            <div id="clock">12:00</div>
-            <div class="stats">NEM: <b>%<span id="hp">0</span></b> | BİTKİ: <b><span id="fCount">0</span></b></div>
+            <div id="clock">00:00</div>
+            <div class="stats">NEM: <b>%<span id="hp">0</span></b> | BİTKİ: <b><span id="fCount">0</span></b> | ZARARLI: <b><span id="pCount">0</span></b></div>
             <div class="controls">
                 <button class="btn-water" onclick="giveWater()">💧 NEMLENDİR</button>
                 <button class="btn-seed" onclick="plantSeed()">🌱 TOHUM AT</button>
@@ -70,7 +69,7 @@
     <script>
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(20, 15, 20);
+        camera.position.set(22, 18, 22);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -80,17 +79,23 @@
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
 
-        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-        const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+        const sun = new THREE.DirectionalLight(0xffffff, 1.0);
         sun.position.set(10, 50, 10);
         scene.add(sun);
 
         const ground = new THREE.Mesh(
             new THREE.CircleGeometry(16, 64),
-            new THREE.MeshStandardMaterial({ color: 0x0f0f0f, roughness: 1 })
+            new THREE.MeshStandardMaterial({ color: 0x080808, roughness: 1 })
         );
         ground.rotation.x = -Math.PI / 2;
         scene.add(ground);
+
+        // --- MATEMATİKSEL AYARLAR ---
+        const waterDropPerFrame = 0.05 / (3600 * 60); // Saatte %5 düşüş
+        const growthToMax = 1.0; // Ulaşılacak hedef büyüme
+        const framesInTwoDays = 2 * 24 * 3600 * 60; // 2 gündeki toplam kare sayısı (60 FPS varsayımıyla)
+        const growthPerFrame = growthToMax / framesInTwoDays; 
 
         const flowers = [];
         const petalColors = [0xff4d6d, 0xffd166, 0x06d6a0, 0x118ab2, 0xef476f];
@@ -99,55 +104,82 @@
             const group = new THREE.Group();
             const color = petalColors[Math.floor(Math.random() * petalColors.length)];
 
-            // Sap (Stem) - Her zaman görünür
-            const stem = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.04, 0.08, 1, 8),
-                new THREE.MeshStandardMaterial({color: 0x2d6a4f})
-            );
+            // Sap
+            const stemMat = new THREE.MeshStandardMaterial({color: 0x2d6a4f});
+            const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.08, 1, 8), stemMat);
             stem.position.y = 0.5;
             group.add(stem);
 
-            // Taç Yapraklar (Petals) - BAŞLANGIÇTA GÖRÜNMEZ
+            // Petaller
             const petalsGroup = new THREE.Group();
+            const petalMat = new THREE.MeshStandardMaterial({color: color});
             const pGeo = new THREE.SphereGeometry(0.25, 8, 4);
             pGeo.scale(1, 0.15, 1.4);
             pGeo.translate(0, 0, 0.6);
 
             for(let i=0; i<6; i++) {
-                const p = new THREE.Mesh(pGeo, new THREE.MeshStandardMaterial({color: color}));
+                const p = new THREE.Mesh(pGeo, petalMat);
                 p.position.y = 1;
                 p.rotation.y = (i * Math.PI * 2) / 6;
-                p.rotation.x = Math.PI / 2; // Tam kapalı tomurcuk
+                p.rotation.x = Math.PI / 2;
                 petalsGroup.add(p);
             }
-            petalsGroup.scale.set(0.001, 0.001, 0.001); // Başlangıçta yok gibi
+            petalsGroup.scale.set(0.001, 0.001, 0.001);
             group.add(petalsGroup);
 
             group.position.set(x, 0, z);
-            group.scale.set(0.1, 0.1, 0.1); // Filiz boyutu
+            group.scale.set(0.1, 0.1, 0.1);
             scene.add(group);
 
             return { 
                 mesh: group, 
                 petals: petalsGroup,
+                stemMat: stemMat,
+                petalMat: petalMat,
+                originalColor: color,
                 currentHeight: 0.1, 
                 bloomProgress: 0, 
-                water: 1.05 
+                water: 1.1,
+                isWithered: false
             };
         }
 
         function plantSeed() {
-            if(flowers.length >= 40) return;
-            flowers.push(createFlower((Math.random()-0.5)*25, (Math.random()-0.5)*25));
+            if(flowers.length >= 35) return;
+            flowers.push(createFlower((Math.random()-0.5)*26, (Math.random()-0.5)*26));
             document.getElementById('fCount').innerText = flowers.length;
         }
 
         function giveWater() {
-            flowers.forEach(f => { 
-                // Sadece su miktarını artırır, boyuta dokunmaz!
-                f.water = Math.min(1.5, f.water + 0.3); 
-            });
+            flowers.forEach(f => { f.water = Math.min(1.5, f.water + 0.3); });
         }
+
+        // --- ZARARLI BÖCEK SİSTEMİ ---
+        const pests = [];
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        function spawnPest() {
+            if (flowers.length === 0 || pests.length >= 6) return;
+            const pMesh = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), new THREE.MeshBasicMaterial({color: 0xff0000}));
+            pMesh.position.set((Math.random()-0.5)*30, 0.2, (Math.random()-0.5)*30);
+            scene.add(pMesh);
+            pests.push({ mesh: pMesh, target: flowers[Math.floor(Math.random()*flowers.length)] });
+        }
+        setInterval(spawnPest, 15000);
+
+        window.addEventListener('mousedown', (e) => {
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            const hits = raycaster.intersectObjects(pests.map(p => p.mesh));
+            if(hits.length > 0) {
+                const hitObj = hits[0].object;
+                const idx = pests.findIndex(p => p.mesh === hitObj);
+                scene.remove(hitObj);
+                pests.splice(idx, 1);
+            }
+        });
 
         const bData = [];
         for(let i=0; i<6; i++) {
@@ -162,30 +194,51 @@
             requestAnimationFrame(animate);
             const time = Date.now() * 0.001;
             document.getElementById('clock').innerText = new Date().toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
+            document.getElementById('pCount').innerText = pests.length;
+
+            // Böcek Hareketleri
+            pests.forEach(p => {
+                if(p.target) {
+                    const dir = p.target.mesh.position.clone().sub(p.mesh.position);
+                    if(dir.length() > 0.4) {
+                        p.mesh.position.add(dir.normalize().multiplyScalar(0.02));
+                    } else {
+                        p.target.water -= waterDropPerFrame * 15; // Böcek sömürüsü
+                    }
+                }
+            });
 
             let totalW = 0;
             flowers.forEach(f => {
-                f.water = Math.max(0, f.water - 0.0005);
+                f.water = Math.max(0, f.water - waterDropPerFrame);
                 
-                // --- BÜYÜME KONTROLÜ ---
-                // Sadece su %100 üzerindeyse zamanla büyür (Butonla değil!)
-                if(f.water > 1.0 && f.currentHeight < 1.3) {
-                    f.currentHeight += 0.001; 
+                // SOLMA MANTIĞI
+                if(f.water < 0.1 && !f.isWithered) {
+                    f.isWithered = true;
+                    f.stemMat.color.set(0x4a4335); // Kurumuş sap rengi
+                    f.petalMat.color.set(0x3d3d3d); // Kurumuş yaprak rengi
+                    f.mesh.rotation.z = 0.5; // Yana bükülme
+                } else if(f.water > 0.5 && f.isWithered) {
+                    f.isWithered = false;
+                    f.stemMat.color.set(0x2d6a4f);
+                    f.petalMat.color.set(f.originalColor);
+                    f.mesh.rotation.z = 0;
                 }
 
-                // --- ÇİÇEK AÇMA KONTROLÜ ---
-                // Boyu 0.7'yi geçince çiçekler belirir ve açılır
-                if(f.currentHeight > 0.7) {
+                // 48 SAATLİK BÜYÜME (Su %100 üzerindeyse ve bitki solmamışsa)
+                if(f.water > 1.0 && f.currentHeight < 1.3 && !f.isWithered) {
+                    f.currentHeight += growthPerFrame; 
+                }
+
+                // ÇİÇEK AÇMA (Boyut 0.7'yi geçince)
+                if(f.currentHeight > 0.7 && !f.isWithered) {
                     f.bloomProgress = Math.min(1.0, f.bloomProgress + 0.005);
                     f.petals.scale.set(f.bloomProgress, f.bloomProgress, f.bloomProgress);
-                    
-                    // Yaprakların açılma animasyonu (90 dereceden 20 dereceye)
                     f.petals.children.forEach(p => {
                         p.rotation.x = (Math.PI / 2) - (f.bloomProgress * (Math.PI / 2.5));
                     });
                 }
 
-                // Görsel boyutu su bitince biraz solar (küçülür)
                 const s = f.currentHeight * Math.min(1, f.water + 0.2);
                 f.mesh.scale.set(s, s, s);
                 totalW += f.water;
@@ -193,6 +246,7 @@
 
             document.getElementById('hp').innerText = flowers.length ? Math.round((totalW/flowers.length)*100) : 0;
 
+            // Kelebekler
             bData.forEach((b, i) => {
                 b.pos.x += Math.sin(time + b.s) * 0.05;
                 b.pos.z += Math.cos(time + b.s) * 0.05;
