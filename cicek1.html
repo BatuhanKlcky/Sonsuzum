@@ -3,206 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>3D Botanik Bahçesi v6.2 - Tam Fix</title>
+    <title>Erkut Dincel - 3D Butterfly Garden</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <style>
-        * { padding: 0; margin: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { margin: 0; overflow: hidden; background: #000; }
-        
+        /* --- TEMEL STİLLER --- */
+        * { padding: 0; margin: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { margin: 0; overflow: hidden; background: #050510; }
+
+        /* --- UI PANELİ --- */
         .ui-container {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            display: flex; flex-direction: column; gap: 10px; width: 340px; z-index: 100;
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; flex-direction: column; gap: 15px; width: 320px; z-index: 1000;
         }
-
         .ui-panel {
-            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(20px);
-            padding: 20px; border-radius: 25px; color: white;
+            background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px);
+            padding: 20px; border-radius: 30px; color: white;
             text-align: center; border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
         }
-
-        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
         button {
-            border: none; padding: 12px; border-radius: 15px; color: white; 
-            font-weight: bold; cursor: pointer; transition: 0.3s;
-            text-transform: uppercase; font-size: 11px;
+            border: none; padding: 14px; border-radius: 18px; color: white; 
+            font-weight: 800; cursor: pointer; transition: 0.3s;
+            text-transform: uppercase; font-size: 11px; letter-spacing: 1px;
         }
-
         .btn-water { background: linear-gradient(135deg, #00d4ff, #0077ff); }
         .btn-seed { background: linear-gradient(135deg, #2ecc71, #27ae60); }
-        button:active { transform: scale(0.95); }
-        button:disabled { opacity: 0.3; cursor: not-allowed; }
-        
-        #clock { font-size: 18px; letter-spacing: 2px; margin-bottom: 5px; color: #00d4ff; }
-        .stat-text { font-size: 12px; color: #ccc; }
+        button:active { transform: scale(0.92); }
+        #clock { font-size: 22px; font-weight: 300; margin-bottom: 5px; color: #00d4ff; }
+        .stat-text { font-size: 12px; color: #aaa; margin-top: 4px; }
+
+        /* --- KELEBEK KATMANI (CSS ENTEGRASYONU) --- */
+        #butterfly-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; transform-style: preserve-3d;
+        }
+        .butterfly-wrapper {
+            position: absolute; width: 40px; height: 40px;
+            transform-style: preserve-3d; will-change: transform;
+        }
+        .butterfly {
+            position: relative; width: 40px; height: 40px;
+            transform-style: preserve-3d; transform: rotateX(50deg);
+        }
+        .wing {
+            position: absolute; width: 20px; height: 40px;
+            fill: #ffdf00; filter: drop-shadow(0 0 5px rgba(255,223,0,0.5));
+        }
+        .wing.left {
+            transform-origin: right center;
+            animation: left-flap 0.4s ease-in-out infinite;
+        }
+        .wing.right {
+            left: 20px; transform-origin: left center;
+            animation: right-flap 0.4s ease-in-out infinite;
+        }
+
+        @keyframes left-flap {
+            0%, 100% { transform: rotateY(0deg); }
+            50% { transform: rotateY(75deg); }
+        }
+        @keyframes right-flap {
+            0%, 100% { transform: rotateY(0deg); }
+            50% { transform: rotateY(-75deg); }
+        }
+
+        .svg-defs { position: absolute; width: 0; height: 0; }
     </style>
 </head>
 <body>
 
+    <svg class="svg-defs">
+        <symbol id="butterfly-shape" viewBox="0 0 25 50">
+            <path d="M25,50 C25,50 0,40 0,25 C0,10 15,0 25,10 L25,50 Z" />
+        </symbol>
+    </svg>
+
+    <div id="butterfly-layer"></div>
+
     <div class="ui-container">
         <div class="ui-panel">
-            <div id="clock">00:00</div>
+            <div id="clock">12:00</div>
             <div class="stat-text">Bahçe Sağlığı: <b>%<span id="hp">0</span></b></div>
-            <div class="stat-text" style="color:#ff6b6b">Zararlı Böcek: <span id="pests-count">0</span></div>
             <div class="controls">
-                <button id="wBtn" class="btn-water" onclick="giveWater()">💧 SULA</button>
+                <button class="btn-water" onclick="giveWater()">💧 SULA</button>
                 <button class="btn-seed" onclick="plantSeed()">🌱 TOHUM EK</button>
             </div>
         </div>
     </div>
 
     <script>
-        const MAX_HEALTH = 1.5; 
-        const HOURLY_DECAY = 0.02; 
-        let lastFrameTime = Date.now();
-        let gData = { flowers: [], lastWater: Date.now() };
-
-        const saved = localStorage.getItem('garden_v6_fixed');
-        if(saved) gData = JSON.parse(saved);
-
-        // --- SAHNE ---
+        // --- 1. SAHNE KURULUMU ---
         const scene = new THREE.Scene();
-        scene.fog = new THREE.Fog(0x1a2a44, 20, 100); // Sis mesafesi artırıldı (Görünürlük için)
+        scene.fog = new THREE.Fog(0x050510, 20, 120);
 
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(15, 12, 15);
+        camera.position.set(18, 15, 18);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setPixelRatio(window.devicePixelRatio);
         document.body.appendChild(renderer.domElement);
 
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        controls.maxPolarAngle = Math.PI / 2.2;
+        controls.maxPolarAngle = Math.PI / 2.1;
 
         // Işıklar
-        const sun = new THREE.DirectionalLight(0xffffff, 1.5);
-        sun.position.set(20, 40, 20);
+        const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambient);
+        const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+        sun.position.set(10, 50, 10);
         scene.add(sun);
-        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-
-        // Gökyüzü
-        const skyGeo = new THREE.SphereGeometry(150, 32, 32);
-        const skyMat = new THREE.MeshBasicMaterial({ color: 0x87ceeb, side: THREE.BackSide });
-        const sky = new THREE.Mesh(skyGeo, skyMat);
-        scene.add(sky);
-
-        // Dağlar
-        function createMountains() {
-            const mtnGroup = new THREE.Group();
-            const mtnGeo = new THREE.ConeGeometry(10, 20, 4);
-            const mtnMat = new THREE.MeshStandardMaterial({ color: 0x2c3e50, flatShading: true });
-            for(let i=0; i<15; i++) {
-                const m = new THREE.Mesh(mtnGeo, mtnMat);
-                const angle = (i / 15) * Math.PI * 2;
-                const dist = 50 + Math.random() * 20;
-                m.position.set(Math.cos(angle)*dist, -5, Math.sin(angle)*dist);
-                m.scale.y = 0.8 + Math.random();
-                mtnGroup.add(m);
-            }
-            scene.add(mtnGroup);
-            return mtnMat;
-        }
-        const mtnMaterial = createMountains();
 
         // Zemin
         const ground = new THREE.Mesh(
-            new THREE.CylinderGeometry(12, 12, 0.5, 32),
-            new THREE.MeshStandardMaterial({ color: 0x1a1a1a })
+            new THREE.CylinderGeometry(15, 15, 0.6, 64),
+            new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.8 })
         );
-        ground.position.y = -0.25; // Çiçeklerin altında kalsın
+        ground.position.y = -0.3;
         scene.add(ground);
 
-        // --- ÇİÇEK SİSTEMİ ---
-        const flowerMeshes = [];
-        const colors = [0xff4d6d, 0xffb703, 0x219ebc, 0x9b59b6, 0x2ecc71];
+        // --- 2. ÇİÇEK SİSTEMİ ---
+        const flowers = [];
+        const colors = [0xff4d6d, 0xffb703, 0x00d4ff, 0x9b59b6, 0x2ecc71];
 
-        function createFlowerMesh(data) {
+        function createFlower(x, z, color) {
             const group = new THREE.Group();
             
             // Sap
             const stem = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.08, 0.12, 1, 8),
-                new THREE.MeshStandardMaterial({ color: 0x2d6a4f })
+                new THREE.CylinderGeometry(0.06, 0.06, 1.2),
+                new THREE.MeshStandardMaterial({ color: 0x1b4332 })
             );
-            stem.position.y = 0.5;
+            stem.position.y = 0.6;
             group.add(stem);
 
-            // Çiçek Kafası
-            const head = new THREE.Group();
-            const petalMat = new THREE.MeshStandardMaterial({ color: data.color, flatShading: true });
-            for(let i=0; i<6; i++) {
-                const p = new THREE.Mesh(new THREE.SphereGeometry(0.25, 6, 6), petalMat);
-                p.scale.set(1.5, 0.4, 0.8);
-                const angle = (i / 6) * Math.PI * 2;
-                p.position.set(Math.cos(angle)*0.35, 1, Math.sin(angle)*0.35);
-                p.rotation.y = -angle;
-                head.add(p);
-            }
+            // Kafa
+            const head = new THREE.Mesh(
+                new THREE.SphereGeometry(0.35, 8, 8),
+                new THREE.MeshStandardMaterial({ color: color })
+            );
+            head.position.y = 1.2;
             group.add(head);
 
-            group.position.set(data.x, 0, data.z);
+            group.position.set(x, 0, z);
+            group.scale.set(0.1, 0.1, 0.1); // Başlangıçta küçük
             scene.add(group);
-            return { mesh: group, stem: stem, head: head, data: data };
+
+            return { mesh: group, age: 0.2, health: 1.0 };
         }
 
         function plantSeed() {
-            if(gData.flowers.length >= 25) return;
-            const f = { 
-                x: (Math.random() - 0.5) * 18, 
-                z: (Math.random() - 0.5) * 18, 
-                color: colors[Math.floor(Math.random() * colors.length)], 
-                age: 0.3, // Başlangıçta biraz daha büyük başlasın ki görülsün
-                health: 1.0 
-            };
-            gData.flowers.push(f);
-            flowerMeshes.push(createFlowerMesh(f));
-            save();
+            if(flowers.length > 30) return;
+            const x = (Math.random() - 0.5) * 22;
+            const z = (Math.random() - 0.5) * 22;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            flowers.push(createFlower(x, z, color));
         }
 
         function giveWater() {
-            gData.flowers.forEach(f => f.health = Math.min(MAX_HEALTH, f.health + 0.3));
-            save();
+            flowers.forEach(f => { f.health = Math.min(1.5, f.health + 0.4); });
         }
 
-        function save() { localStorage.setItem('garden_v6_fixed', JSON.stringify(gData)); }
+        // --- 3. KELEBEK SİSTEMİ (SENİN CSS'İN) ---
+        const butterflyData = [];
+        const butterflyLayer = document.getElementById('butterfly-layer');
 
-        // Yükleme
-        gData.flowers.forEach(f => flowerMeshes.push(createFlowerMesh(f)));
+        function spawnButterfly() {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'butterfly-wrapper';
+            wrapper.innerHTML = `
+                <div class="butterfly">
+                    <svg class="wing left"><use xlink:href="#butterfly-shape"></use></svg>
+                    <svg class="wing right"><use xlink:href="#butterfly-shape"></use></svg>
+                </div>
+            `;
+            butterflyLayer.appendChild(wrapper);
 
-        // --- DÖNGÜ ---
-        const pests = [];
+            return {
+                element: wrapper,
+                worldPos: new THREE.Vector3(
+                    (Math.random() - 0.5) * 20,
+                    5 + Math.random() * 5,
+                    (Math.random() - 0.5) * 20
+                ),
+                offset: Math.random() * 100,
+                speed: 0.001 + Math.random() * 0.002
+            };
+        }
+
+        for(let i=0; i<6; i++) butterflyData.push(spawnButterfly());
+
+        // --- 4. ANİMASYON DÖNGÜSÜ ---
         function animate() {
             requestAnimationFrame(animate);
-            const now = new Date();
-            const nowTime = Date.now();
-            const deltaTime = (nowTime - lastFrameTime) / 1000;
-            lastFrameTime = nowTime;
+            const time = Date.now();
 
-            document.getElementById('clock').textContent = now.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
-            
-            const hr = now.getHours();
-            const isDay = hr >= 6 && hr < 19;
-            sky.material.color.lerp(new THREE.Color(isDay ? 0x87ceeb : 0x050510), 0.02);
-            scene.fog.color.lerp(new THREE.Color(isDay ? 0xaaddee : 0x050510), 0.02);
-            sun.intensity = isDay ? 1.5 : 0.2;
+            // Saat ve Gece Gündüz
+            const date = new Date();
+            document.getElementById('clock').textContent = date.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
+            const isDay = date.getHours() >= 6 && date.getHours() < 20;
+            scene.background = new THREE.Color(isDay ? 0x87ceeb : 0x050510);
+            sun.intensity = isDay ? 1.2 : 0.1;
 
+            // Çiçekleri Güncelle
             let totalH = 0;
-            flowerMeshes.forEach((fm, i) => {
-                fm.data.health = Math.max(0.3, fm.data.health - (HOURLY_DECAY/3600 * deltaTime));
-                if(fm.data.age < 1.0) fm.data.age += 0.0002 * deltaTime; // Biraz daha hızlı büyüme
-                
-                const s = fm.data.age * fm.data.health;
-                fm.mesh.scale.set(s, s, s);
-                fm.mesh.rotation.x = Math.sin(nowTime*0.001 + i) * 0.03;
-                totalH += (fm.data.health / MAX_HEALTH);
+            flowers.forEach(f => {
+                if(f.age < 1.0) f.age += 0.001;
+                f.health = Math.max(0.2, f.health - 0.0001);
+                const s = f.age * f.health;
+                f.mesh.scale.set(s, s, s);
+                totalH += f.health;
             });
+            document.getElementById('hp').textContent = flowers.length ? Math.round((totalH/flowers.length)*100) : 0;
 
-            document.getElementById('hp').textContent = flowerMeshes.length > 0 ? Math.round((totalH/flowerMeshes.length)*100) : 0;
-            document.getElementById('pests-count').textContent = pests.length;
+            // Kelebekleri 3D'ye Sabitle
+            butterflyData.forEach((b, i) => {
+                // Hareket
+                b.worldPos.x += Math.sin(time * b.speed + b.offset) * 0.1;
+                b.worldPos.z += Math.cos(time * b.speed + b.offset) * 0.1;
+                b.worldPos.y = 5 + Math.sin(time * 0.002 + i) * 2;
+
+                // 3D -> 2D İzdüşüm
+                const screenPos = b.worldPos.clone().project(camera);
+                
+                if(screenPos.z < 1) { // Kamera arkasında değilse
+                    const x = (screenPos.x + 1) * window.innerWidth / 2;
+                    const y = (-screenPos.y + 1) * window.innerHeight / 2;
+                    const distScale = 1 / (screenPos.z + 0.5);
+                    b.element.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px) scale(${distScale})`;
+                    b.element.style.opacity = 1;
+                } else {
+                    b.element.style.opacity = 0;
+                }
+            });
 
             controls.update();
             renderer.render(scene, camera);
