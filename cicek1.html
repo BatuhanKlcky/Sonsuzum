@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title> Garden Final v15.4</title>
+    <title>Garden Final v15.5</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <style>
@@ -24,11 +24,11 @@
         .btn-water { background: linear-gradient(135deg, #00d4ff, #0077ff); }
         .btn-seed { background: linear-gradient(135deg, #2ecc71, #27ae60); }
         #clock { font-size: 24px; color: #00d4ff; margin-bottom: 5px; font-weight: 200; }
-        #save-indicator { position: fixed; top: 10px; right: 10px; font-size: 9px; color: #2ecc71; opacity: 0.5; }
+        #save-indicator { position: fixed; top: 10px; right: 10px; font-size: 10px; color: #2ecc71; font-weight: bold; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 10px; }
     </style>
 </head>
 <body>
-    <div id="save-indicator">SİSTEM AKTİF</div>
+    <div id="save-indicator">SİSTEM BAŞLATILIYOR...</div>
     <svg style="display:none"><symbol id="w-shape" viewBox="0 0 25 50"><path d="M25,50 C25,50 0,40 0,25 C0,10 15,0 25,10 L25,50 Z" /></symbol></svg>
     <div id="butterfly-layer"></div>
 
@@ -40,20 +40,60 @@
                 <button class="btn-water" onclick="giveWater()">💧 SULA</button>
                 <button class="btn-seed" onclick="plantSeed()">🌱 TOHUM</button>
             </div>
-            <button onclick="resetData()" style="background:none; border:none; color:#444; font-size:8px; margin-top:10px; cursor:pointer;">SIFIRLA</button>
+            <button onclick="resetData()" style="background:none; border:none; color:#444; font-size:8px; margin-top:10px; cursor:pointer;">VERİLERİ TEMİZLE</button>
         </div>
     </div>
 
     <script>
-        const SAVE_NAME = "save111";
+        // --- HAFIZA ANAHTARI ---
+        const SAVE_ID = "erkut_garden_v15_final_fix";
         const flowers = [];
         const pests = [];
-        const growthRate = 1.0 / (2 * 24 * 3600 * 60);
 
-        // --- SAHNE ---
+        // --- ZIRHLI KAYIT METODU ---
+        window.saveData = function() {
+            try {
+                const state = {
+                    time: Date.now(),
+                    data: flowers.map(f => ({
+                        x: f.mesh.position.x, z: f.mesh.position.z,
+                        h: f.h, b: f.b, w: f.w, c: f.c
+                    }))
+                };
+                window.localStorage.setItem(SAVE_ID, JSON.stringify(state));
+                document.getElementById('save-indicator').innerText = "KAYIT DURUMU: GÜVENLİ";
+                document.getElementById('save-indicator').style.color = "#2ecc71";
+            } catch (err) {
+                document.getElementById('save-indicator').innerText = "KAYIT HATASI: TARAYICI ENGELLİ";
+                document.getElementById('save-indicator').style.color = "#ff4757";
+            }
+        };
+
+        window.loadData = function() {
+            const raw = window.localStorage.getItem(SAVE_ID);
+            if (!raw) {
+                document.getElementById('save-indicator').innerText = "YENİ BAHÇE OLUŞTURULDU";
+                return;
+            }
+            const parsed = JSON.parse(raw);
+            const passed = (Date.now() - parsed.time) / 1000;
+            parsed.data.forEach(p => {
+                createFlower(p.x, p.z, { ...p, w: Math.max(0, p.w - (passed * 0.00001)) });
+            });
+            document.getElementById('save-indicator').innerText = "HAFIZA YÜKLENDİ";
+        };
+
+        window.resetData = function() {
+            if(confirm("Tüm veriler silinecek, emin misin?")) {
+                window.localStorage.removeItem(SAVE_ID);
+                location.reload();
+            }
+        };
+
+        // --- THREE.JS ---
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(20, 15, 20);
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
+        camera.position.set(22, 18, 22);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
@@ -69,31 +109,6 @@
         const ground = new THREE.Mesh(new THREE.CircleGeometry(16, 64), new THREE.MeshStandardMaterial({ color: 0x080808 }));
         ground.rotation.x = -Math.PI / 2;
         scene.add(ground);
-
-        // --- ZIRHLI KAYIT ---
-        function performSave() {
-            try {
-                const data = {
-                    t: Date.now(),
-                    p: flowers.map(f => ({ x: f.mesh.position.x, z: f.mesh.position.z, h: f.h, b: f.b, w: f.w, c: f.c }))
-                };
-                localStorage.setItem(SAVE_NAME, JSON.stringify(data));
-                document.getElementById('save-indicator').innerText = "OTOMATİK KAYIT: OK";
-            } catch(e) {
-                document.getElementById('save-indicator').innerText = "KAYIT HATASI!";
-                document.getElementById('save-indicator').style.color = "red";
-            }
-        }
-
-        function load() {
-            const raw = localStorage.getItem(SAVE_NAME);
-            if(!raw) return;
-            const data = JSON.parse(raw);
-            const diff = (Date.now() - data.t) / 1000;
-            data.p.forEach(p => createFlower(p.x, p.z, { ...p, w: Math.max(0, p.w - (diff * 0.00001)) }));
-        }
-
-        function resetData() { if(confirm("Bahçeyi sıfırla?")) { localStorage.removeItem(SAVE_NAME); location.reload(); } }
 
         // --- MODELLER ---
         function createFlower(x, z, s = null) {
@@ -117,42 +132,28 @@
             const fObj = { mesh: group, petals, stemMat, pMat, h: s?s.h:0.1, b: s?s.b:0, w: s?s.w:1.2, c: color };
             flowers.push(fObj);
             document.getElementById('fCount').innerText = flowers.length;
-            performSave();
+            window.saveData();
         }
 
-        function createDetailedPest(x, z) {
+        function createPest(x, z) {
             const group = new THREE.Group();
             const m = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-            group.add(new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.5), new THREE.MeshBasicMaterial({ visible: false })));
             const body = new THREE.Mesh(new THREE.SphereGeometry(0.25, 8, 8), m);
             body.scale.set(1.2, 0.8, 1.4); body.position.y = 0.15; group.add(body);
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.15, 8, 8), m);
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.15), m);
             head.position.set(0, 0.2, 0.45); group.add(head);
             const lGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.4);
-            [ [0.2,0.1,0.2], [-0.2,0.1,0.2], [0.2,0.1,-0.2], [-0.2,0.1,-0.2] ].forEach(p => {
-                const leg = new THREE.Mesh(lGeo, m); leg.position.set(p[0], p[1], p[2]);
-                leg.rotation.z = p[0] > 0 ? 0.6 : -0.6; group.add(leg);
-            });
+            for(let i=0; i<4; i++) {
+                const leg = new THREE.Mesh(lGeo, m);
+                leg.position.set(i<2?0.2:-0.2, 0.1, i%2?0.2:-0.2);
+                leg.rotation.z = i<2?0.6:-0.6; group.add(leg);
+            }
             group.position.set(x, 0, z); scene.add(group);
             return group;
         }
 
         window.plantSeed = () => { if(flowers.length < 45) createFlower((Math.random()-0.5)*26, (Math.random()-0.5)*26); };
-        window.giveWater = () => { flowers.forEach(f => f.w = Math.min(1.5, f.w + 0.4)); performSave(); };
-
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-        window.addEventListener('pointerdown', (e) => {
-            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-            raycaster.setFromCamera(mouse, camera);
-            const hits = raycaster.intersectObjects(pests.map(p=>p.mesh), true);
-            if(hits.length > 0) {
-                let target = hits[0].object; while(target.parent && target.parent !== scene) target = target.parent;
-                const idx = pests.findIndex(p => p.mesh === target);
-                if(idx > -1) { scene.remove(target); pests.splice(idx, 1); performSave(); }
-            }
-        });
+        window.giveWater = () => { flowers.forEach(f => f.w = Math.min(1.5, f.w + 0.4)); window.saveData(); };
 
         // --- KELEBEKLER ---
         const bData = [];
@@ -163,6 +164,7 @@
             bData.push({ el, pos: new THREE.Vector3((Math.random()-0.5)*25, 5, (Math.random()-0.5)*25), s: Math.random()*100 });
         }
 
+        // --- DÖNGÜ ---
         let lastAuto = 0;
         function animate() {
             requestAnimationFrame(animate);
@@ -173,18 +175,17 @@
                 f.w = Math.max(0, f.w - 0.000015);
                 if(f.w < 0.1) { f.stemMat.color.set(0x333333); f.pMat.color.set(0x222222); f.mesh.rotation.z = 0.4; }
                 else { f.stemMat.color.set(0x2d6a4f); f.pMat.color.set(f.c); f.mesh.rotation.z = 0; }
-                if(f.w > 1.0 && f.h < 1.3) f.h += growthRate;
+                if(f.w > 1.0 && f.h < 1.3) f.h += (1.0 / (2 * 24 * 3600 * 60));
                 if(f.h > 0.8) { f.b = Math.min(1.0, f.b + 0.005); f.petals.scale.set(f.b, f.b, f.b); }
                 const sc = f.h * Math.min(1, f.w + 0.2); f.mesh.scale.set(sc, sc, sc);
             });
 
             if(Math.random() < 0.0006 && flowers.length > 0 && pests.length < 5) {
-                pests.push({ mesh: createDetailedPest((Math.random()-0.5)*30, (Math.random()-0.5)*30), target: flowers[Math.floor(Math.random()*flowers.length)] });
+                pests.push({ m: createPest((Math.random()-0.5)*30, (Math.random()-0.5)*30), t: flowers[Math.floor(Math.random()*flowers.length)] });
             }
             pests.forEach(p => {
-                const dist = p.target.mesh.position.clone().sub(p.mesh.position);
-                if(dist.length() > 0.4) { p.mesh.lookAt(p.target.mesh.position); p.mesh.rotation.y += Math.PI; p.mesh.position.add(dist.normalize().multiplyScalar(0.025)); }
-                else { p.target.w -= 0.0007; }
+                const dist = p.t.mesh.position.clone().sub(p.m.position);
+                if(dist.length() > 0.4) { p.m.lookAt(p.t.mesh.position); p.m.rotation.y += Math.PI; p.m.position.add(dist.normalize().multiplyScalar(0.025)); }
             });
 
             bData.forEach((b, i) => {
@@ -196,12 +197,12 @@
                 b.el.style.opacity = (p.z > 0 && p.z < 1) ? 1 : 0;
             });
 
-            if(time - lastAuto > 10) { performSave(); lastAuto = time; }
+            if(time - lastAuto > 10) { window.saveData(); lastAuto = time; }
             document.getElementById('hp').innerText = flowers.length ? Math.round((flowers.reduce((a,b)=>a+b.w,0)/flowers.length)*100) : 0;
             controls.update(); renderer.render(scene, camera);
         }
 
-        window.addEventListener('load', load);
+        window.onload = window.loadData;
         animate();
     </script>
 </body>
