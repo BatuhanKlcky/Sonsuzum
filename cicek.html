@@ -2,73 +2,132 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Sanal Bahçe </title>
+    <title>Sanal Bahçe - Kalıcı Solma Modu</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <style>
-        * { padding: 0; margin: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { margin: 0; overflow: hidden; background: #05050a; }
+        * { padding: 0; margin: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { margin: 0; overflow: hidden; background: #000; }
         .ui-container { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 350px; z-index: 1000; }
         .ui-panel { 
-            background: rgba(15, 20, 30, 0.9); 
-            padding: 22px; 
-            border-radius: 30px; 
-            color: white; 
-            text-align: center; 
-            border: 1px solid rgba(0, 212, 255, 0.2); 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.7); 
-            backdrop-filter: blur(15px);
+            background: rgba(15, 20, 25, 0.92); 
+            padding: 22px; border-radius: 30px; color: white; text-align: center; 
+            border: 1px solid rgba(255, 71, 87, 0.3); backdrop-filter: blur(12px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
         }
-        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 18px; }
-        button { 
-            border: none; 
-            padding: 15px; 
-            border-radius: 18px; 
-            color: white; 
-            font-weight: 800; 
-            cursor: pointer; 
-            text-transform: uppercase; 
-            font-size: 11px; 
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        }
-        button:hover { transform: translateY(-3px) scale(1.02); filter: brightness(1.2); }
-        button:active { transform: scale(0.95); }
-        .btn-water { background: linear-gradient(135deg, #00d4ff, #0077ff); box-shadow: 0 4px 15px rgba(0, 119, 255, 0.4); }
-        .btn-seed { background: linear-gradient(135deg, #2ecc71, #27ae60); box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4); }
-        #status-bar { position: fixed; top: 15px; width: 100%; text-align: center; color: #ff4757; font-size: 12px; font-weight: bold; pointer-events: none; }
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        button { border: none; padding: 15px; border-radius: 18px; color: white; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 11px; transition: 0.3s; }
+        button:hover { transform: translateY(-2px); filter: brightness(1.2); }
+        .btn-water { background: linear-gradient(135deg, #00d4ff, #0077ff); }
+        .btn-seed { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        #status-msg { font-size: 10px; color: #ff4757; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
-    <div id="status-bar"></div>
     <div class="ui-container">
         <div class="ui-panel">
-            <div id="clock" style="font-size:28px; color:#00d4ff; font-weight: 900; letter-spacing: -1px;">00:00</div>
-            <div style="font-size:10px; color:#666; margin-bottom: 10px; font-weight: bold; letter-spacing: 2px;">Sanal Bahçe</div>
-            <div style="font-size:13px; color:#eee; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 12px;">
-                NEM: %<span id="hp" style="color:#00d4ff">0</span> | BİTKİ: <span id="fCount" style="color:#2ecc71">0</span>
+            <div id="clock" style="font-size:28px; color:#ff4757; font-weight: 900;">00:00</div>
+            <div style="font-size:12px; color:#aaa; margin: 10px 0;">
+                ORT. NEM: %<span id="hp">0</span> | BİTKİ: <span id="fCount">0</span>
             </div>
             <div class="controls">
                 <button class="btn-water" onclick="waterAll()">💧 SULA</button>
-                <button class="btn-seed" onclick="plant()">🌱 TOHUM</button>
+                <button class="btn-seed" onclick="plant()">🌱 EK</button>
             </div>
+            <div id="status-msg">DİKKAT: BAZI BİTKİLER SOLDU VE BÜYÜMEYİ DURDURDU!</div>
         </div>
     </div>
 
     <script>
-        // --- KONFİGÜRASYON ---
-        const SAVE_KEY = "virtual_garden_pro_v5";
-        const DRY_RATE_PER_SEC = 0.00001389; // Saatte %5 düşüş
-        const GROWTH_RATE_PER_SEC = 0.000012; 
+        const SAVE_KEY = "garden_hardcore_v8";
+        const DRY_RATE = 0.00001389; // Saatte %5
+        const GROWTH_RATE = 0.000012;
         const flowers = [];
 
-        // --- KAYIT VE YÜKLEME ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
+        camera.position.set(20, 15, 20);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        const loader = new THREE.CubeTextureLoader();
+        scene.background = loader.load([
+            'https://threejs.org/examples/textures/cube/MilkyWay/dark-s_px.jpg', 'https://threejs.org/examples/textures/cube/MilkyWay/dark-s_nx.jpg',
+            'https://threejs.org/examples/textures/cube/MilkyWay/dark-s_py.jpg', 'https://threejs.org/examples/textures/cube/MilkyWay/dark-s_ny.jpg',
+            'https://threejs.org/examples/textures/cube/MilkyWay/dark-s_pz.jpg', 'https://threejs.org/examples/textures/cube/MilkyWay/dark-s_nz.jpg'
+        ]);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+        const sun = new THREE.DirectionalLight(0xffffff, 0.8);
+        sun.position.set(10, 30, 10);
+        scene.add(sun);
+
+        const ground = new THREE.Mesh(
+            new THREE.CircleGeometry(16, 64), 
+            new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 1 })
+        );
+        ground.rotation.x = -Math.PI/2;
+        scene.add(ground);
+
+        function createFlower(x, z, stats = null) {
+            const group = new THREE.Group();
+            const color = stats ? stats.c : [0xff4d6d, 0x00d4ff, 0xffd166, 0x06d6a0][Math.floor(Math.random()*4)];
+            
+            const grassPatch = new THREE.Mesh(
+                new THREE.CircleGeometry(0.8, 16),
+                new THREE.MeshBasicMaterial({ color: 0x1b4332, transparent: true, opacity: 0.5 })
+            );
+            grassPatch.rotation.x = -Math.PI/2;
+            grassPatch.position.y = 0.01;
+            group.add(grassPatch);
+
+            const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.06, 1), new THREE.MeshStandardMaterial({color: 0x2d6a4f}));
+            stem.position.y = 0.5; 
+            group.add(stem);
+
+            const head = new THREE.Group();
+            const center = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), new THREE.MeshStandardMaterial({color: 0xffd166}));
+            center.position.y = 1.02; center.scale.y = 0.5;
+            head.add(center);
+            const pGeo = new THREE.SphereGeometry(0.2, 8, 5);
+            pGeo.scale(1, 0.15, 1.5); pGeo.translate(0, 0, 0.4);
+            for(let i=0; i<6; i++) {
+                const p = new THREE.Mesh(pGeo, new THREE.MeshStandardMaterial({color: color}));
+                p.position.y = 1; p.rotation.y = (i * Math.PI)/3; p.rotation.x = Math.PI/2;
+                head.add(p);
+            }
+            head.scale.set(0.1, 0.1, 0.1);
+            group.add(head);
+            
+            group.position.set(x, 0, z);
+            scene.add(group);
+
+            const fObj = { 
+                mesh: group, head, grass: grassPatch,
+                h: stats ? stats.h : 0.2, 
+                b: stats ? stats.b : 0, 
+                w: stats ? stats.w : 1.0, 
+                c: color,
+                isStunted: stats ? stats.isStunted : false // Büyüme engeli kilidi
+            };
+            flowers.push(fObj);
+            document.getElementById('fCount').innerText = flowers.length;
+            save();
+        }
+
+        window.plant = () => createFlower((Math.random()-0.5)*26, (Math.random()-0.5)*26);
+        window.waterAll = () => { flowers.forEach(f => f.w = 1.2); save(); };
+
         function save() {
-            const data = {
-                lastUpdate: Date.now(),
-                plants: flowers.map(f => ({
-                    x: f.mesh.position.x, z: f.mesh.position.z,
-                    h: f.h, b: f.b, w: f.w, c: f.c
-                }))
+            const data = { 
+                lastUpdate: Date.now(), 
+                plants: flowers.map(f => ({ 
+                    x: f.mesh.position.x, z: f.mesh.position.z, 
+                    h: f.h, b: f.b, w: f.w, c: f.c, 
+                    isStunted: f.isStunted 
+                })) 
             };
             localStorage.setItem(SAVE_KEY, JSON.stringify(data));
         }
@@ -78,185 +137,60 @@
             if (!raw) return;
             const data = JSON.parse(raw);
             const elapsed = (Date.now() - data.lastUpdate) / 1000;
-
             data.plants.forEach(p => {
-                let currentW = Math.max(0, p.w - (elapsed * DRY_RATE_PER_SEC));
-                let currentH = p.h;
-                if (p.w > 0.4 && currentH < 1.3) currentH += Math.min(1.3 - currentH, elapsed * GROWTH_RATE_PER_SEC);
-                createFlower(p.x, p.z, { ...p, w: currentW, h: currentH });
+                let currW = Math.max(0, p.w - (elapsed * DRY_RATE));
+                let stuntTriggered = p.isStunted || (currW < 0.3); // Sen yokken nem %30'a düşmüşse cüce kalır
+                let currH = p.h;
+                if (!stuntTriggered && p.w > 0.4) {
+                    currH += Math.min(1.3 - p.h, elapsed * GROWTH_RATE);
+                }
+                createFlower(p.x, p.z, { ...p, w: currW, h: currH, isStunted: stuntTriggered });
             });
         }
 
-        // --- THREE.JS SAHNE KURULUMU ---
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
-        camera.position.set(18, 14, 18);
-        
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setClearColor(0x020208);
-        document.body.appendChild(renderer.domElement);
-        
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.maxPolarAngle = Math.PI / 2.1; // Zeminin altına inmeyi engelle
-
-        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-        const sun = new THREE.DirectionalLight(0xffffff, 0.8);
-        sun.position.set(10, 30, 15);
-        scene.add(sun);
-
-        // Zemin Tasarımı
-        const groundGeo = new THREE.CircleGeometry(16, 64);
-        const groundMat = new THREE.MeshStandardMaterial({ color: 0x0a0a0a, roughness: 1 });
-        const ground = new THREE.Mesh(groundGeo, groundMat);
-        ground.rotation.x = -Math.PI/2;
-        scene.add(ground);
-
-        // --- GELİŞMİŞ ÇİÇEK MODELLEME ---
-        function createFlower(x, z, stats = null) {
-            const group = new THREE.Group();
-            const color = stats ? stats.c : [0xff4d6d, 0x00d4ff, 0xffd166, 0x06d6a0, 0xef476f][Math.floor(Math.random()*5)];
-            
-            // 1. SAP (Stem)
-            const stem = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.04, 0.07, 1, 8), 
-                new THREE.MeshStandardMaterial({color: 0x2d6a4f})
-            );
-            stem.position.y = 0.5; 
-            group.add(stem);
-
-            // 2. YAPRAKLAR (Leaves on stem)
-            const leafGeo = new THREE.SphereGeometry(0.12, 8, 8);
-            leafGeo.scale(2, 0.1, 1);
-            const leaf1 = new THREE.Mesh(leafGeo, new THREE.MeshStandardMaterial({color: 0x1b4332}));
-            leaf1.position.set(0.12, 0.4, 0);
-            leaf1.rotation.z = 0.4;
-            group.add(leaf1);
-            
-            const leaf2 = leaf1.clone();
-            leaf2.position.set(-0.12, 0.6, 0);
-            leaf2.rotation.z = -0.4;
-            leaf2.rotation.y = Math.PI;
-            group.add(leaf2);
-
-            // 3. ÇİÇEK KAFASI (Head)
-            const headGroup = new THREE.Group();
-            
-            // MERKEZ (Pistil)
-            const center = new THREE.Mesh(
-                new THREE.SphereGeometry(0.15, 12, 12),
-                new THREE.MeshStandardMaterial({color: 0xffd166})
-            );
-            center.position.y = 1.02;
-            center.scale.y = 0.6;
-            headGroup.add(center);
-
-            // TAÇ YAPRAKLAR (Petals)
-            const pGeo = new THREE.SphereGeometry(0.22, 8, 5);
-            pGeo.scale(1, 0.15, 1.6); 
-            pGeo.translate(0, 0, 0.45);
-            
-            for(let i=0; i<6; i++) {
-                const p = new THREE.Mesh(pGeo, new THREE.MeshStandardMaterial({color: color}));
-                p.position.y = 1; 
-                p.rotation.y = (i * Math.PI)/3; 
-                p.rotation.x = Math.PI/2;
-                headGroup.add(p);
-            }
-            
-            headGroup.scale.set(0.1, 0.1, 0.1); // Başlangıçta tomurcuk
-            group.add(headGroup);
-            
-            group.position.set(x, 0, z);
-            scene.add(group);
-
-            const fObj = { 
-                mesh: group, 
-                petals: headGroup, 
-                h: stats ? stats.h : 0.15, 
-                b: stats ? stats.b : 0, 
-                w: stats ? stats.w : 1.0, 
-                c: color 
-            };
-            flowers.push(fObj);
-            document.getElementById('fCount').innerText = flowers.length;
-            save();
-        }
-
-        // --- KONTROLLER ---
-        window.plant = () => {
-            const angle = Math.random() * Math.PI * 2;
-            const radius = Math.random() * 14;
-            createFlower(Math.cos(angle)*radius, Math.sin(angle)*radius);
-        };
-
-        window.waterAll = () => { 
-            flowers.forEach(f => f.w = 1.2); // Biraz fazla su iyidir
-            save(); 
-        };
-
-        // --- ANİMASYON DÖNGÜSÜ ---
         function animate() {
             requestAnimationFrame(animate);
             document.getElementById('clock').innerText = new Date().toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
             
+            let anyStunted = false;
+
             flowers.forEach(f => {
-                // Nem Kaybı
-                f.w = Math.max(0, f.w - (DRY_RATE_PER_SEC / 60));
+                f.w = Math.max(0, f.w - (DRY_RATE / 60));
                 
-                // SOLMA ETKİSİ (%30 Eşiği)
-                if (f.w < 0.3) {
-                    // Kahverengileşme
-                    f.petals.children.forEach(p => {
-                        p.material.color.lerp(new THREE.Color(0x4a3728), 0.02);
-                    });
-                    // Boyun Bükme
-                    f.mesh.rotation.z = THREE.MathUtils.lerp(f.mesh.rotation.z, 0.7, 0.03);
-                    f.mesh.rotation.x = THREE.MathUtils.lerp(f.mesh.rotation.x, 0.3, 0.03);
-                } else {
-                    // Canlanma
-                    f.petals.children.forEach(p => {
-                        p.material.color.lerp(new THREE.Color(f.c), 0.05);
-                    });
-                    // Dik Durma
+                if (f.w < 0.3) { 
+                    f.isStunted = true; // BİR KEZ SOLURSA BÜYÜME SONSUZA DEK DURUR
+                    f.head.children.forEach(p => p.material.color.lerp(new THREE.Color(0x3e2723), 0.02));
+                    f.mesh.rotation.z = THREE.MathUtils.lerp(f.mesh.rotation.z, 0.6, 0.02);
+                    f.grass.material.color.lerp(new THREE.Color(0x2b2b2b), 0.02);
+                } else { 
+                    f.head.children.forEach(p => p.material.color.lerp(new THREE.Color(f.c), 0.05));
                     f.mesh.rotation.z = THREE.MathUtils.lerp(f.mesh.rotation.z, 0, 0.05);
-                    f.mesh.rotation.x = THREE.MathUtils.lerp(f.mesh.rotation.x, 0, 0.05);
+                    f.grass.material.color.lerp(new THREE.Color(0x1b4332), 0.05);
                     
-                    // Büyüme (Boy 1.3 birime kadar)
-                    if(f.h < 1.3) f.h += (GROWTH_RATE_PER_SEC / 60);
+                    // Sadece solmamış (stunted olmayanlar) ve nemi olanlar büyür
+                    if(!f.isStunted && f.w > 0.4 && f.h < 1.3) {
+                        f.h += (GROWTH_RATE / 60);
+                    }
                 }
 
-                // Çiçek Açma (Büyüdükçe çiçek kafası büyür)
-                if(f.h > 0.6) f.b = Math.min(1, f.b + 0.008);
-                f.petals.scale.set(f.b, f.b, f.b);
-                
-                // Genel Form (Susuzluk küçültür)
+                if(f.isStunted) anyStunted = true;
+
+                if(f.h > 0.6) f.b = Math.min(1, f.b + 0.01);
+                f.head.scale.set(f.b, f.b, f.b);
                 const s = f.h * (0.6 + f.w * 0.4); 
                 f.mesh.scale.set(s, s, s);
             });
 
-            // Arayüz Güncelleme
+            document.getElementById('status-msg').style.display = anyStunted ? "block" : "none";
             const avgW = flowers.length ? (flowers.reduce((a,b)=>a+b.w,0)/flowers.length) : 0;
             document.getElementById('hp').innerText = Math.round(avgW * 100);
-
             controls.update();
             renderer.render(scene, camera);
         }
 
-        // --- INIT ---
         window.addEventListener('load', load);
         window.addEventListener('beforeunload', save);
-        setInterval(save, 5000); // 15 saniyede bir oto-save
-
-        // Resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
+        setInterval(save, 15000);
         animate();
     </script>
 </body>
