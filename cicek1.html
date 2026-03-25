@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>3D Sanal Bahçe</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * { padding: 0; margin: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { margin: 0; overflow: hidden; background: #000; }
+        
+        /* UI Paneli (Mevcut tasarımın korunmuş hali) */
+        .ui-panel {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px);
+            padding: 20px; border-radius: 20px; color: white;
+            z-index: 100; text-align: center; width: 280px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .water-btn {
+            background: #00d4ff; border: none; width: 100%; padding: 15px;
+            border-radius: 12px; color: white; font-weight: bold; font-size: 16px;
+            cursor: pointer; margin-top: 10px; transition: 0.2s;
+        }
+
+        .water-btn:active { transform: scale(0.95); }
+        .water-btn:hover { background: #00ace6; }
+
+        #info { font-size: 12px; margin-top: 8px; color: #00d4ff; }
+        #clock { font-size: 24px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <audio id="snd" src="https://www.soundjay.com/nature/sounds/rain-drop-1.mp3"></audio>
+
+    <div class="ui-panel">
+        <h2 id="clock">00:00</h2>
+        <div style="margin: 10px 0; font-weight: bold;">Sağlık: %<span id="hp">--</span></div>
+        <div style="font-size: 12px; color: #888;">Toplam Sulama: <span id="count">0</span></div>
+        <button id="wBtn" class="water-btn" onclick="giveWater()">💧 CAN SUYU VER</button>
+        <p id="info"></p>
+    </div>
+
+    <script>
+        // --- OYUN VERİLERİ ---
+        let gData = { h: 1.0, last: Date.now(), total: 0 };
+        const saved = localStorage.getItem('garden_3d_v1');
+        if(saved) gData = JSON.parse(saved);
+
+        // --- THREE.JS KURULUMU ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        // Işıklandırma
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1);
+        sunLight.position.set(5, 10, 7.5);
+        scene.add(sunLight);
+
+        // Zemin (Çimen)
+        const groundGeo = new THREE.CircleGeometry(10, 32);
+        const groundMat = new THREE.MeshStandardMaterial({ color: 0x1a4a1a });
+        const ground = new THREE.Mesh(groundGeo, groundMat);
+        ground.rotation.x = -Math.PI / 2;
+        scene.add(ground);
+
+        // --- ÇİÇEK OLUŞTURMA ---
+        const flowers = [];
+        function createFlower(x, z, petalColor) {
+            const group = new THREE.Group();
+            
+            // Sap
+            const stemGeo = new THREE.CylinderGeometry(0.05, 0.08, 2, 8);
+            stemGeo.translate(0, 1, 0); // Sapın tabanını merkeze al
+            const stemMat = new THREE.MeshStandardMaterial({ color: 0x2ecc71 });
+            const stem = new THREE.Mesh(stemGeo, stemMat);
+            group.add(stem);
+
+            // Merkez
+            const centerGeo = new THREE.SphereGeometry(0.2, 16, 16);
+            const centerMat = new THREE.MeshStandardMaterial({ color: 0xffcc00 });
+            const center = new THREE.Mesh(centerGeo, centerMat);
+            center.position.y = 2;
+            group.add(center);
+
+            // Yapraklar
+            const petalGeo = new THREE.SphereGeometry(0.15, 8, 8);
+            petalGeo.scale(1, 2.5, 0.5);
+            const petalMat = new THREE.MeshStandardMaterial({ color: petalColor });
+            
+            for(let i=0; i<8; i++) {
+                const petal = new THREE.Mesh(petalGeo, petalMat);
+                petal.position.y = 2;
+                const angle = (i / 8) * Math.PI * 2;
+                petal.position.x = Math.cos(angle) * 0.3;
+                petal.position.z = Math.sin(angle) * 0.3;
+                petal.rotation.y = -angle;
+                petal.rotation.z = 0.5;
+                group.add(petal);
+            }
+
+            group.position.set(x, 0, z);
+            scene.add(group);
+            return group;
+        }
+
+        // 3 Tane Çiçek Ekle
+        flowers.push(createFlower(-2, 0, 0xff0033)); // Kırmızı
+        flowers.push(createFlower(0, -1, 0xffcc00)); // Sarı
+        flowers.push(createFlower(2, 0, 0x00d4ff));  // Mavi
+
+        camera.position.set(0, 3, 6);
+        camera.lookAt(0, 1, 0);
+
+        // --- GÜNCELLEME DÖNGÜSÜ ---
+        function update() {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
+
+            const diff = (Date.now() - gData.last) / 3600000;
+            let currentH = Math.max(0.3, gData.h - (diff * 0.02));
+
+            // UI Güncelle
+            const displayHP = Math.round(currentH * 100);
+            document.getElementById('hp').textContent = displayHP;
+            document.getElementById('count').textContent = gData.total;
+
+            // Çiçeklerin Boyutunu ve Rengini Güncelle
+            flowers.forEach((f, index) => {
+                f.scale.set(currentH, currentH, currentH);
+                // Hafif rüzgar efekti
+                f.rotation.z = Math.sin(Date.now() * 0.001 + index) * 0.05;
+            });
+
+            // Gece - Gündüz ve Gökyüzü
+            const hr = now.getHours();
+            const isDay = hr >= 6 && hr < 19;
+            
+            if(isDay) {
+                scene.background = new THREE.Color(0x87ceeb); // Gündüz mavisi
+                sunLight.intensity = 1;
+                document.getElementById('info').textContent = "Hava Gündüz ☀️";
+            } else {
+                scene.background = new THREE.Color(0x000811); // Gece siyahı
+                sunLight.intensity = 0.2;
+                document.getElementById('info').textContent = "Hava Gece ✨";
+            }
+            
+            const btn = document.getElementById('wBtn');
+            if(displayHP >= 150) btn.textContent = "ÇİÇEKLER DOYDU ✅";
+            else btn.textContent = "💧 CAN SUYU VER";
+        }
+
+        function giveWater() {
+            const currentHPDisplay = parseInt(document.getElementById('hp').textContent);
+            if(currentHPDisplay >= 150) return;
+
+            const s = document.getElementById('snd');
+            s.currentTime = 0; s.play().catch(()=>{});
+
+            gData.h = Math.min(1.5, gData.h + 0.1);
+            gData.last = Date.now();
+            gData.total += 1;
+            
+            localStorage.setItem('garden_3d_v1', JSON.stringify(gData));
+            update();
+        }
+
+        // Animasyon Render Döngüsü
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+
+        // Pencere Boyutu Değişince Düzenle
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        setInterval(update, 1000);
+        update();
+        animate();
+
+    </script>
+</body>
+</html>
