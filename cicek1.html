@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>3D Botanik Bahçesi v3</title>
+    <title>3D Pro Bahçe v4 - Dengeli Ekosistem</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <style>
@@ -16,10 +16,10 @@
         }
 
         .ui-panel {
-            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(20px);
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(25px);
             padding: 20px; border-radius: 25px; color: white;
             text-align: center; border: 1px solid rgba(255,255,255,0.15);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
         }
 
         .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
@@ -27,15 +27,17 @@
         button {
             border: none; padding: 12px; border-radius: 15px; color: white; 
             font-weight: bold; cursor: pointer; transition: 0.3s;
-            text-transform: uppercase; font-size: 12px;
+            text-transform: uppercase; font-size: 11px;
         }
 
         .btn-water { background: linear-gradient(135deg, #00d4ff, #0077ff); }
+        .btn-water:disabled { background: #444; cursor: not-allowed; opacity: 0.6; }
         .btn-seed { background: linear-gradient(135deg, #2ecc71, #27ae60); }
-        button:active { transform: scale(0.95); }
+        button:active:not(:disabled) { transform: scale(0.95); }
         
-        #clock { font-size: 20px; letter-spacing: 2px; margin-bottom: 5px; opacity: 0.9; }
-        .stat-text { font-size: 13px; color: #aaa; margin-bottom: 5px; }
+        #clock { font-size: 18px; letter-spacing: 2px; margin-bottom: 5px; color: #00d4ff; }
+        .stat-text { font-size: 12px; color: #ccc; }
+        b { color: #fff; }
     </style>
 </head>
 <body>
@@ -43,93 +45,82 @@
     <div class="ui-container">
         <div class="ui-panel">
             <div id="clock">00:00</div>
-            <div class="stat-text">Bahçe Sağlığı: <span id="hp" style="color:white; font-weight:bold;">100</span>%</div>
+            <div class="stat-text">Ortalama Bahçe Sağlığı: <b>%<span id="hp">0</span></b></div>
             <div class="controls">
-                <button class="btn-water" onclick="giveWater()">💧 Sula</button>
-                <button class="btn-seed" onclick="plantSeed()">🌱 Tohum Ek</button>
+                <button id="wBtn" class="btn-water" onclick="giveWater()">💧 CAN SUYU VER</button>
+                <button class="btn-seed" onclick="plantSeed()">🌱 TOHUM EK</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- DATA & STATE ---
-        let gData = { 
-            flowers: [], // {x, z, type, health, age, color}
-            lastWater: Date.now()
-        };
-        const saved = localStorage.getItem('garden_v3_data');
+        // --- AYARLAR ---
+        const MAX_HEALTH = 1.5; // Maksimum büyüme sınırı (%150)
+        const DRINK_RATE = 0.0001; // Saniyede susama miktarı
+        let gData = { flowers: [], lastWater: Date.now() };
+
+        const saved = localStorage.getItem('garden_v4_data');
         if(saved) gData = JSON.parse(saved);
 
-        // --- THREE.JS SETUP ---
+        // --- THREE.JS KURULUMU ---
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(10, 8, 10);
+        camera.position.set(12, 10, 12);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.shadowMap.enabled = true;
         document.body.appendChild(renderer.domElement);
 
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.maxPolarAngle = Math.PI / 2.1;
 
-        // --- LIGHTS & ENV ---
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-        scene.add(ambientLight);
-
-        const sun = new THREE.DirectionalLight(0xffffff, 1);
+        // Işıklar
+        const sun = new THREE.DirectionalLight(0xffffff, 1.2);
         sun.position.set(10, 20, 10);
-        sun.castShadow = true;
         scene.add(sun);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+
+        // Zemin
+        const ground = new THREE.Mesh(
+            new THREE.CylinderGeometry(10, 10, 0.5, 64),
+            new THREE.MeshStandardMaterial({ color: 0x151515, roughness: 1 })
+        );
+        scene.add(ground);
 
         // Yıldızlar
         const starGeo = new THREE.BufferGeometry();
         const starCoords = [];
-        for(let i=0; i<2000; i++) {
-            starCoords.push((Math.random()-0.5)*100, Math.random()*50, (Math.random()-0.5)*100);
-        }
+        for(let i=0; i<1500; i++) starCoords.push((Math.random()-0.5)*100, Math.random()*50, (Math.random()-0.5)*100);
         starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starCoords, 3));
         const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({color: 0xffffff, size: 0.1}));
         scene.add(stars);
 
-        // Zemin (Modern Estetik)
-        const ground = new THREE.Mesh(
-            new THREE.CylinderGeometry(8, 8, 0.4, 64),
-            new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 })
-        );
-        ground.receiveShadow = true;
-        scene.add(ground);
-
-        // --- FLOWER LOGIC ---
+        // --- ÇİÇEK SİSTEMİ ---
         const flowerMeshes = [];
-        const colors = [0xff2d55, 0xffcc00, 0x007aff, 0x9b59b6, 0xe67e22];
+        const colors = [0xff4d6d, 0xffb703, 0x219ebc, 0x8ecae6, 0x9b59b6];
 
         function createFlowerMesh(data) {
             const group = new THREE.Group();
             
-            // Sap (Büyümeye duyarlı)
-            const stemMat = new THREE.MeshStandardMaterial({ color: 0x2ecc71 });
-            const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.07, 1, 8), stemMat);
+            // Sap
+            const stem = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.05, 0.08, 1, 8),
+                new THREE.MeshStandardMaterial({ color: 0x2d6a4f })
+            );
             stem.position.y = 0.5;
             group.add(stem);
 
-            // Çiçek Kafası (Sadece yaşlıysa görünür)
+            // Kafa (Koni ve Yaprak karışımı daha estetik durur)
             const head = new THREE.Group();
-            head.position.y = 1;
-            
-            const center = new THREE.Mesh(new THREE.SphereGeometry(0.15, 8, 8), new THREE.MeshStandardMaterial({color: 0x442200}));
-            head.add(center);
-
             const petalMat = new THREE.MeshStandardMaterial({ color: data.color, flatShading: true });
-            for(let i=0; i<8; i++) {
-                const petal = new THREE.Mesh(new THREE.SphereGeometry(0.2, 6, 6), petalMat);
-                petal.scale.set(1, 0.2, 2.5);
-                const angle = (i/8) * Math.PI * 2;
-                petal.position.x = Math.sin(angle) * 0.25;
-                petal.position.z = Math.cos(angle) * 0.25;
-                petal.rotation.y = angle;
+            
+            for(let i=0; i<6; i++) {
+                const petal = new THREE.Mesh(new THREE.CylinderGeometry(0, 0.2, 0.8, 4), petalMat);
+                petal.rotation.z = Math.PI / 3;
+                petal.rotation.y = (i / 6) * Math.PI * 2;
+                petal.position.y = 1;
                 head.add(petal);
             }
             group.add(head);
@@ -140,13 +131,13 @@
         }
 
         function plantSeed() {
-            if(gData.flowers.length > 15) return; // Limit
+            if(gData.flowers.length >= 20) return;
             const newFlower = {
-                x: (Math.random() - 0.5) * 10,
-                z: (Math.random() - 0.5) * 10,
+                x: (Math.random() - 0.5) * 15,
+                z: (Math.random() - 0.5) * 15,
                 color: colors[Math.floor(Math.random() * colors.length)],
-                age: 0.1, // 0.1'den 1.0'e kadar büyüme
-                health: 1.0
+                age: 0.2,
+                health: 0.8
             };
             gData.flowers.push(newFlower);
             flowerMeshes.push(createFlowerMesh(newFlower));
@@ -154,58 +145,78 @@
         }
 
         function giveWater() {
-            gData.flowers.forEach(f => f.health = Math.min(1.5, f.health + 0.2));
-            gData.lastWater = Date.now();
-            save();
+            let totalAdded = 0;
+            gData.flowers.forEach(f => {
+                if(f.health < MAX_HEALTH) {
+                    f.health = Math.min(MAX_HEALTH, f.health + 0.15);
+                    totalAdded++;
+                }
+            });
+            if(totalAdded > 0) save();
         }
 
         function save() {
-            localStorage.setItem('garden_v3_data', JSON.stringify(gData));
+            localStorage.setItem('garden_v4_data', JSON.stringify(gData));
         }
 
-        // Başlangıçta yükle
+        // Başlangıç yüklemesi
         gData.flowers.forEach(f => flowerMeshes.push(createFlowerMesh(f)));
 
-        // --- ANIMATION LOOP ---
+        // --- ANA DÖNGÜ ---
         function animate() {
             requestAnimationFrame(animate);
             const time = Date.now() * 0.001;
-            const hr = new Date().getHours();
+            const now = new Date();
+            const hr = now.getHours();
             const isDay = hr >= 6 && hr < 19;
 
-            // Zaman & UI
-            document.getElementById('clock').textContent = new Date().toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
+            // Saat
+            document.getElementById('clock').textContent = now.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
             
-            // Gökyüzü & Işık Döngüsü
-            const skyColor = isDay ? new THREE.Color(0x87ceeb) : new THREE.Color(0x020205);
-            scene.background = skyColor;
+            // Çevre
+            scene.background = new THREE.Color(isDay ? 0x87ceeb : 0x020205);
             stars.visible = !isDay;
-            sun.intensity = isDay ? 1.0 : 0.1;
-            ambientLight.intensity = isDay ? 0.4 : 0.1;
+            sun.intensity = isDay ? 1.2 : 0.1;
 
-            // Çiçek Güncelleme
             let totalH = 0;
-            flowerMeshes.forEach((fm, i) => {
-                // Büyüme mantığı
-                if(fm.data.age < 1) fm.data.age += 0.001;
-                
-                // Sağlık düşüşü (Su verilmezse)
-                const diff = (Date.now() - gData.lastWater) / 3600000;
-                fm.data.health = Math.max(0.2, fm.data.health - (diff * 0.0001));
-                totalH += fm.data.health;
+            let allFull = true;
 
-                // Görselleştirme
-                const s = fm.data.age * fm.data.health;
-                fm.mesh.scale.set(s, s, s);
-                fm.stem.scale.y = 1 + fm.data.age; // Sap uzasın
-                fm.head.position.y = fm.stem.scale.y;
+            flowerMeshes.forEach((fm, i) => {
+                // Zamanla susama
+                fm.data.health = Math.max(0.3, fm.data.health - DRINK_RATE);
                 
-                // Rüzgar sallantısı
-                fm.mesh.rotation.z = Math.sin(time + i) * 0.05 * fm.data.age;
+                // Yavaş büyüme (Yaşlanma)
+                if(fm.data.age < 1.0) fm.data.age += 0.0002;
+
+                // Ölçekleme (Health ve Age çarpımı, ama limitli)
+                const currentScale = fm.data.age * fm.data.health;
+                fm.mesh.scale.set(currentScale, currentScale, currentScale);
+                
+                // Sapı yaşa göre uzat
+                fm.stem.scale.y = 1 + (fm.data.age * 0.5);
+                fm.head.position.y = fm.stem.scale.y * 0.8;
+
+                // Rüzgar
+                fm.mesh.rotation.x = Math.sin(time + i) * 0.04;
+
+                totalH += (fm.data.health / MAX_HEALTH);
+                if(fm.data.health < MAX_HEALTH) allFull = false;
             });
 
-            if(flowerMeshes.length > 0) {
-                document.getElementById('hp').textContent = Math.round((totalH / flowerMeshes.length) * 100);
+            // UI Güncelleme
+            const avgHP = flowerMeshes.length > 0 ? Math.round((totalH / flowerMeshes.length) * 100) : 0;
+            document.getElementById('hp').textContent = avgHP;
+
+            const wBtn = document.getElementById('wBtn');
+            if(flowerMeshes.length === 0) {
+                wBtn.disabled = true;
+                wBtn.textContent = "Önce Tohum Ek 🌱";
+            } else if(allFull) {
+                wBtn.disabled = true;
+                wBtn.textContent = "Çiçekler Doydu ✅";
+            } else {
+                wBtn.disabled = false;
+                wBtn.textContent = "💧 CAN SUYU VER";
             }
 
             controls.update();
