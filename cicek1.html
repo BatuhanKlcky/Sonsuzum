@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>3D Botanik Bahçesi v5 - Zararlı Böcekler</title>
+    <title>3D Botanik Bahçesi v6 - Doğa Manzaralı</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <style>
         * { padding: 0; margin: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { margin: 0; overflow: hidden; background: #050505; }
+        body { margin: 0; overflow: hidden; background: #000; }
         
         .ui-container {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
@@ -16,10 +16,10 @@
         }
 
         .ui-panel {
-            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(25px);
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(20px);
             padding: 20px; border-radius: 25px; color: white;
-            text-align: center; border: 1px solid rgba(255,255,255,0.15);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            text-align: center; border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
 
         .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
@@ -37,12 +37,6 @@
         
         #clock { font-size: 18px; letter-spacing: 2px; margin-bottom: 5px; color: #00d4ff; }
         .stat-text { font-size: 12px; color: #ccc; }
-        b { color: #fff; }
-
-        /* Zararlı Böcek Sayacı */
-        .pesticide-stats {
-            margin-top: 10px; font-size: 12px; color: #ff6b6b;
-        }
     </style>
 </head>
 <body>
@@ -51,7 +45,7 @@
         <div class="ui-panel">
             <div id="clock">00:00</div>
             <div class="stat-text">Bahçe Sağlığı: <b>%<span id="hp">0</span></b></div>
-            <div class="pesticide-stats">Zararlı Böcek: <b><span id="pests-count">0</span></b> (Tıkla Kov)</div>
+            <div class="stat-text" style="color:#ff6b6b">Zararlı: <span id="pests-count">0</span></div>
             <div class="controls">
                 <button id="wBtn" class="btn-water" onclick="giveWater()">💧 Sula</button>
                 <button class="btn-seed" onclick="plantSeed()">🌱 Tohum Ek</button>
@@ -62,18 +56,20 @@
     <script>
         // --- AYARLAR ---
         const MAX_HEALTH = 1.5; 
-        const HOURLY_DECAY = 0.02; // Saatte %2 azalma
-        const PEST_SPAWN_CHANCE = 0.005; // Her saniye böcek çıkma şansı
+        const HOURLY_DECAY = 0.02; 
+        const PEST_SPAWN_CHANCE = 0.001; // %0.5'ten %0.1'e düşürüldü (Daha yavaş)
         let lastFrameTime = Date.now();
-        let gData = { flowers: [], lastWater: Date.now(), pestsKilled: 0 };
+        let gData = { flowers: [], lastWater: Date.now() };
 
-        const saved = localStorage.getItem('garden_v5_data');
+        const saved = localStorage.getItem('garden_v6_data');
         if(saved) gData = JSON.parse(saved);
 
-        // --- THREE.JS KURULUMU ---
+        // --- SAHNE VE ARKA PLAN ---
         const scene = new THREE.Scene();
+        scene.fog = new THREE.Fog(0x1a2a44, 10, 50); // Derinlik için sis
+
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(12, 10, 12);
+        camera.position.set(15, 12, 15);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -82,43 +78,80 @@
 
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        controls.maxPolarAngle = Math.PI / 2.1;
+        controls.maxPolarAngle = Math.PI / 2.2;
+        controls.minDistance = 5;
+        controls.maxDistance = 40;
 
+        // Işıklar
         const sun = new THREE.DirectionalLight(0xffffff, 1.2);
-        sun.position.set(10, 20, 10);
+        sun.position.set(20, 40, 20);
         scene.add(sun);
-        scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+        const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+        scene.add(ambient);
 
+        // --- ÇEVRE TASARIMI (YENİ) ---
+        // Gökyüzü Kubbesi
+        const skyGeo = new THREE.SphereGeometry(100, 32, 32);
+        const skyMat = new THREE.MeshBasicMaterial({ color: 0x87ceeb, side: THREE.BackSide });
+        const sky = new THREE.Mesh(skyGeo, skyMat);
+        scene.add(sky);
+
+        // Uzak Dağlar
+        function createMountains() {
+            const mtnGroup = new THREE.Group();
+            const mtnGeo = new THREE.ConeGeometry(8, 15, 4);
+            const mtnMat = new THREE.MeshStandardMaterial({ color: 0x2c3e50, flatShading: true });
+            
+            for(let i=0; i<12; i++) {
+                const m = new THREE.Mesh(mtnGeo, mtnMat);
+                const angle = (i / 12) * Math.PI * 2;
+                const dist = 40 + Math.random() * 10;
+                m.position.set(Math.cos(angle)*dist, -2, Math.sin(angle)*dist);
+                m.scale.y = 0.5 + Math.random();
+                m.rotation.y = Math.random();
+                mtnGroup.add(m);
+            }
+            scene.add(mtnGroup);
+            return mtnMat;
+        }
+        const mountainMaterial = createMountains();
+
+        // Bahçe Zemini
         const ground = new THREE.Mesh(
-            new THREE.CylinderGeometry(10, 10, 0.5, 64),
-            new THREE.MeshStandardMaterial({ color: 0x151515, roughness: 1 })
+            new THREE.CylinderGeometry(10, 11, 0.8, 6), // Altıgen zemin
+            new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 1 })
         );
         scene.add(ground);
 
+        // Yıldızlar
         const starGeo = new THREE.BufferGeometry();
         const starCoords = [];
-        for(let i=0; i<1500; i++) starCoords.push((Math.random()-0.5)*100, Math.random()*50, (Math.random()-0.5)*100);
+        for(let i=0; i<2000; i++) starCoords.push((Math.random()-0.5)*200, Math.random()*100, (Math.random()-0.5)*200);
         starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starCoords, 3));
-        const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({color: 0xffffff, size: 0.1}));
+        const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({color: 0xffffff, size: 0.15}));
         scene.add(stars);
 
-        // --- ÇİÇEK SİSTEMİ ---
+        // --- ÇİÇEK VE BÖCEK SİSTEMİ ---
         const flowerMeshes = [];
-        const colors = [0xff4d6d, 0xffb703, 0x219ebc, 0x8ecae6, 0x9b59b6];
+        const pests = [];
+        const colors = [0xff4d6d, 0xffb703, 0x219ebc, 0x9b59b6, 0x2ecc71];
 
         function createFlowerMesh(data) {
             const group = new THREE.Group();
-            const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.08, 1, 8), new THREE.MeshStandardMaterial({ color: 0x2d6a4f }));
+            const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.1, 1, 6), new THREE.MeshStandardMaterial({ color: 0x2d6a4f }));
             stem.position.y = 0.5;
             group.add(stem);
 
             const head = new THREE.Group();
             const petalMat = new THREE.MeshStandardMaterial({ color: data.color, flatShading: true });
             for(let i=0; i<6; i++) {
-                const petal = new THREE.Mesh(new THREE.CylinderGeometry(0, 0.2, 0.8, 4), petalMat);
-                petal.rotation.z = Math.PI / 3;
-                petal.rotation.y = (i / 6) * Math.PI * 2;
+                const petal = new THREE.Mesh(new THREE.SphereGeometry(0.2, 5, 5), petalMat);
+                petal.scale.set(1.5, 0.3, 0.8);
                 petal.position.y = 1;
+                const angle = (i / 6) * Math.PI * 2;
+                petal.position.x = Math.cos(angle) * 0.3;
+                petal.position.z = Math.sin(angle) * 0.3;
+                petal.rotation.y = -angle;
                 head.add(petal);
             }
             group.add(head);
@@ -127,103 +160,38 @@
             return { mesh: group, stem: stem, head: head, data: data };
         }
 
-        function plantSeed() {
-            if(gData.flowers.length >= 20) return;
-            const newFlower = {
-                x: (Math.random() - 0.5) * 15,
-                z: (Math.random() - 0.5) * 15,
-                color: colors[Math.floor(Math.random() * colors.length)],
-                age: 0.2,
-                health: 1.0
-            };
-            gData.flowers.push(newFlower);
-            flowerMeshes.push(createFlowerMesh(newFlower));
-            save();
-        }
-
-        function giveWater() {
-            gData.flowers.forEach(f => f.health = Math.min(MAX_HEALTH, f.health + 0.2));
-            save();
-        }
-
-        // --- ZARARLI BÖCEK SİSTEMİ ---
-        const pests = [];
-        const pestMat = new THREE.MeshStandardMaterial({ color: 0xff3333, flatShading: true });
-        const pestEyeMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
-
         function createPest() {
-            const group = new THREE.Group();
-            // Gövde
-            const body = new THREE.Mesh(new THREE.IcosahedronGeometry(0.2, 1), pestMat);
-            group.add(body);
-            // Gözler
-            const eyeGeo = new THREE.SphereGeometry(0.04, 4, 4);
-            const eye1 = new THREE.Mesh(eyeGeo, pestEyeMat);
-            eye1.position.set(0.12, 0.1, 0.12);
-            group.add(eye1);
-            const eye2 = new THREE.Mesh(eyeGeo, pestEyeMat);
-            eye2.position.set(-0.12, 0.1, 0.12);
-            group.add(eye2);
-
-            // Başlangıç konumu (havada)
-            group.position.set(
-                (Math.random() - 0.5) * 18,
-                Math.random() * 3 + 1,
-                (Math.random() - 0.5) * 18
-            );
-            // Rastgele uçuş yönü ve hızı
-            group.userData = {
-                velocity: new THREE.Vector3(
-                    (Math.random() - 0.5) * 0.05,
-                    (Math.random() - 0.5) * 0.02,
-                    (Math.random() - 0.5) * 0.05
-                ),
-                isEscaping: false, // Tıklandı mı?
-                originalVelocity: null
-            };
-
-            scene.add(group);
-            pests.push(group);
+            const p = new THREE.Mesh(new THREE.SphereGeometry(0.15, 6, 6), new THREE.MeshStandardMaterial({color:0xff3333}));
+            p.position.set((Math.random()-0.5)*15, 2, (Math.random()-0.5)*15);
+            p.userData = { vel: new THREE.Vector3((Math.random()-0.5)*0.04, 0, (Math.random()-0.5)*0.04), esc: false };
+            scene.add(p);
+            pests.push(p);
         }
 
-        // --- TIKLAMA VE KOVMA MEKANİĞİ ---
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
-
-        function onPestClick(event) {
-            // Fare/Dokunma koordinatlarını normalize et
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-            // Kameradan ray fırlat
+        window.addEventListener('click', (e) => {
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
-
-            // Böceklerle çakışmayı kontrol et
-            const intersects = raycaster.intersectObjects(pests, true); // true: çocuk nesneleri de kontrol et
-
-            if (intersects.length > 0) {
-                // En yakın böceği al (çakışan ilk nesnenin ana grubu)
-                const pestGroup = intersects[0].object.parent; 
-                
-                if (!pestGroup.userData.isEscaping) {
-                    pestGroup.userData.isEscaping = true;
-                    // Kaçış hızı (gökyüzüne doğru)
-                    pestGroup.userData.originalVelocity = pestGroup.userData.velocity.clone();
-                    pestGroup.userData.velocity.set(0, 0.5, 0); 
-                    gData.pestsKilled++; // Kovulan böcek sayısını artır (isteğe bağlı)
-                    save();
-                }
+            const intersects = raycaster.intersectObjects(pests);
+            if(intersects.length > 0) {
+                intersects[0].object.userData.esc = true;
+                intersects[0].object.userData.vel.set(0, 0.3, 0);
             }
+        });
+
+        function plantSeed() {
+            if(gData.flowers.length >= 15) return;
+            const f = { x:(Math.random()-0.5)*16, z:(Math.random()-0.5)*16, color:colors[Math.floor(Math.random()*colors.length)], age:0.2, health:1.0 };
+            gData.flowers.push(f);
+            flowerMeshes.push(createFlowerMesh(f));
+            save();
         }
 
-        window.addEventListener('click', onPestClick);
-        // Mobilde dokunmayı desteklemek için:
-        // window.addEventListener('touchstart', (e) => onPestClick(e.touches[0])); 
+        function giveWater() { gData.flowers.forEach(f => f.health = Math.min(MAX_HEALTH, f.health + 0.25)); save(); }
+        function save() { localStorage.setItem('garden_v6_data', JSON.stringify(gData)); }
 
-        // --- KAYDETME ---
-        function save() { localStorage.setItem('garden_v5_data', JSON.stringify(gData)); }
-
-        // Başlangıç yüklemesi
         gData.flowers.forEach(f => flowerMeshes.push(createFlowerMesh(f)));
 
         // --- ANA DÖNGÜ ---
@@ -236,71 +204,42 @@
 
             document.getElementById('clock').textContent = now.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
             
-            const isDay = now.getHours() >= 6 && now.getHours() < 19;
-            scene.background = new THREE.Color(isDay ? 0x1a2a44 : 0x020205);
+            // Gündüz/Gece Renkleri
+            const hr = now.getHours();
+            const isDay = hr >= 6 && hr < 19;
+            const targetSky = isDay ? 0x87ceeb : 0x050510;
+            const targetFog = isDay ? 0xaaddee : 0x050510;
+            
+            sky.material.color.lerp(new THREE.Color(targetSky), 0.01);
+            scene.fog.color.lerp(new THREE.Color(targetFog), 0.01);
             stars.visible = !isDay;
             sun.intensity = isDay ? 1.2 : 0.1;
+            mountainMaterial.color.lerp(new THREE.Color(isDay ? 0x2c3e50 : 0x0a0a15), 0.01);
 
             let totalH = 0;
-            let allFull = true;
-
             flowerMeshes.forEach((fm, i) => {
-                const decayPerSecond = HOURLY_DECAY / 3600;
-                fm.data.health = Math.max(0.3, fm.data.health - (decayPerSecond * deltaTime));
-                if(fm.data.age < 1.0) fm.data.age += 0.00005 * deltaTime;
-
-                const currentScale = fm.data.age * fm.data.health;
-                fm.mesh.scale.set(currentScale, currentScale, currentScale);
-                fm.stem.scale.y = 1 + (fm.data.age * 0.5);
-                fm.head.position.y = fm.stem.scale.y * 0.8;
-                fm.mesh.rotation.x = Math.sin(nowTime * 0.001 + i) * 0.04;
-
+                fm.data.health = Math.max(0.3, fm.data.health - (HOURLY_DECAY/3600 * deltaTime));
+                if(fm.data.age < 1.0) fm.data.age += 0.0001 * deltaTime;
+                const s = fm.data.age * fm.data.health;
+                fm.mesh.scale.set(s, s, s);
+                fm.mesh.rotation.x = Math.sin(nowTime*0.001 + i) * 0.03;
                 totalH += (fm.data.health / MAX_HEALTH);
-                if(fm.data.health < MAX_HEALTH) allFull = false;
             });
 
-            // Böceklerin Hareketi ve Güncellenmesi
-            let escapingPests = 0;
-            pests.forEach((pest, i) => {
-                pest.position.add(pest.userData.velocity);
-
-                // Normal uçuşta sınırları kontrol et ve yön değiştir
-                if (!pest.userData.isEscaping) {
-                    if (Math.abs(pest.position.x) > 9 || Math.abs(pest.position.z) > 9 || pest.position.y < 0.5 || pest.position.y > 5) {
-                        pest.userData.velocity.negate(); // Yönü tersine çevir
-                    }
-                    // Hafif yalpalama efekti
-                    pest.rotation.y = Math.sin(nowTime * 0.002 + i) * 0.5;
-                } else {
-                    // Kaçış animasyonu
-                    pest.rotation.x += 0.1; // Kendi etrafında dön
-                    pest.rotation.y += 0.1;
-                    if (pest.position.y > 20) {
-                        // Çok yükseğe çıkınca sahneden ve listeden kaldır
-                        scene.remove(pest);
-                        pests.splice(i, 1);
-                    }
-                }
+            pests.forEach((p, i) => {
+                p.position.add(p.userData.vel);
+                if(p.userData.esc && p.position.y > 20) { scene.remove(p); pests.splice(i,1); }
+                else if(!p.userData.esc && p.position.length() > 15) p.userData.vel.negate();
             });
 
-            // Rastgele Böcek Çıkarma
-            if (flowerMeshes.length > 0 && Math.random() < PEST_SPAWN_CHANCE) {
-                createPest();
-            }
+            if(Math.random() < PEST_SPAWN_CHANCE) createPest();
 
-            // UI Güncelleme
-            const avgHP = flowerMeshes.length > 0 ? Math.round((totalH / flowerMeshes.length) * 100) : 0;
-            document.getElementById('hp').textContent = avgHP;
+            document.getElementById('hp').textContent = flowerMeshes.length > 0 ? Math.round((totalH/flowerMeshes.length)*100) : 0;
             document.getElementById('pests-count').textContent = pests.length;
 
             const wBtn = document.getElementById('wBtn');
-            if(flowerMeshes.length === 0) {
-                wBtn.disabled = true; wBtn.textContent = "Önce Tohum Ek 🌱";
-            } else if(allFull) {
-                wBtn.disabled = true; wBtn.textContent = "Çiçekler Doydu ✅";
-            } else {
-                wBtn.disabled = false; wBtn.textContent = "💧 CAN SUYU VER";
-            }
+            wBtn.disabled = (flowerMeshes.length === 0);
+            wBtn.textContent = (flowerMeshes.length === 0) ? "🌱 TOHUM EK" : "💧 SULA";
 
             controls.update();
             renderer.render(scene, camera);
