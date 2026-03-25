@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>3D Pro Bahçe v4.1</title>
+    <title>3D Botanik Bahçesi v5 - Zararlı Böcekler</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <style>
@@ -38,6 +38,11 @@
         #clock { font-size: 18px; letter-spacing: 2px; margin-bottom: 5px; color: #00d4ff; }
         .stat-text { font-size: 12px; color: #ccc; }
         b { color: #fff; }
+
+        /* Zararlı Böcek Sayacı */
+        .pesticide-stats {
+            margin-top: 10px; font-size: 12px; color: #ff6b6b;
+        }
     </style>
 </head>
 <body>
@@ -45,10 +50,11 @@
     <div class="ui-container">
         <div class="ui-panel">
             <div id="clock">00:00</div>
-            <div class="stat-text">Ortalama Bahçe Sağlığı: <b>%<span id="hp">0</span></b></div>
+            <div class="stat-text">Bahçe Sağlığı: <b>%<span id="hp">0</span></b></div>
+            <div class="pesticide-stats">Zararlı Böcek: <b><span id="pests-count">0</span></b> (Tıkla Kov)</div>
             <div class="controls">
-                <button id="wBtn" class="btn-water" onclick="giveWater()">💧 CAN SUYU VER</button>
-                <button class="btn-seed" onclick="plantSeed()">🌱 TOHUM EK</button>
+                <button id="wBtn" class="btn-water" onclick="giveWater()">💧 Sula</button>
+                <button class="btn-seed" onclick="plantSeed()">🌱 Tohum Ek</button>
             </div>
         </div>
     </div>
@@ -57,10 +63,11 @@
         // --- AYARLAR ---
         const MAX_HEALTH = 1.5; 
         const HOURLY_DECAY = 0.02; // Saatte %2 azalma
+        const PEST_SPAWN_CHANCE = 0.005; // Her saniye böcek çıkma şansı
         let lastFrameTime = Date.now();
-        let gData = { flowers: [], lastWater: Date.now() };
+        let gData = { flowers: [], lastWater: Date.now(), pestsKilled: 0 };
 
-        const saved = localStorage.getItem('garden_v4_final');
+        const saved = localStorage.getItem('garden_v5_data');
         if(saved) gData = JSON.parse(saved);
 
         // --- THREE.JS KURULUMU ---
@@ -139,10 +146,87 @@
             save();
         }
 
-        function save() { localStorage.setItem('garden_v4_final', JSON.stringify(gData)); }
+        // --- ZARARLI BÖCEK SİSTEMİ ---
+        const pests = [];
+        const pestMat = new THREE.MeshStandardMaterial({ color: 0xff3333, flatShading: true });
+        const pestEyeMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
 
+        function createPest() {
+            const group = new THREE.Group();
+            // Gövde
+            const body = new THREE.Mesh(new THREE.IcosahedronGeometry(0.2, 1), pestMat);
+            group.add(body);
+            // Gözler
+            const eyeGeo = new THREE.SphereGeometry(0.04, 4, 4);
+            const eye1 = new THREE.Mesh(eyeGeo, pestEyeMat);
+            eye1.position.set(0.12, 0.1, 0.12);
+            group.add(eye1);
+            const eye2 = new THREE.Mesh(eyeGeo, pestEyeMat);
+            eye2.position.set(-0.12, 0.1, 0.12);
+            group.add(eye2);
+
+            // Başlangıç konumu (havada)
+            group.position.set(
+                (Math.random() - 0.5) * 18,
+                Math.random() * 3 + 1,
+                (Math.random() - 0.5) * 18
+            );
+            // Rastgele uçuş yönü ve hızı
+            group.userData = {
+                velocity: new THREE.Vector3(
+                    (Math.random() - 0.5) * 0.05,
+                    (Math.random() - 0.5) * 0.02,
+                    (Math.random() - 0.5) * 0.05
+                ),
+                isEscaping: false, // Tıklandı mı?
+                originalVelocity: null
+            };
+
+            scene.add(group);
+            pests.push(group);
+        }
+
+        // --- TIKLAMA VE KOVMA MEKANİĞİ ---
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        function onPestClick(event) {
+            // Fare/Dokunma koordinatlarını normalize et
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            // Kameradan ray fırlat
+            raycaster.setFromCamera(mouse, camera);
+
+            // Böceklerle çakışmayı kontrol et
+            const intersects = raycaster.intersectObjects(pests, true); // true: çocuk nesneleri de kontrol et
+
+            if (intersects.length > 0) {
+                // En yakın böceği al (çakışan ilk nesnenin ana grubu)
+                const pestGroup = intersects[0].object.parent; 
+                
+                if (!pestGroup.userData.isEscaping) {
+                    pestGroup.userData.isEscaping = true;
+                    // Kaçış hızı (gökyüzüne doğru)
+                    pestGroup.userData.originalVelocity = pestGroup.userData.velocity.clone();
+                    pestGroup.userData.velocity.set(0, 0.5, 0); 
+                    gData.pestsKilled++; // Kovulan böcek sayısını artır (isteğe bağlı)
+                    save();
+                }
+            }
+        }
+
+        window.addEventListener('click', onPestClick);
+        // Mobilde dokunmayı desteklemek için:
+        // window.addEventListener('touchstart', (e) => onPestClick(e.touches[0])); 
+
+        // --- KAYDETME ---
+        function save() { localStorage.setItem('garden_v5_data', JSON.stringify(gData)); }
+
+        // Başlangıç yüklemesi
         gData.flowers.forEach(f => flowerMeshes.push(createFlowerMesh(f)));
 
+        // --- ANA DÖNGÜ ---
         function animate() {
             requestAnimationFrame(animate);
             const now = new Date();
@@ -175,8 +259,39 @@
                 if(fm.data.health < MAX_HEALTH) allFull = false;
             });
 
+            // Böceklerin Hareketi ve Güncellenmesi
+            let escapingPests = 0;
+            pests.forEach((pest, i) => {
+                pest.position.add(pest.userData.velocity);
+
+                // Normal uçuşta sınırları kontrol et ve yön değiştir
+                if (!pest.userData.isEscaping) {
+                    if (Math.abs(pest.position.x) > 9 || Math.abs(pest.position.z) > 9 || pest.position.y < 0.5 || pest.position.y > 5) {
+                        pest.userData.velocity.negate(); // Yönü tersine çevir
+                    }
+                    // Hafif yalpalama efekti
+                    pest.rotation.y = Math.sin(nowTime * 0.002 + i) * 0.5;
+                } else {
+                    // Kaçış animasyonu
+                    pest.rotation.x += 0.1; // Kendi etrafında dön
+                    pest.rotation.y += 0.1;
+                    if (pest.position.y > 20) {
+                        // Çok yükseğe çıkınca sahneden ve listeden kaldır
+                        scene.remove(pest);
+                        pests.splice(i, 1);
+                    }
+                }
+            });
+
+            // Rastgele Böcek Çıkarma
+            if (flowerMeshes.length > 0 && Math.random() < PEST_SPAWN_CHANCE) {
+                createPest();
+            }
+
+            // UI Güncelleme
             const avgHP = flowerMeshes.length > 0 ? Math.round((totalH / flowerMeshes.length) * 100) : 0;
             document.getElementById('hp').textContent = avgHP;
+            document.getElementById('pests-count').textContent = pests.length;
 
             const wBtn = document.getElementById('wBtn');
             if(flowerMeshes.length === 0) {
