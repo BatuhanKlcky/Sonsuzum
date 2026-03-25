@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Erkut Dincel | Pro Garden v12.1 Fix</title>
+    <title>Pro Garden v12.2 Fix</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <style>
         * { padding: 0; margin: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { margin: 0; overflow: hidden; background: #020205; cursor: crosshair; }
+        body { margin: 0; overflow: hidden; background: #020205; cursor: crosshair; touch-action: none; }
         .ui-container { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 10px; width: 340px; z-index: 1000; }
         .ui-panel { background: rgba(10, 15, 25, 0.98); backdrop-filter: blur(20px); padding: 20px; border-radius: 25px; color: white; text-align: center; border: 1px solid rgba(0, 212, 255, 0.15); box-shadow: 0 15px 60px rgba(0,0,0,1); }
         .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
@@ -68,13 +68,12 @@
         const flowers = [];
         const pests = [];
 
-        function createFlower(x, z, savedData = null) {
+        function createFlower(x, z) {
             const group = new THREE.Group();
-            const color = savedData ? savedData.color : [0xff4d6d, 0xffd166, 0x06d6a0, 0x118ab2][Math.floor(Math.random()*4)];
+            const color = [0xff4d6d, 0xffd166, 0x06d6a0, 0x118ab2][Math.floor(Math.random()*4)];
             const stemMat = new THREE.MeshStandardMaterial({color: 0x2d6a4f});
             const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.08, 1, 8), stemMat);
-            stem.position.y = 0.5;
-            group.add(stem);
+            stem.position.y = 0.5; group.add(stem);
             const petalsGroup = new THREE.Group();
             const petalMat = new THREE.MeshStandardMaterial({color: color});
             const pGeo = new THREE.SphereGeometry(0.25, 8, 4);
@@ -84,18 +83,25 @@
                 p.position.y = 1; p.rotation.y = (i * Math.PI * 2) / 6; p.rotation.x = Math.PI / 2;
                 petalsGroup.add(p);
             }
-            petalsGroup.scale.set(0.001, 0.001, 0.001);
-            group.add(petalsGroup);
+            petalsGroup.scale.set(0.001, 0.001, 0.001); group.add(petalsGroup);
             group.position.set(x, 0, z);
-            const flowerObj = { mesh: group, petals: petalsGroup, stemMat, petalMat, originalColor: color, currentHeight: savedData?.height || 0.1, bloomProgress: savedData?.bloom || 0, water: savedData?.water || 1.1, isWithered: false };
+            const flowerObj = { mesh: group, petals: petalsGroup, stemMat, petalMat, originalColor: color, currentHeight: 0.1, bloomProgress: 0, water: 1.1, isWithered: false };
             scene.add(group); flowers.push(flowerObj);
             document.getElementById('fCount').innerText = flowers.length;
-            return flowerObj;
         }
 
         function createDetailedPest(x, z) {
             const group = new THREE.Group();
             const pestMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            
+            // Hitbox (Görünmez Tıklama Kutusu) - Tıklamayı kolaylaştırır
+            const hitbox = new THREE.Mesh(
+                new THREE.BoxGeometry(0.8, 0.8, 1.2),
+                new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 })
+            );
+            hitbox.name = "pest_hitbox";
+            group.add(hitbox);
+
             const body = new THREE.Mesh(new THREE.SphereGeometry(0.25, 6, 4), pestMat);
             body.scale.set(1.2, 0.8, 1.4); body.position.y = 0.15; group.add(body);
             const head = new THREE.Mesh(new THREE.SphereGeometry(0.15, 6, 4), pestMat);
@@ -111,27 +117,34 @@
         function plantSeed() { if(flowers.length < 35) createFlower((Math.random()-0.5)*26, (Math.random()-0.5)*26); }
         function giveWater() { flowers.forEach(f => f.water = Math.min(1.5, f.water + 0.3)); }
 
-        // --- TIKLAMA DÜZELTME ---
+        // --- TIKLAMA DÜZELTME (PointerDown) ---
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
-        window.addEventListener('mousedown', (e) => {
+        window.addEventListener('pointerdown', (e) => {
             mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
             
+            // Sahnedeki tüm pest gruplarını topla
             const hitList = pests.map(p => p.mesh);
             const intersects = raycaster.intersectObjects(hitList, true);
 
             if(intersects.length > 0) {
-                let targetGroup = intersects[0].object;
-                while(targetGroup.parent && targetGroup.parent !== scene) targetGroup = targetGroup.parent;
-                const idx = pests.findIndex(p => p.mesh === targetGroup);
-                if(idx > -1) { scene.remove(targetGroup); pests.splice(idx, 1); }
+                let target = intersects[0].object;
+                // En üstteki Group'u (böceğin kendisini) bulana kadar yukarı çık
+                while(target.parent && target.parent !== scene) {
+                    target = target.parent;
+                }
+                const idx = pests.findIndex(p => p.mesh === target);
+                if(idx > -1) {
+                    scene.remove(target);
+                    pests.splice(idx, 1);
+                }
             }
         });
 
-        // --- KELEBEK DÜZELTME ---
+        // --- KELEBEKLER ---
         const bData = [];
         for(let i=0; i<6; i++) {
             const el = document.createElement('div'); el.className = 'b-wrap';
@@ -153,8 +166,8 @@
             pests.forEach(p => {
                 if(p.target) {
                     const dir = p.target.mesh.position.clone().sub(p.mesh.position);
-                    if(dir.length() > 0.4) { p.mesh.lookAt(p.target.mesh.position); p.mesh.rotation.y += Math.PI; p.mesh.position.add(dir.normalize().multiplyScalar(0.02)); }
-                    else { p.target.water -= waterDropPerFrame * 20; }
+                    if(dir.length() > 0.4) { p.mesh.lookAt(p.target.mesh.position); p.mesh.rotation.y += Math.PI; p.mesh.position.add(dir.normalize().multiplyScalar(0.025)); }
+                    else { p.target.water -= waterDropPerFrame * 25; }
                 }
             });
 
@@ -171,7 +184,7 @@
             });
 
             bData.forEach((b, i) => {
-                b.pos.x += Math.sin(time + b.s) * 0.08; b.pos.z += Math.cos(time + b.s) * 0.08;
+                b.pos.x += Math.sin(time + b.s) * 0.1; b.pos.z += Math.cos(time + b.s) * 0.1;
                 b.pos.y = 4 + Math.sin(time * 1.5 + i) * 2;
                 const p = b.pos.clone().project(camera);
                 const x = (p.x + 1) * window.innerWidth / 2; const y = (-p.y + 1) * window.innerHeight / 2;
