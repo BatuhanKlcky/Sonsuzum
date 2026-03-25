@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Erkut Dincel | Persistence Garden</title>
+    <title>Erkut Dincel | Pro Garden v12.0 with Realistic Pests</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <style>
@@ -37,7 +37,7 @@
     <div class="ui-container">
         <div class="ui-panel">
             <div id="clock">00:00</div>
-            <div class="stats">NEM: <b>%<span id="hp">0</span></b> | BİTKİ: <b><span id="fCount">0</span></b></div>
+            <div class="stats">NEM: <b>%<span id="hp">0</span></b> | BİTKİ: <b><span id="fCount">0</span></b> | ZARARLI: <b><span id="pCount">0</span></b></div>
             <div class="controls">
                 <button class="btn-water" onclick="giveWater()">💧 NEMLENDİR</button>
                 <button class="btn-seed" onclick="plantSeed()">🌱 TOHUM AT</button>
@@ -52,6 +52,7 @@
         camera.position.set(22, 18, 22);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
         document.body.appendChild(renderer.domElement);
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
@@ -109,24 +110,70 @@
             return flowerObj;
         }
 
+        // --- ZARARLI BÖCEK SİSTEMİ (Realistic Pest Model) ---
+        const pests = [];
+        const pestMat = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Kırmızı, tehlikeli renk
+
+        function createDetailedPest(x, z) {
+            const group = new THREE.Group();
+
+            // Gövde (Body) - Low Poly, köşeli
+            const body = new THREE.Mesh(new THREE.SphereGeometry(0.25, 6, 4), pestMat);
+            body.scale.set(1.2, 0.8, 1.4);
+            body.position.y = 0.15;
+            group.add(body);
+
+            // Baş (Head)
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.15, 6, 4), pestMat);
+            head.position.set(0, 0.2, 0.5);
+            group.add(head);
+
+            // Antenler (Antennae)
+            const antennaeGeo = new THREE.CylinderGeometry(0.01, 0.01, 0.3, 4);
+            const antennaL = new THREE.Mesh(antennaeGeo, pestMat);
+            antennaL.position.set(0.05, 0.35, 0.6);
+            antennaL.rotation.x = -Math.PI / 4;
+            antennaL.rotation.y = -Math.PI / 8;
+            group.add(antennaL);
+            const antennaR = antennaL.clone();
+            antennaR.position.x = -0.05;
+            antennaR.rotation.y = Math.PI / 8;
+            group.add(antennaR);
+
+            // Bacaklar (6 adet)
+            const legGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.4, 4);
+            const legOrigins = [[0.15, 0, 0.2], [-0.15, 0, 0.2], [0.15, 0, -0.2], [-0.15, 0, -0.2], [0.15, 0, -0.6], [-0.15, 0, -0.6]];
+            legOrigins.forEach(origin => {
+                const leg = new THREE.Mesh(legGeo, pestMat);
+                leg.position.set(origin[0], 0.1, origin[2]);
+                leg.rotation.z = Math.PI / 2.5 * (origin[0] > 0 ? 1 : -1);
+                group.add(leg);
+            });
+
+            group.position.set(x, 0, z);
+            group.scale.set(0.8, 0.8, 0.8);
+            scene.add(group);
+            return group;
+        }
+
         // --- KAYIT SİSTEMİ (SAVE/LOAD) ---
         function saveGarden() {
-            const data = flowers.map(f => ({
-                x: f.mesh.position.x,
-                z: f.mesh.position.z,
-                height: f.currentHeight,
-                bloom: f.bloomProgress,
-                water: f.water,
-                color: f.originalColor
+            const plantData = flowers.map(f => ({
+                x: f.mesh.position.x, z: f.mesh.position.z,
+                height: f.currentHeight, bloom: f.bloomProgress, water: f.water, color: f.originalColor
             }));
-            localStorage.setItem('erkut_garden_save', JSON.stringify({
+            const pestData = pests.map(p => ({
+                x: p.mesh.position.x, z: p.mesh.position.z
+            }));
+            localStorage.setItem('erkut_garden_sim', JSON.stringify({
                 time: Date.now(),
-                plants: data
+                plants: plantData,
+                pests: pestData
             }));
         }
 
         function loadGarden() {
-            const saved = localStorage.getItem('erkut_garden_save');
+            const saved = localStorage.getItem('erkut_garden_sim');
             if(!saved) return;
             const parsed = JSON.parse(saved);
             const timeDiff = (Date.now() - parsed.time) / 1000; // Saniye cinsinden geçen süre
@@ -136,11 +183,15 @@
                 const currentWater = Math.max(0, p.water - (timeDiff * (0.05 / 3600)));
                 createFlower(p.x, p.z, { ...p, water: currentWater });
             });
+            parsed.pests.forEach(p => {
+                const pestGroup = createDetailedPest(p.x, p.z);
+                pests.push({ mesh: pestGroup, target: null });
+            });
         }
 
         function resetGarden() {
             if(confirm("Tüm bahçeyi sıfırlamak istediğine emin misin?")) {
-                localStorage.removeItem('erkut_garden_save');
+                localStorage.removeItem('erkut_garden_sim');
                 location.reload();
             }
         }
@@ -156,12 +207,84 @@
             saveGarden();
         }
 
+        function spawnPest() {
+            if (flowers.length === 0 || pests.length >= 7) return;
+            const pestGroup = createDetailedPest((Math.random()-0.5)*30, (Math.random()-0.5)*30);
+            pests.push({ mesh: pestGroup, target: flowers[Math.floor(Math.random()*flowers.length)] });
+            saveGarden();
+        }
+        setInterval(spawnPest, 15000); // 15 Saniyede bir
+
+        // --- TIKLAMA VE BÖCEK TEMİZLEME ---
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        window.addEventListener('mousedown', (e) => {
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            
+            // Tüm pest gruplarını çakışma için kontrol et
+            const pestsToHit = pests.map(p => p.mesh);
+            const hits = raycaster.intersectObjects(pestsToHit, true); // recursive hit test
+
+            if(hits.length > 0) {
+                // Hangi pest grubuna ait olduğuna bak
+                let hitObj = hits[0].object;
+                while(hitObj.parent && hitObj.parent.type === 'Group') { hitObj = hitObj.parent; }
+
+                const idx = pests.findIndex(p => p.mesh === hitObj);
+                if(idx > -1) {
+                    scene.remove(hitObj);
+                    pests.splice(idx, 1);
+                    saveGarden();
+                }
+            }
+        });
+
+        const bData = [];
+        for(let i=0; i<6; i++) {
+            const div = document.createElement('div');
+            div.className = 'b-wrap';
+            div.innerHTML = `<div class="butterfly"><svg class="wing l"><use xlink:href="#w-shape"></use></svg><svg class="wing r"><use xlink:href="#w-shape"></use></svg></div>`;
+            document.getElementById('butterfly-layer').appendChild(div);
+            bData.push({ el: div, pos: new THREE.Vector3((Math.random()-0.5)*20, 6, (Math.random()-0.5)*20), s: Math.random()*100 });
+        }
+
         // --- ANA DÖNGÜ ---
         let lastSave = 0;
         function animate() {
             requestAnimationFrame(animate);
             const time = Date.now() * 0.001;
             document.getElementById('clock').innerText = new Date().toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
+            document.getElementById('pCount').innerText = pests.length;
+
+            // Böcek Hareketleri ve Saldırısı
+            pests.forEach(p => {
+                if(!p.target || !flowers.includes(p.target)) {
+                    p.target = flowers[Math.floor(Math.random()*flowers.length)];
+                }
+
+                if(p.target) {
+                    const dir = p.target.mesh.position.clone().sub(p.mesh.position);
+                    const dist = dir.length();
+                    if(dist > 0.4) {
+                        // Bitkiye yönel
+                        p.mesh.lookAt(p.target.mesh.position);
+                        p.mesh.rotation.y += Math.PI; // Yüzü bitkiye dönük olsun
+                        p.mesh.position.add(dir.normalize().multiplyScalar(0.015));
+                        
+                        // Yürüme animasyonu (Bacakların sallanması)
+                        const legs = p.mesh.children.filter(c => c.type === 'Mesh' && c.geometry.type === 'CylinderGeometry' && c.geometry.parameters.radiusTop === 0.02);
+                        legs.forEach((leg, i) => {
+                            leg.rotation.z = Math.PI / 2.5 * (leg.position.x > 0 ? 1 : -1) + Math.sin(time * 10 + i * 2) * 0.1;
+                        });
+
+                    } else {
+                        p.target.water -= waterDropPerFrame * 18; // Böcek sömürüsü (Daha hızlı)
+                    }
+                }
+            });
 
             flowers.forEach(f => {
                 f.water = Math.max(0, f.water - waterDropPerFrame);
@@ -177,8 +300,10 @@
                     f.mesh.rotation.z = 0;
                 }
 
+                // 48 Saatlik Büyüme (Su %100 üzerindeyse ve bitki solmamışsa)
                 if(f.water > 1.0 && f.currentHeight < 1.3 && !f.isWithered) f.currentHeight += growthPerFrame;
 
+                // Çiçek Açma (Boyut 0.7'yi geçince)
                 if(f.currentHeight > 0.7 && !f.isWithered) {
                     f.bloomProgress = Math.min(1.0, f.bloomProgress + 0.005);
                     f.petals.scale.set(f.bloomProgress, f.bloomProgress, f.bloomProgress);
@@ -197,7 +322,7 @@
         }
 
         // Başlangıçta yükle
-        loadGarden();
+        window.addEventListener('load', loadGarden);
         animate();
     </script>
 </body>
