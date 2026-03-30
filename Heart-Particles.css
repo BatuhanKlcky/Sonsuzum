@@ -1,0 +1,43 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+
+html{
+  position: relative;
+  height: 100%;
+}
+
+body{
+  position: relative;
+  background-color: black;
+  height: 100%;
+}
+
+.start-btn{
+  position: absolute;
+  padding: 0.7rem 2.5rem;
+  border-radius: 5px;
+  border: 1px solid white;
+  color: white;
+  font-size: 1.2rem;
+  background-color: transparent;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  transition: 0.5s;
+}
+.start-btn:hover{
+  color: red;
+}
+
+#c {
+  display: none;
+  position: absolute;
+  left: 18%;
+  top: 50px;
+  width: 1000px;
+  height: 600px;
+  -webkit-transform: translateZ(0)
+}
