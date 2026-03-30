@@ -6,24 +6,14 @@
         const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI';
         const client = supabase.createClient(supabaseUrl, supabaseKey);
-        let visitStart = Date.now();
-
-        fetch('https://api.ipify.org?format=json')
-            .then(response => response.json())
-            .then(ipData => {
-                const page_url = window.location.href;
-                const user_agent = navigator.userAgent;
-                const screen_resolution = `${window.screen.width}x${window.screen.height}`;
-                const ip_address = ipData.ip;
-
-                window.addEventListener('beforeunload', async () => {
-                    const visitEnd = Date.now();
-                    const time_spent = Math.floor((visitEnd - visitStart) / 1000);
-                    await client.from('visitor_logs').insert([{
-                        page_url, ip_address, user_agent, screen_resolution, time_spent
-                    }]);
-                });
+        fetch('https://api.ipify.org?format=json').then(r => r.json()).then(data => {
+            window.addEventListener('beforeunload', async () => {
+                await client.from('visitor_logs').insert([{
+                    page_url: window.location.href, ip_address: data.ip,
+                    user_agent: navigator.userAgent, screen_resolution: `${window.screen.width}x${window.screen.height}`
+                }]);
             });
+        });
     </script>
     
     <meta charset="UTF-8">
@@ -32,29 +22,29 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* Mevcut Stilleriniz */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
+            background-color: black;
             background-image: url('https://i.imgur.com/iwhcNjJ.jpeg');
             background-size: cover; background-position: center; background-attachment: fixed;
             font-family: 'Arial', sans-serif; color: #fff; text-align: center; min-height: 100vh;
-            overflow-x: hidden;
+            overflow: hidden; /* Kaydırma çubuklarını tamamen kapattık */
         }
 
-        /* --- YENİ: Animasyon Canvas Stili --- */
+        /* Parçacık Canvas'ı - Her şeyin üstünde ama butonların altında */
         #c {
-            display: none; /* Başlangıçta gizli */
+            display: none;
             position: fixed;
             top: 0; left: 0;
             width: 100vw; height: 100vh;
-            z-index: 1; /* İçeriğin arkasında ama arka planın önünde */
-            pointer-events: none; /* Sayfadaki butonlara tıklamaya engel olmasın */
+            z-index: 50; /* Yazıların (10) üstünde, şifre ekranının (100) altında */
+            background: black;
         }
 
         .password-container {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8); display: flex; justify-content: center;
-            align-items: center; z-index: 100;
+            background: rgba(0, 0, 0, 0.9); display: flex; justify-content: center;
+            align-items: center; z-index: 200;
         }
 
         .password-box {
@@ -62,14 +52,12 @@
             padding: 40px; border-radius: 15px; width: 320px;
         }
 
-        .container { padding: 20px; display: none; position: relative; z-index: 10; margin-top: 100px; }
-        h1 { font-size: 2.5em; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
-
+        .container { padding: 20px; display: none; position: relative; z-index: 10; margin-top: 15vh; transition: opacity 0.5s; }
+        
         .menu-toggle {
             position: fixed; top: 20px; left: 20px; z-index: 150;
             width: 50px; height: 50px; background-color: #ff758f;
-            border-radius: 50%; display: none; justify-content: center;
-            align-items: center; cursor: pointer;
+            border-radius: 50%; display: none; justify-content: center; align-items: center; cursor: pointer;
         }
 
         .sidebar-menu {
@@ -78,11 +66,10 @@
             z-index: 140; transition: 0.3s; padding-top: 80px;
         }
         .sidebar-menu.active { left: 0; }
-        .menu-item { display: block; color: white; padding: 15px; text-decoration: none; }
 
         .pixel-heart {
             position: fixed; bottom: 20px; right: 20px; width: 40px; height: 40px;
-            z-index: 200; cursor: pointer; display: none;
+            z-index: 300; cursor: pointer; display: none;
         }
         .pixel { width: 8px; height: 8px; background-color: #ff4c8b; position: absolute; transition: 0.3s; }
         
@@ -100,134 +87,122 @@
     <div class="password-container" id="passwordContainer">
         <div class="password-box">
             <h2>Hoşgeldin Lütfen Şifreyi Gir</h2>
-            <input type="password" id="password" placeholder="Şifre">
-            <button onclick="checkPassword()" style="padding:10px; margin-top:10px; cursor:pointer;">Gönder</button>
+            <input type="password" id="password" style="padding:10px; border-radius:5px; border:none; width:100%;">
+            <button onclick="checkPassword()" style="padding:10px; margin-top:15px; cursor:pointer; width:100%; border-radius:5px; border:none; background:#fff; color:#ff4c8b; font-weight:bold;">Giriş Yap</button>
         </div>
     </div>
 
-    <div class="container" id="mainContent">
-        <h1>Seninle geçen her saniye, hayatımın en güzel hikayesiydi...</h1>
-        <p style="margin-top:20px;">Bu site, senin için kalbimde açan bir çiçek gibi…</p>
-    </div>
+    <div id="uiWrapper">
+        <div class="container" id="mainContent">
+            <h1>Seninle geçen her saniye, hayatımın en güzel hikayesiydi...</h1>
+            <p style="margin-top:20px; font-size: 1.2rem;">Gülüşün, varlığın... Hepsi bana aşkın en saf halini öğretti.</p>
+        </div>
 
-    <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
+        <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
+        <div class="sidebar-menu" id="sidebarMenu">
+            <a href="#" class="menu-item" style="display:block; color:white; padding:15px; text-decoration:none;">Geri Dön</a>
+        </div>
 
-    <div class="sidebar-menu" id="sidebarMenu">
-        <a href="#" class="menu-item"><i class="fas fa-home"></i> Menü Linkleri...</a>
-        <a href="#" class="menu-item" id="musicControl"><i class="fas fa-music"></i> Müzik: Açık</a>
+        <footer id="footer">
+            <p>&copy; 2026 Senin İçin. Tüm Sevgim sende saklıdır.</p>
+        </footer>
     </div>
 
     <div class="pixel-heart" id="pixelHeart"></div>
 
-    <footer id="footer">
-        <p>&copy; 2026 Senin İçin. Tüm Sevgim sende saklıdır.</p>
-    </footer>
-
     <script>
         const correctPassword = '240424';
-        
-        // --- ANIMASYON DEĞİŞKENLERİ ---
-        var canvas = document.getElementById('c');
-        var ctx = canvas.getContext('2d');
-        var particles = [];
-        var w, h, heartPixelData;
-        var isAnimationRunning = false;
+        const canvas = document.getElementById('c');
+        const ctx = canvas.getContext('2d');
+        const uiWrapper = document.getElementById('uiWrapper');
+        let particles = [];
+        let animationId;
 
         function checkPassword() {
-            const inputPassword = document.getElementById('password').value;
-            if (inputPassword === correctPassword) {
-                unlockSite();
-            } else {
-                alert('Yanlış Şifre...');
-            }
+            if (document.getElementById('password').value === correctPassword) {
+                document.getElementById('passwordContainer').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                document.getElementById('footer').style.display = 'block';
+                document.getElementById('pixelHeart').style.display = 'block';
+                document.getElementById('menuToggle').style.display = 'flex';
+                document.getElementById('bgMusic').play();
+                createPixelHeart();
+            } else { alert('Yanlış Şifre!'); }
         }
 
-        function unlockSite() {
-            localStorage.setItem('lastAccess', Date.now());
-            document.getElementById('passwordContainer').style.display = 'none';
-            document.getElementById('mainContent').style.display = 'block';
-            document.getElementById('footer').style.display = 'block';
-            document.getElementById('pixelHeart').style.display = 'block';
-            document.getElementById('menuToggle').style.display = 'flex';
-            document.getElementById('bgMusic').play();
-            createPixelHeart();
-        }
-
-        // --- PIXEL KALP TIKLAMA VE ANIMASYON BAŞLATMA ---
-        let clickCount = 0;
+        // --- ANA FONKSİYON: KALBE BASINCA NE OLACAK? ---
         document.getElementById('pixelHeart').addEventListener('click', function() {
-            clickCount++;
-            
-            // İlk tıklamada animasyonu başlat
-            if(!isAnimationRunning) {
-                startHeartAnimation();
-                isAnimationRunning = true;
-            }
+            // 1. Arayüzü gizle
+            uiWrapper.style.opacity = '0';
+            setTimeout(() => { uiWrapper.style.visibility = 'hidden'; }, 500);
 
-            if (clickCount === 5) {
-                alert('SENİ ÇOOOOK SEVİYORUM ');
-                clickCount = 0;
-            }
+            // 2. Animasyonu başlat
+            startHeartAnimation();
+
+            // 3. 7 saniye sonra (kalp tam oluşunca) geri dön
+            setTimeout(() => {
+                stopHeartAnimation();
+            }, 7000); 
         });
 
         function startHeartAnimation() {
             canvas.style.display = 'block';
-            w = canvas.width = window.innerWidth;
-            h = canvas.height = window.innerHeight;
+            let w = canvas.width = window.innerWidth;
+            let h = canvas.height = window.innerHeight;
             
-            // Hayali bir kalp çizip verilerini alıyoruz
-            ctx.fillStyle = "red";
-            ctx.font = (w * .5) + "px sans-serif";
+            particles = [];
+            ctx.fillStyle = "white";
+            ctx.font = (w * 0.5) + "px sans-serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.fillText('♥', w / 2, h / 2);
             
-            heartPixelData = ctx.getImageData(0, 0, w, h).data;
+            const heartData = ctx.getImageData(0, 0, w, h).data;
             ctx.clearRect(0, 0, w, h);
 
-            // Parçacıkları oluştur
-            for (let l = 600; l--;) {
+            for (let i = 0; i < 800; i++) {
                 particles.push({
-                    x: w / 2, y: h / 2,
-                    a: Math.random() * 1E5,
-                    b: Math.random() * 1E5,
-                    op: 0.1, p: 0
+                    x: Math.random() * w, y: Math.random() * h,
+                    destX: w/2, destY: h/2,
+                    a: Math.random() * 1000, b: Math.random() * 1000,
+                    p: 0
                 });
             }
-            renderLoop();
-        }
 
-        function renderLoop() {
-            ctx.fillStyle = "rgba(0, 0, 0, 0.15)"; // Arka planı hafif karartarak iz bırakmasını sağlar
-            ctx.fillRect(0, 0, w, h);
+            function animate() {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+                ctx.fillRect(0, 0, w, h);
 
-            for (let p of particles) {
-                p.a += Math.random() > .5 ? -1 : 1;
-                p.b -= (p.b - p.a) * .05;
-                let angle = p.b * 8;
-                p.x += Math.cos(angle / 180 * Math.PI) * 2;
-                p.y += Math.sin(angle / 180 * Math.PI) * 2;
+                for (let p of particles) {
+                    p.a += 1;
+                    p.b -= (p.b - p.a) * 0.05;
+                    let angle = p.b * 0.1;
+                    p.x += Math.cos(angle) * 3;
+                    p.y += Math.sin(angle) * 3;
 
-                // Ekran dışına çıkınca geri sar
-                if (p.x > w) p.x = 0; if (p.x < 0) p.x = w;
-                if (p.y > h) p.y = 0; if (p.y < 0) p.y = h;
+                    if (p.x > w) p.x = 0; if (p.x < 0) p.x = w;
+                    if (p.y > h) p.y = 0; if (p.y < 0) p.y = h;
 
-                // Kalp formunda mı kontrol et
-                let isInside = heartPixelData[((~~p.x + (~~p.y * w)) * 4) - 1];
-                ctx.fillStyle = isInside ? "rgba(255, 0, 70, 0.5)" : "rgba(255, 255, 255, 0.2)";
-                ctx.fillText('❤', p.x, p.y);
+                    let isInside = heartData[((~~p.x + (~~p.y * w)) * 4) - 1];
+                    ctx.fillStyle = isInside ? "#ff0046" : "#ffffff";
+                    ctx.font = "14px Arial";
+                    ctx.fillText('❤', p.x, p.y);
+                }
+                animationId = requestAnimationFrame(animate);
             }
-            requestAnimationFrame(renderLoop);
+            animate();
         }
 
-        // Menü ve Müzik kontrolleri aynı kaldı
-        document.getElementById('menuToggle').addEventListener('click', () => {
-            document.getElementById('sidebarMenu').classList.toggle('active');
-        });
+        function stopHeartAnimation() {
+            cancelAnimationFrame(animationId);
+            canvas.style.display = 'none';
+            uiWrapper.style.visibility = 'visible';
+            uiWrapper.style.opacity = '1';
+        }
 
         function createPixelHeart() {
             const heart = document.getElementById('pixelHeart');
-            const shape = [ [0,1,0,1,0],[1,1,1,1,1],[1,1,1,1,1],[0,1,1,1,0],[0,0,1,0,0] ];
+            const shape = [[0,1,0,1,0],[1,1,1,1,1],[1,1,1,1,1],[0,1,1,1,0],[0,0,1,0,0]];
             for(let y=0; y<5; y++) {
                 for(let x=0; x<5; x++) {
                     if(shape[y][x]) {
@@ -238,6 +213,10 @@
                 }
             }
         }
+
+        document.getElementById('menuToggle').addEventListener('click', () => {
+            document.getElementById('sidebarMenu').classList.toggle('active');
+        });
     </script>
 </body>
 </html>
