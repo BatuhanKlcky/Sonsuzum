@@ -35,9 +35,18 @@ body{
 #c {
   display: none;
   position: absolute;
-  left: 18%;
+  /* Sabit %18 yerine, ekranın durumuna göre konumlandırıyoruz */
+  left: 50%;
   top: 50px;
-  width: 1000px;
-  height: 600px;
-  -webkit-transform: translateZ(0)
+  transform: translateX(-50%); /* Ortalamayı bozmadan sadece yatayda merkezler */
+  
+  /* Sabit 1000px yerine maksimum 1000px, ama mobilde ekran kadar ol dedik */
+  width: 95%;
+  max-width: 1000px;
+  
+  /* Yüksekliği orantılı küçültür, efektlerin basıklaşmasını engeller */
+  height: auto; 
+  aspect-ratio: 1000 / 600; 
+
+  -webkit-transform: translateX(-50%) translateZ(0);
 }
