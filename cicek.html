@@ -194,8 +194,9 @@
 const SAVE_KEY        = "garden_organic_v12";
 const DRY_RATE        = 0.00001389;
 const GROWTH_RATE     = 0.000012;
-const BAD_SPAWN_RATE  = 0.0004;
-const BAD_DRAIN_RATE  = 0.00012;
+const BAD_SPAWN_RATE       = 0.0022;   // açıkken — eskinin 5.5 katı
+const BAD_SPAWN_RATE_OFFLINE = 0.006;  // kapalıyken — daha agresif
+const BAD_DRAIN_RATE       = 0.00018; // biraz daha sömürücü
 const SAVE_INTERVAL   = 15000; // ms — periyodik kayıt
 
 const flowers      = [];
@@ -372,24 +373,47 @@ const groundLight = new THREE.PointLight(0x002211, 0.6, 30);
 groundLight.position.set(0, 2, 0);
 scene.add(groundLight);
 
-// ─── ZEMIN ──────────────────────────────────────────────────────────────────
-// Zemin — koyu toprak doku (shader ile)
-const groundGeo = new THREE.CircleGeometry(18, 80);
+// ─── ZEMIN SİSTEMİ ──────────────────────────────────────────────────────────
+
+// Ana toprak — zengin shader, organik toprak dokusu
+const groundGeo = new THREE.CircleGeometry(18, 96);
 const groundMat = new THREE.ShaderMaterial({
     uniforms: { uTime: { value: 0 } },
-    vertexShader: `varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+    vertexShader: `
+        varying vec2 vUv;
+        varying vec3 vPos;
+        void main(){ vUv=uv; vPos=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }
+    `,
     fragmentShader: `
         varying vec2 vUv;
+        varying vec3 vPos;
         float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
         float noise(vec2 p){ vec2 i=floor(p),f=fract(p),u=f*f*(3.0-2.0*f); return mix(mix(hash(i),hash(i+vec2(1,0)),u.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x),u.y); }
+        float fbm(vec2 p){ return noise(p)*0.5+noise(p*2.1)*0.25+noise(p*4.3)*0.15+noise(p*8.7)*0.1; }
         void main(){
-            vec2 uv = vUv * 12.0;
-            float n = noise(uv)*0.5 + noise(uv*2.3)*0.3 + noise(uv*5.1)*0.2;
-            vec3 dirt  = vec3(0.06,0.10,0.07);
-            vec3 dark  = vec3(0.02,0.04,0.03);
-            float edge = smoothstep(0.38, 0.50, length(vUv - 0.5));
-            vec3 col = mix(dark, dirt, n);
-            col = mix(col, vec3(0.03,0.08,0.04), edge * 0.6);
+            vec2 uv  = vUv;
+            vec2 fuv = uv * 14.0;
+            float n  = fbm(fuv);
+            float dist = length(uv - 0.5) * 2.0;
+
+            // Ekim bölgesi — merkezde daha koyu, nemli toprak
+            float plantZone = smoothstep(0.75, 0.55, dist);
+
+            vec3 dryDirt  = vec3(0.10, 0.07, 0.04);
+            vec3 wetDirt  = vec3(0.05, 0.09, 0.04);
+            vec3 richSoil = vec3(0.08, 0.12, 0.05);
+
+            vec3 col = mix(dryDirt, wetDirt, n);
+            col = mix(col, richSoil, plantZone * 0.7);
+
+            // İnce taş damarları
+            float vein = smoothstep(0.48, 0.50, noise(fuv * 0.8 + 3.0)) * 0.12;
+            col += vec3(0.04, 0.03, 0.02) * vein;
+
+            // Kenar kararması
+            float edge = smoothstep(0.40, 0.50, dist);
+            col = mix(col, vec3(0.02,0.03,0.02), edge);
+
             gl_FragColor = vec4(col, 1.0);
         }
     `,
@@ -400,24 +424,100 @@ ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
 
-// Çim kenar halkası
-const ringMat = new THREE.MeshStandardMaterial({ color: 0x0a1c0d, roughness: 1 });
-const ring = new THREE.Mesh(new THREE.RingGeometry(15, 18.5, 72), ringMat);
-ring.rotation.x = -Math.PI / 2;
-ring.position.y = 0.005;
-scene.add(ring);
+// Ekim yatağı halkası — belirgin çerçeve
+(function buildPlantingBed() {
+    // Dış çerçeve taş bordür
+    const borderMat = new THREE.MeshStandardMaterial({ color: 0x2a3520, roughness: 0.9, metalness: 0.05 });
+    const borderGeo = new THREE.TorusGeometry(13.2, 0.28, 6, 80);
+    const border    = new THREE.Mesh(borderGeo, borderMat);
+    border.rotation.x = Math.PI / 2;
+    border.position.y = 0.12;
+    scene.add(border);
 
-// Taş yolu — küçük parlak noktalar
-(function buildPebbles() {
-    const pebbleMat = new THREE.MeshStandardMaterial({ color: 0x223344, roughness: 0.7, metalness: 0.15 });
-    for (let i = 0; i < 30; i++) {
-        const a = Math.random() * Math.PI * 2, r = 10 + Math.random() * 4;
-        const pb = new THREE.Mesh(new THREE.SphereGeometry(0.08 + Math.random()*0.10, 5, 4), pebbleMat);
-        pb.position.set(Math.cos(a)*r, 0.04, Math.sin(a)*r);
-        pb.scale.y = 0.4;
-        scene.add(pb);
+    // İç parlak çizgi — biolüminesan yosun efekti
+    const glowMat = new THREE.MeshStandardMaterial({
+        color: 0x1a3d15, roughness: 0.6,
+        emissive: 0x0a2208, emissiveIntensity: 1.2,
+        transparent: true, opacity: 0.85
+    });
+    const glowRing = new THREE.Mesh(new THREE.TorusGeometry(13.2, 0.06, 6, 80), glowMat);
+    glowRing.rotation.x = Math.PI / 2;
+    glowRing.position.y = 0.20;
+    scene.add(glowRing);
+
+    // Bordür taşları — el yapımı görünüm
+    const stoneMat = new THREE.MeshStandardMaterial({ color: 0x1e2a18, roughness: 1.0, metalness: 0.0 });
+    for (let i = 0; i < 48; i++) {
+        const a   = (i / 48) * Math.PI * 2;
+        const jit = (Math.random() - 0.5) * 0.15;
+        const r   = 13.2 + jit;
+        const w   = 0.55 + Math.random() * 0.35;
+        const h   = 0.18 + Math.random() * 0.20;
+        const geo = new THREE.BoxGeometry(w, h, 0.28 + Math.random() * 0.15);
+        const s   = new THREE.Mesh(geo, stoneMat);
+        s.position.set(Math.cos(a) * r, h * 0.5 + 0.02, Math.sin(a) * r);
+        s.rotation.y = a + (Math.random() - 0.5) * 0.18;
+        scene.add(s);
     }
 })();
+
+// Taş yolu — düzgün döşenmiş kaldırım taşları
+(function buildStonePath() {
+    const mat1 = new THREE.MeshStandardMaterial({ color: 0x1a2530, roughness: 0.85, metalness: 0.08 });
+    const mat2 = new THREE.MeshStandardMaterial({ color: 0x141d28, roughness: 0.95, metalness: 0.03 });
+    // 4 yön girişi
+    [0, Math.PI/2, Math.PI, Math.PI*3/2].forEach(baseAngle => {
+        for (let step = 0; step < 5; step++) {
+            const r   = 13.8 + step * 0.95;
+            const a   = baseAngle + (Math.random() - 0.5) * 0.08;
+            const w   = 0.55 + Math.random() * 0.35;
+            const d   = 0.50 + Math.random() * 0.25;
+            const geo = new THREE.BoxGeometry(w, 0.07, d);
+            const s   = new THREE.Mesh(geo, step % 2 === 0 ? mat1 : mat2);
+            s.position.set(Math.cos(a)*r, 0.04, Math.sin(a)*r);
+            s.rotation.y = a + (Math.random()-0.5)*0.3;
+            scene.add(s);
+        }
+    });
+
+    // Dağınık iç taşlar
+    const innerMat = new THREE.MeshStandardMaterial({ color: 0x111820, roughness: 0.9, metalness: 0.06 });
+    for (let i = 0; i < 18; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const r = 14.2 + Math.random() * 3.0;
+        const w = 0.3 + Math.random() * 0.5;
+        const geo = new THREE.BoxGeometry(w, 0.06, w * (0.7 + Math.random() * 0.5));
+        const s   = new THREE.Mesh(geo, innerMat);
+        s.position.set(Math.cos(a)*r, 0.03, Math.sin(a)*r);
+        s.rotation.y = Math.random() * Math.PI;
+        scene.add(s);
+    }
+})();
+
+// Yosun & çimen yama — zemin üstüne dağınık yeşil noktalar
+(function buildMossPatches() {
+    const mossMat = new THREE.MeshStandardMaterial({
+        color: 0x0d2210, roughness: 1.0,
+        emissive: 0x051208, emissiveIntensity: 0.4,
+        transparent: true, opacity: 0.75
+    });
+    for (let i = 0; i < 28; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const r = Math.random() * 12.5;
+        const sz = 0.25 + Math.random() * 0.65;
+        const patch = new THREE.Mesh(new THREE.CircleGeometry(sz, 7), mossMat.clone());
+        patch.rotation.x = -Math.PI / 2;
+        patch.position.set(Math.cos(a)*r, 0.008, Math.sin(a)*r);
+        scene.add(patch);
+    }
+})();
+
+// Çım kenar halkası — gradyan geçiş
+const ringMat = new THREE.MeshStandardMaterial({ color: 0x0a1a0c, roughness: 1 });
+const ring = new THREE.Mesh(new THREE.RingGeometry(14.8, 18.8, 80), ringMat);
+ring.rotation.x = -Math.PI / 2;
+ring.position.y = 0.002;
+scene.add(ring);
 
 // ─── KAYIT SİSTEMİ ──────────────────────────────────────────────────────────
 let isLoading = false;
@@ -890,9 +990,9 @@ function load() {
     const elapsed = Math.max(0, (Date.now() - data.lastUpdate) / 1000);
     let savedBadBugs = data.badBugs || [];
 
-    // Çevrimdışı zararlı böcek üremesi
-    const offSpawns = Math.floor(elapsed * BAD_SPAWN_RATE);
-    for (let i = 0; i < Math.min(offSpawns, 5); i++) {
+    // Çevrimdışı zararlı böcek üremesi — ayrı, daha yüksek oran, cap yok
+    const offSpawns = Math.floor(elapsed * BAD_SPAWN_RATE_OFFLINE);
+    for (let i = 0; i < offSpawns; i++) {
         if (data.plants.length > 0)
             savedBadBugs.push({ targetIndex: Math.floor(Math.random() * data.plants.length), isNew: true });
     }
