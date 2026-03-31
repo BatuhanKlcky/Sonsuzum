@@ -56,10 +56,10 @@
     THREE.OrbitControls = function(object, domElement) {
         this.object = object; this.domElement = domElement;
         this.enabled = true; this.target = new THREE.Vector3();
-        this.enableDamping = false; this.dampingFactor = 0.05;
-        this.enableZoom = true; this.zoomSpeed = 1.0;
-        this.enableRotate = true; this.rotateSpeed = 1.0;
-        this.enablePan = true; this.panSpeed = 1.0;
+        this.enableDamping = false; this.dampingFactor = 0.04;
+        this.enableZoom = true; this.zoomSpeed = 0.6;
+        this.enableRotate = true; this.rotateSpeed = 0.45;
+        this.enablePan = true; this.panSpeed = 0.6;
         this.minDistance = 0; this.maxDistance = Infinity;
         this.minPolarAngle = 0; this.maxPolarAngle = Math.PI;
 
@@ -220,10 +220,13 @@ document.body.appendChild(renderer.domElement);
 
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
-controls.dampingFactor = 0.07;
-controls.minDistance = 5;
-controls.maxDistance = 60;
+controls.dampingFactor = 0.04;   // daha ağır, naif kayma
+controls.minDistance = 6;
+controls.maxDistance = 55;
 controls.maxPolarAngle = Math.PI / 2.05;
+controls.rotateSpeed  = 0.38;    // yavaş, hassas dönüş
+controls.zoomSpeed    = 0.55;    // yumuşak zoom
+controls.panSpeed     = 0.55;
 
 window.resetCamera = function() {
     const target = new THREE.Vector3(22, 16, 22);
@@ -1026,13 +1029,30 @@ function load() {
 }
 
 // ─── ANA DÖNGÜ ────────────────────────────────────────────────────────────────
+// Optimizasyon: önceden tahsis edilmiş objeler, DOM caching
+const _tmpColor    = new THREE.Color();
+const _colorDead   = new THREE.Color(0x2a1a0a);
+const _colorGrass  = new THREE.Color(0x0f2e1a);
+const _colorDead2  = new THREE.Color(0x0a0a0a);
+const _tmpVec3     = new THREE.Vector3();
+const _elClock     = document.getElementById('clock');
+const _elHp        = document.getElementById('hp');
+let   _frameCount  = 0;
+let   _lastClockStr = '';
+
 function animate() {
     requestAnimationFrame(animate);
+    _frameCount++;
 
     const now = performance.now() * 0.001;
     skyMat.uniforms.uTime.value = now;
     if (window._starMat) window._starMat.uniforms.uTime.value = now;
-    document.getElementById('clock').innerText = new Date().toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' });
+
+    // Saat — her 60 frame'de bir güncelle (saniyede 1 kez yeterli)
+    if (_frameCount % 60 === 0) {
+        const t = new Date().toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' });
+        if (t !== _lastClockStr) { _elClock.innerText = t; _lastClockStr = t; }
+    }
 
     // Zararlı böcek üremesi (açıkken)
     if (flowers.length > 0 && Math.random() < BAD_SPAWN_RATE / 60) {
@@ -1040,59 +1060,65 @@ function animate() {
     }
 
     // Zararlı böcek: hareket + sömürü + bacak animasyonu
-    badBugs.forEach(bug => {
+    for (let bi = 0; bi < badBugs.length; bi++) {
+        const bug   = badBugs[bi];
         const plant = flowers[bug.targetIndex];
         if (plant) {
-            const tp = new THREE.Vector3(plant.mesh.position.x, plant.h * 0.7 + 0.15, plant.mesh.position.z);
-            bug.group.position.lerp(tp, 0.025);
-            bug.group.lookAt(tp.clone().add(new THREE.Vector3(0.001,0,0)));
+            _tmpVec3.set(plant.mesh.position.x, plant.h * 0.7 + 0.15, plant.mesh.position.z);
+            bug.group.position.lerp(_tmpVec3, 0.025);
             plant.w = Math.max(0, plant.w - BAD_DRAIN_RATE / 60);
-
-            // Bacak titreşimi
             bug.legPhase += 0.18;
-            bug.group.children.forEach((c, i) => {
-                if (i >= 1 && i <= 6) c.rotation.x = 0.3 + Math.sin(bug.legPhase + i) * 0.15;
-            });
+            const ch = bug.group.children;
+            for (let li = 1; li <= 6 && li < ch.length; li++) {
+                ch[li].rotation.x = 0.3 + Math.sin(bug.legPhase + li) * 0.15;
+            }
         }
-    });
+    }
 
     // Çiçek animasyonları
-    flowers.forEach(f => {
+    for (let fi = 0; fi < flowers.length; fi++) {
+        const f = flowers[fi];
         f.w = Math.max(0, f.w - DRY_RATE / 60);
 
         if (f.w < 0.25) {
             f.isStunted = true;
-            f.head.children.forEach(c => {
-                if (c.material && c.material.color) c.material.color.lerp(new THREE.Color(0x2a1a0a), 0.015);
-            });
+            // Her 3 frame'de bir renk lerp — görsel fark yok, CPU tasarrufu var
+            if (_frameCount % 3 === 0) {
+                const ch = f.head.children;
+                for (let ci = 0; ci < ch.length; ci++) {
+                    if (ch[ci].material && ch[ci].material.color) ch[ci].material.color.lerp(_colorDead, 0.015);
+                }
+                f.grass.material.color.lerp(_colorDead2, 0.015);
+            }
             f.mesh.rotation.z = THREE.MathUtils.lerp(f.mesh.rotation.z, 0.65, 0.025);
             f.mesh.rotation.x = THREE.MathUtils.lerp(f.mesh.rotation.x, 0.25, 0.025);
-            f.grass.material.color.lerp(new THREE.Color(0x0a0a0a), 0.015);
         } else {
-            f.head.children.forEach(c => {
-                if (c.material && c.material.color && !c.material.emissive) {
-                    c.material.color.lerp(new THREE.Color(f.c), 0.04);
+            if (_frameCount % 3 === 0) {
+                _tmpColor.set(f.c);
+                const ch = f.head.children;
+                for (let ci = 0; ci < ch.length; ci++) {
+                    const mat = ch[ci].material;
+                    if (mat && mat.color && mat.emissiveIntensity === undefined) mat.color.lerp(_tmpColor, 0.04);
                 }
-            });
+                f.grass.material.color.lerp(_colorGrass, 0.04);
+            }
             f.mesh.rotation.z = THREE.MathUtils.lerp(f.mesh.rotation.z, 0, 0.04);
             f.mesh.rotation.x = THREE.MathUtils.lerp(f.mesh.rotation.x, 0, 0.04);
-            f.grass.material.color.lerp(new THREE.Color(0x0f2e1a), 0.04);
             if (!f.isStunted && f.w > 0.35 && f.h < 1.3) f.h += GROWTH_RATE / 60;
         }
 
-        // Açılım
         if (f.h > 0.5) f.b = Math.min(1, f.b + 0.012);
         f.head.scale.setScalar(f.b);
 
-        // Hafif sallanma
-        const sw = Math.sin(now * 0.8 + f.mesh.position.x) * 0.018;
-        const scale = f.h * (0.6 + f.w * 0.4);
-        f.mesh.scale.set(scale, scale, scale);
+        const sw    = Math.sin(now * 0.8 + f.mesh.position.x) * 0.018;
+        const fscale = f.h * (0.6 + f.w * 0.4);
+        f.mesh.scale.set(fscale, fscale, fscale);
         f.mesh.rotation.z += (sw - f.mesh.rotation.z) * 0.05;
-    });
+    }
 
     // Kelebek animasyonları
-    bugs.forEach(bug => {
+    for (let bi = 0; bi < bugs.length; bi++) {
+        const bug = bugs[bi];
         bug.time += 0.15;
         const flap = Math.sin(bug.time * 5) * 0.95;
         bug.wR1.rotation.y =  flap;
@@ -1103,21 +1129,26 @@ function animate() {
         if (!bug.target || bug.mesh.position.distanceTo(bug.target) < 0.4 || Math.random() < 0.004) {
             if (flowers.length > 0 && Math.random() > 0.25) {
                 const rf = flowers[Math.floor(Math.random() * flowers.length)];
-                bug.target = new THREE.Vector3(rf.mesh.position.x + (Math.random()-0.5)*0.5, rf.h * rf.mesh.scale.y + 1.0, rf.mesh.position.z + (Math.random()-0.5)*0.5);
+                bug.target = new THREE.Vector3(
+                    rf.mesh.position.x + (Math.random()-0.5)*0.5,
+                    rf.h * rf.mesh.scale.y + 1.0,
+                    rf.mesh.position.z + (Math.random()-0.5)*0.5
+                );
             } else {
                 bug.target = new THREE.Vector3((Math.random()-0.5)*22, 1+Math.random()*4, (Math.random()-0.5)*22);
             }
         }
         bug.mesh.position.lerp(bug.target, bug.speed);
         bug.mesh.position.y += Math.sin(bug.time * 1.5) * 0.015;
+        bug.mesh.lookAt(bug.target);
+    }
 
-        // Uçuş yönüne bak
-        if (bug.target) bug.mesh.lookAt(bug.target);
-    });
-
-    // İstatistikler
-    const avgW = flowers.length ? flowers.reduce((a,f) => a + f.w, 0) / flowers.length : 0;
-    document.getElementById('hp').innerText = Math.round(avgW * 100);
+    // İstatistikler — her 90 frame'de bir (saniyede ~0.67 kez, yeterli)
+    if (_frameCount % 90 === 0) {
+        let total = 0;
+        for (let fi = 0; fi < flowers.length; fi++) total += flowers[fi].w;
+        _elHp.innerText = Math.round(flowers.length ? total / flowers.length * 100 : 0);
+    }
 
     // Periyodik kayıt kontrolü
     if (Date.now() - lastSaveTime > SAVE_INTERVAL) save(false);
