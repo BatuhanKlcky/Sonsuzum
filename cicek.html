@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sanal Bahçe </title>
+    <title>Sanal Bahçe</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <style>
         * { padding: 0; margin: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { margin: 0; overflow: hidden; background: #010103; touch-action: none; }
         
-        .ui-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 380px; z-index: 1000; }
+        .ui-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 420px; z-index: 1000; }
         .ui-panel { 
             background: rgba(10, 15, 20, 0.96); 
             padding: 18px; border-radius: 28px; color: white; text-align: center; 
@@ -18,14 +18,16 @@
             box-shadow: 0 15px 50px rgba(0,0,0,0.8);
         }
         
-        .controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
-        button { border: none; padding: 14px 5px; border-radius: 16px; color: white; font-weight: 800; cursor: pointer; font-size: 11px; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        /* Buton ızgarasını 4 kolona çıkardık */
+        .controls { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-top: 15px; }
+        button { border: none; padding: 14px 4px; border-radius: 14px; color: white; font-weight: 800; cursor: pointer; font-size: 11px; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         button:hover { transform: translateY(-2px); filter: brightness(1.2); }
         button:active { transform: scale(0.96); }
         
         .btn-water { background: linear-gradient(135deg, #00d4ff, #0077ff); }
         .btn-seed { background: linear-gradient(135deg, #2ecc71, #27ae60); }
         .btn-home { background: linear-gradient(135deg, #f1c40f, #f39c12); color: #000; }
+        .btn-bug { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
         
         #stats { font-size: 12px; color: #bbb; margin-top: 8px; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 10px; }
     </style>
@@ -34,12 +36,13 @@
     <div class="ui-container">
         <div class="ui-panel">
             <div id="clock" style="font-size:26px; color:#fff; font-weight: 900; letter-spacing: -1px;">00:00</div>
-            <div id="stats">NEM: %<span id="hp">0</span> | BİTKİ: <span id="fCount">0</span></div>
+            <div id="stats">NEM: %<span id="hp">0</span> | BİTKİ: <span id="fCount">0</span> | BÖCEK: <span id="bCount">0</span></div>
             
             <div class="controls">
                 <button class="btn-home" onclick="resetCamera()">🏠 ODAKLA</button>
                 <button class="btn-water" onclick="waterAll()">💧 SULA</button>
                 <button class="btn-seed" onclick="plant()">🌱 EK</button>
+                <button class="btn-bug" onclick="addBug()">🦋 BÖCEK</button>
             </div>
         </div>
     </div>
@@ -49,6 +52,7 @@
         const DRY_RATE = 0.00001389; 
         const GROWTH_RATE = 0.000012;
         const flowers = [];
+        const bugs = []; // Yeni: Böcekler dizisi
 
         // --- SAHNE ---
         const scene = new THREE.Scene();
@@ -95,6 +99,9 @@
             const group = new THREE.Group();
             const color = stats ? stats.c : [0xff595e, 0x1982c4, 0xffca3a, 0x8ac926, 0xef476f][Math.floor(Math.random()*5)];
             
+            // Eski kayıtlarla uyumluluk için tür tespiti (0: Orijinal, 1: Lale, 2: Papatya)
+            const type = (stats && stats.t !== undefined) ? stats.t : (stats ? 0 : Math.floor(Math.random() * 3));
+            
             // 1. ÇİMENLİK (Kök Haresi)
             const grassPatch = new THREE.Mesh(
                 new THREE.CircleGeometry(0.85, 16),
@@ -124,59 +131,89 @@
             leaf2.position.set(-0.08, 0.65, 0); leaf2.rotation.z = -0.6; leaf2.rotation.y = Math.PI;
             group.add(leaf2);
 
-            // 4. ÇİÇEK KAFASI (Gelişmiş Model)
+            // 4. ÇİÇEK KAFASI
             const headGroup = new THREE.Group();
             
-            // MERKEZ (Tohum Yatağı) - Dokulu Küre
+            // MERKEZ (Tohum Yatağı)
             const center = new THREE.Mesh(
-                new THREE.SphereGeometry(0.18, 12, 12),
-                new THREE.MeshStandardMaterial({color: 0xffd166, roughness: 1.0, emissive: 0x885500, emissiveIntensity: 0.2})
+                new THREE.SphereGeometry(type === 2 ? 0.22 : 0.18, 12, 12), // Papatya ise daha büyük merkez
+                new THREE.MeshStandardMaterial({color: type === 2 ? 0xff9900 : 0xffd166, roughness: 1.0, emissive: 0x885500, emissiveIntensity: 0.2})
             );
             center.position.y = 1.05; center.scale.y = 0.6;
             headGroup.add(center);
 
-            // GELİŞMİŞ PETAL (ShapeGeometry)
-            const petalShape = new THREE.Shape();
-            petalShape.moveTo(0, 0);
-            petalShape.bezierCurveTo(0.1, 0.05, 0.15, 0.2, 0.15, 0.35); // Sağ kenar
-            petalShape.bezierCurveTo(0.15, 0.5, 0.05, 0.6, 0, 0.6); // Üst kenar
-            petalShape.bezierCurveTo(-0.05, 0.6, -0.15, 0.5, -0.15, 0.35); // Sol kenar
-            petalShape.bezierCurveTo(-0.15, 0.2, -0.10, 0.05, 0, 0); // Alt kenar
-
-            const petalGeo = new THREE.ShapeGeometry(petalShape);
-            petalGeo.translate(0, -0.1, 0); // Kök noktasını ayarla
-            petalGeo.rotateX(-Math.PI / 2.5); // Petali öne doğru eğ
-
             const petalMat = new THREE.MeshStandardMaterial({
-                color: color,
-                side: THREE.DoubleSide,
-                roughness: 0.6,
-                metalness: 0.1,
-                alphaTest: 0.5,
-                // Hafif damarlı doku efekti için materyal özellikleri (dokusuzyok ama canlandırılabilir)
+                color: color, side: THREE.DoubleSide, roughness: 0.6, metalness: 0.1, alphaTest: 0.5
             });
 
-            // Katmanlı Petal Dizilimi (8 Petal - İki Katman)
-            for(let i=0; i<8; i++) {
-                const petal = new THREE.Mesh(petalGeo, petalMat.clone()); // Matı kopyala ki susuz kalınca bireysel kararsınlar
-                petal.position.y = 1;
-                petal.rotation.y = (i * Math.PI) / 4; // 8 yaprak
-                petal.rotation.x = Math.PI / 1.1; // Genel duruş açısı
-                
-                // İkinci katman için açı ve boyut farkı
-                if (i % 2 !== 0) {
-                    petal.scale.set(0.9, 0.9, 0.9);
-                    petal.position.y += 0.02; // Biraz daha üstte
+            // TÜR 0: ORİJİNAL (Katmanlı Lotus Tipi)
+            if (type === 0) {
+                const petalShape = new THREE.Shape();
+                petalShape.moveTo(0, 0);
+                petalShape.bezierCurveTo(0.1, 0.05, 0.15, 0.2, 0.15, 0.35);
+                petalShape.bezierCurveTo(0.15, 0.5, 0.05, 0.6, 0, 0.6);
+                petalShape.bezierCurveTo(-0.05, 0.6, -0.15, 0.5, -0.15, 0.35);
+                petalShape.bezierCurveTo(-0.15, 0.2, -0.10, 0.05, 0, 0);
+                const petalGeo = new THREE.ShapeGeometry(petalShape);
+                petalGeo.translate(0, -0.1, 0); 
+                petalGeo.rotateX(-Math.PI / 2.5);
+
+                for(let i=0; i<8; i++) {
+                    const petal = new THREE.Mesh(petalGeo, petalMat.clone());
+                    petal.position.y = 1;
+                    petal.rotation.y = (i * Math.PI) / 4; 
+                    petal.rotation.x = Math.PI / 1.1; 
+                    if (i % 2 !== 0) {
+                        petal.scale.set(0.9, 0.9, 0.9);
+                        petal.position.y += 0.02; 
+                    }
+                    headGroup.add(petal);
                 }
-                
-                headGroup.add(petal);
+            } 
+            // TÜR 1: LALE TİPİ (Daha dik ve içe kapalı)
+            else if (type === 1) {
+                const tulipShape = new THREE.Shape();
+                tulipShape.moveTo(0, 0);
+                tulipShape.quadraticCurveTo(0.2, 0.3, 0.1, 0.6);
+                tulipShape.quadraticCurveTo(0, 0.7, -0.1, 0.6);
+                tulipShape.quadraticCurveTo(-0.2, 0.3, 0, 0);
+                const tulipGeo = new THREE.ShapeGeometry(tulipShape);
+                tulipGeo.translate(0, -0.05, 0);
+                tulipGeo.rotateX(-Math.PI / 2.8);
+
+                for(let i=0; i<6; i++) {
+                    const petal = new THREE.Mesh(tulipGeo, petalMat.clone());
+                    petal.position.y = 1.02;
+                    petal.rotation.y = (i * Math.PI) / 3; 
+                    petal.rotation.x = Math.PI / 2.4; // Dik duruş
+                    headGroup.add(petal);
+                }
+            }
+            // TÜR 2: PAPATYA TİPİ (Uzun, ince ve çok yapraklı)
+            else if (type === 2) {
+                const daisyShape = new THREE.Shape();
+                daisyShape.moveTo(0, 0);
+                daisyShape.quadraticCurveTo(0.06, 0.2, 0.04, 0.6);
+                daisyShape.quadraticCurveTo(0, 0.65, -0.04, 0.6);
+                daisyShape.quadraticCurveTo(-0.06, 0.2, 0, 0);
+                const daisyGeo = new THREE.ShapeGeometry(daisyShape);
+                daisyGeo.translate(0, 0, 0);
+                daisyGeo.rotateX(-Math.PI / 2);
+
+                for(let i=0; i<12; i++) {
+                    const petal = new THREE.Mesh(daisyGeo, petalMat.clone());
+                    petal.position.y = 1;
+                    petal.rotation.y = (i * Math.PI) / 6; 
+                    petal.rotation.x = Math.PI / 1.3; // Yatay duruş
+                    headGroup.add(petal);
+                }
             }
             
-            headGroup.scale.set(0.1, 0.1, 0.1); // Başlangıçta tomurcuk
+            headGroup.scale.set(0.1, 0.1, 0.1); 
             group.add(headGroup);
             
             group.position.set(x, 0, z);
-            group.rotation.y = Math.random() * Math.PI * 2; // Rastgele yön
+            group.rotation.y = Math.random() * Math.PI * 2; 
             scene.add(group);
 
             const fObj = { 
@@ -185,6 +222,7 @@
                 b: stats ? stats.b : 0, 
                 w: stats ? stats.w : 1.0, 
                 c: color,
+                t: type, // Türü kaydet
                 isStunted: stats ? stats.isStunted : false 
             };
             flowers.push(fObj);
@@ -192,11 +230,48 @@
             save();
         }
 
+        // --- BÖCEK (ATEŞBÖCEĞİ) SİSTEMİ ---
+        window.addBug = () => {
+            const bugGroup = new THREE.Group();
+            
+            // Gövde (Parlak)
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xffaa00, emissiveIntensity: 1.5 });
+            const body = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), bodyMat);
+            bugGroup.add(body);
+
+            // Kanatlar
+            const wingMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6, side: THREE.DoubleSide });
+            const wingGeo = new THREE.PlaneGeometry(0.12, 0.08);
+            wingGeo.translate(0.06, 0, 0); // Pivot noktası kaydırıldı
+            
+            const wing1 = new THREE.Mesh(wingGeo, wingMat);
+            wing1.position.y = 0.03;
+            wing1.rotation.x = Math.PI / 2;
+            bugGroup.add(wing1);
+            
+            const wing2 = new THREE.Mesh(wingGeo, wingMat);
+            wing2.position.y = 0.03;
+            wing2.rotation.x = Math.PI / 2;
+            wing2.rotation.y = Math.PI; // Diğer tarafa
+            bugGroup.add(wing2);
+
+            bugGroup.position.set((Math.random()-0.5)*20, 2 + Math.random()*2, (Math.random()-0.5)*20);
+            scene.add(bugGroup);
+
+            bugs.push({
+                mesh: bugGroup, wing1: wing1, wing2: wing2,
+                target: null, time: Math.random() * 100,
+                speed: 0.01 + Math.random() * 0.02
+            });
+            document.getElementById('bCount').innerText = bugs.length;
+        };
+
         window.plant = () => createFlower((Math.random()-0.5)*25, (Math.random()-0.5)*25);
         window.waterAll = () => { flowers.forEach(f => f.w = 1.3); save(); };
 
         function save() {
-            const data = { lastUpdate: Date.now(), plants: flowers.map(f => ({ x: f.mesh.position.x, z: f.mesh.position.z, h: f.h, b: f.b, w: f.w, c: f.c, isStunted: f.isStunted })) };
+            // Böcekleri kaydetmiyoruz, bahçeye girildikçe yeniden eklenebilir.
+            const data = { lastUpdate: Date.now(), plants: flowers.map(f => ({ x: f.mesh.position.x, z: f.mesh.position.z, h: f.h, b: f.b, w: f.w, c: f.c, t: f.t, isStunted: f.isStunted })) };
             localStorage.setItem(SAVE_KEY, JSON.stringify(data));
         }
 
@@ -218,23 +293,21 @@
             requestAnimationFrame(animate);
             document.getElementById('clock').innerText = new Date().toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
             
+            // Çiçek Animasyonları
             flowers.forEach(f => {
                 f.w = Math.max(0, f.w - (DRY_RATE / 60));
                 
-                if (f.w < 0.3) { // SOLMA
+                if (f.w < 0.3) { 
                     f.isStunted = true;
-                    // Petaller kahverengiye döner
                     f.head.children.forEach(p => {
                         if (p.material.color) p.material.color.lerp(new THREE.Color(0x3e2723), 0.02);
                     });
-                    // Boyun bükme
                     f.mesh.rotation.z = THREE.MathUtils.lerp(f.mesh.rotation.z, 0.7, 0.03);
                     f.mesh.rotation.x = THREE.MathUtils.lerp(f.mesh.rotation.x, 0.3, 0.03);
                     f.grass.material.color.lerp(new THREE.Color(0x1a1a1a), 0.02);
-                } else { // CANLANMA
-                    // Petaller orijinal renge döner
+                } else { 
                     f.head.children.forEach(p => {
-                        if (p.material.color) p.material.color.lerp(new THREE.Color(f.c), 0.05);
+                        if (p.material.color && p.material.emissiveIntensity === undefined) p.material.color.lerp(new THREE.Color(f.c), 0.05); // Merkezin rengini bozmamak için
                     });
                     f.mesh.rotation.z = THREE.MathUtils.lerp(f.mesh.rotation.z, 0, 0.05);
                     f.mesh.rotation.x = THREE.MathUtils.lerp(f.mesh.rotation.x, 0, 0.05);
@@ -242,12 +315,38 @@
                     if(!f.isStunted && f.w > 0.4 && f.h < 1.3) f.h += (GROWTH_RATE / 60);
                 }
 
-                if(f.h > 0.6) f.b = Math.min(1, f.b + 0.015); // Çiçek daha hızlı açılır
+                if(f.h > 0.6) f.b = Math.min(1, f.b + 0.015); 
                 f.head.scale.set(f.b, f.b, f.b);
                 
-                // Susuzluk efekti: Bitki büzüşür
                 const s = f.h * (0.65 + f.w * 0.35); 
                 f.mesh.scale.set(s, s, s);
+            });
+
+            // Böcek Animasyonları
+            bugs.forEach(bug => {
+                bug.time += 0.2;
+                
+                // Kanat Çırpma
+                const flap = Math.sin(bug.time * 4) * 0.8;
+                bug.wing1.rotation.y = flap;
+                bug.wing2.rotation.y = -flap;
+
+                // Rastgele Hedef Belirleme (Çiçeklere veya Havaya)
+                if (!bug.target || bug.mesh.position.distanceTo(bug.target) < 0.5 || Math.random() < 0.005) {
+                    if (flowers.length > 0 && Math.random() > 0.3) {
+                        const randomFlower = flowers[Math.floor(Math.random() * flowers.length)];
+                        bug.target = new THREE.Vector3(randomFlower.mesh.position.x, randomFlower.h + 1.2, randomFlower.mesh.position.z);
+                    } else {
+                        bug.target = new THREE.Vector3((Math.random()-0.5)*20, 1 + Math.random()*4, (Math.random()-0.5)*20);
+                    }
+                }
+
+                // Hedefe Doğru Yumuşak Uçuş
+                if (bug.target) {
+                    bug.mesh.position.lerp(bug.target, bug.speed);
+                    // Sallantılı uçuş efekti
+                    bug.mesh.position.y += Math.sin(bug.time) * 0.02;
+                }
             });
 
             const avgW = flowers.length ? (flowers.reduce((a,b)=>a+b.w,0)/flowers.length) : 0;
