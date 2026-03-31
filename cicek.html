@@ -231,42 +231,197 @@ window.resetCamera = function() {
     controls.update();
 };
 
-// Skybox
-const loader = new THREE.CubeTextureLoader();
-scene.background = loader.load([
-    'https://threejs.org/examples/textures/cube/MilkyWay/dark-s_px.jpg',
-    'https://threejs.org/examples/textures/cube/MilkyWay/dark-s_nx.jpg',
-    'https://threejs.org/examples/textures/cube/MilkyWay/dark-s_py.jpg',
-    'https://threejs.org/examples/textures/cube/MilkyWay/dark-s_ny.jpg',
-    'https://threejs.org/examples/textures/cube/MilkyWay/dark-s_pz.jpg',
-    'https://threejs.org/examples/textures/cube/MilkyWay/dark-s_nz.jpg'
-]);
+// ─── PROCEDURAL GÖK KUBBE ───────────────────────────────────────────────────
+// Gökyüzü shader'ı — gradient + nebula damarları
+const skyGeo = new THREE.SphereGeometry(400, 32, 20);
+const skyMat = new THREE.ShaderMaterial({
+    side: THREE.BackSide,
+    uniforms: { uTime: { value: 0 } },
+    vertexShader: `
+        varying vec3 vPos;
+        void main(){ vPos = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }
+    `,
+    fragmentShader: `
+        varying vec3 vPos;
+        uniform float uTime;
 
-// Işıklar
-scene.add(new THREE.AmbientLight(0x334466, 0.8));
-const sun = new THREE.DirectionalLight(0xfff5e0, 1.2);
-sun.position.set(15, 35, 15);
-sun.castShadow = true;
-scene.add(sun);
-const fillLight = new THREE.DirectionalLight(0x4488ff, 0.3);
-fillLight.position.set(-10, 10, -10);
+        float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+        float noise(vec2 p){
+            vec2 i=floor(p), f=fract(p), u=f*f*(3.0-2.0*f);
+            return mix(mix(hash(i),hash(i+vec2(1,0)),u.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x),u.y);
+        }
+
+        void main(){
+            vec3 dir = normalize(vPos);
+            float up = clamp(dir.y, 0.0, 1.0);
+            float horizon = 1.0 - up;
+
+            // Gökyüzü gradyanı: derin gece mavisi → siyah tepe
+            vec3 zenith   = vec3(0.01, 0.02, 0.08);
+            vec3 midSky   = vec3(0.04, 0.06, 0.18);
+            vec3 horizCol = vec3(0.10, 0.04, 0.22); // mor ufuk
+            vec3 skyColor = mix(mix(zenith, midSky, smoothstep(0.0,0.5,up)), horizCol, pow(horizon,3.0));
+
+            // Nebula damarları
+            vec2 uv = vec2(atan(dir.z, dir.x) / 6.2832, dir.y) * 3.0;
+            float neb = noise(uv * 2.5 + uTime * 0.008) * noise(uv * 5.0 - uTime * 0.005);
+            neb = smoothstep(0.25, 0.6, neb) * up * 0.55;
+            vec3 nebColor = mix(vec3(0.15,0.03,0.35), vec3(0.02,0.10,0.40), noise(uv*1.5));
+            skyColor += nebColor * neb;
+
+            // Ay ışığı yansıması ufukta
+            vec3 moonDir = normalize(vec3(0.6,0.4,0.7));
+            float moonGlow = pow(max(0.0,dot(dir, moonDir)),8.0) * 0.3;
+            skyColor += vec3(0.6,0.7,1.0) * moonGlow;
+
+            gl_FragColor = vec4(skyColor, 1.0);
+        }
+    `
+});
+const skyMesh = new THREE.Mesh(skyGeo, skyMat);
+scene.add(skyMesh);
+
+// ─── YILDIZLAR ──────────────────────────────────────────────────────────────
+(function buildStars() {
+    const count  = 2800;
+    const pos    = new Float32Array(count * 3);
+    const sizes  = new Float32Array(count);
+    const bright = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+        // Sadece üst yarı küre
+        const theta = Math.random() * Math.PI * 2;
+        const phi   = Math.acos(Math.random()); // 0..PI/2 ağırlıklı
+        const r     = 380;
+        pos[i*3]   = r * Math.sin(phi) * Math.cos(theta);
+        pos[i*3+1] = r * Math.abs(Math.cos(phi)) + 5;
+        pos[i*3+2] = r * Math.sin(phi) * Math.sin(theta);
+        sizes[i]   = 0.5 + Math.random() * 2.5;
+        bright[i]  = Math.random();
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('aSize',    new THREE.BufferAttribute(sizes, 1));
+    geo.setAttribute('aBright',  new THREE.BufferAttribute(bright, 1));
+
+    const starMat = new THREE.ShaderMaterial({
+        uniforms: { uTime: { value: 0 }, uPixelRatio: { value: Math.min(devicePixelRatio, 2) } },
+        vertexShader: `
+            attribute float aSize;
+            attribute float aBright;
+            varying float vBright;
+            uniform float uTime;
+            uniform float uPixelRatio;
+            void main(){
+                vBright = aBright;
+                vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+                float twinkle = 0.7 + 0.3 * sin(uTime * 2.0 + aBright * 31.4);
+                gl_PointSize = aSize * uPixelRatio * twinkle * (300.0 / -mvPos.z);
+                gl_Position = projectionMatrix * mvPos;
+            }
+        `,
+        fragmentShader: `
+            varying float vBright;
+            void main(){
+                float d = length(gl_PointCoord - 0.5) * 2.0;
+                if(d > 1.0) discard;
+                float alpha = smoothstep(1.0, 0.0, d) * (0.5 + 0.5 * vBright);
+                vec3 col = mix(vec3(0.7,0.8,1.0), vec3(1.0,0.95,0.85), vBright);
+                gl_FragColor = vec4(col, alpha);
+            }
+        `,
+        transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+    });
+    const stars = new THREE.Points(geo, starMat);
+    scene.add(stars);
+    window._starMat = starMat; // animate'te güncelle
+})();
+
+// ─── AY ─────────────────────────────────────────────────────────────────────
+(function buildMoon() {
+    const moonGeo = new THREE.SphereGeometry(8, 24, 24);
+    const moonMat = new THREE.MeshStandardMaterial({
+        color: 0xdde8ff, roughness: 0.95, metalness: 0,
+        emissive: 0x8899cc, emissiveIntensity: 0.25
+    });
+    const moon = new THREE.Mesh(moonGeo, moonMat);
+    moon.position.set(120, 80, 140);
+    scene.add(moon);
+
+    // Ay hale efekti — büyük yarı saydam küre
+    const haloMat = new THREE.MeshBasicMaterial({
+        color: 0x6677bb, transparent: true, opacity: 0.06, side: THREE.BackSide
+    });
+    const halo = new THREE.Mesh(new THREE.SphereGeometry(14, 16, 16), haloMat);
+    halo.position.copy(moon.position);
+    scene.add(halo);
+})();
+
+// ─── IŞIKLAR ────────────────────────────────────────────────────────────────
+scene.add(new THREE.AmbientLight(0x1a2a4a, 1.0));
+const moonLight = new THREE.DirectionalLight(0xaabfff, 0.9);
+moonLight.position.set(12, 28, 14);
+moonLight.castShadow = true;
+moonLight.shadow.mapSize.width  = 1024;
+moonLight.shadow.mapSize.height = 1024;
+scene.add(moonLight);
+const fillLight = new THREE.DirectionalLight(0x220a44, 0.4);
+fillLight.position.set(-15, 8, -12);
 scene.add(fillLight);
+// Zemin üzerinde hafif yeşilimsi
+const groundLight = new THREE.PointLight(0x002211, 0.6, 30);
+groundLight.position.set(0, 2, 0);
+scene.add(groundLight);
 
-// Zemin
-const groundMat = new THREE.MeshStandardMaterial({ color: 0x050808, roughness: 1, metalness: 0 });
-const ground = new THREE.Mesh(new THREE.CircleGeometry(18, 80), groundMat);
+// ─── ZEMIN ──────────────────────────────────────────────────────────────────
+// Zemin — koyu toprak doku (shader ile)
+const groundGeo = new THREE.CircleGeometry(18, 80);
+const groundMat = new THREE.ShaderMaterial({
+    uniforms: { uTime: { value: 0 } },
+    vertexShader: `varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+    fragmentShader: `
+        varying vec2 vUv;
+        float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+        float noise(vec2 p){ vec2 i=floor(p),f=fract(p),u=f*f*(3.0-2.0*f); return mix(mix(hash(i),hash(i+vec2(1,0)),u.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x),u.y); }
+        void main(){
+            vec2 uv = vUv * 12.0;
+            float n = noise(uv)*0.5 + noise(uv*2.3)*0.3 + noise(uv*5.1)*0.2;
+            vec3 dirt  = vec3(0.06,0.10,0.07);
+            vec3 dark  = vec3(0.02,0.04,0.03);
+            float edge = smoothstep(0.38, 0.50, length(vUv - 0.5));
+            vec3 col = mix(dark, dirt, n);
+            col = mix(col, vec3(0.03,0.08,0.04), edge * 0.6);
+            gl_FragColor = vec4(col, 1.0);
+        }
+    `,
+    side: THREE.FrontSide
+});
+const ground = new THREE.Mesh(groundGeo, groundMat);
 ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
 
-// Zemin çim halkası
-const ringMat = new THREE.MeshStandardMaterial({ color: 0x0a1f0f, roughness: 1 });
-const ring = new THREE.Mesh(new THREE.RingGeometry(15, 18, 64), ringMat);
+// Çim kenar halkası
+const ringMat = new THREE.MeshStandardMaterial({ color: 0x0a1c0d, roughness: 1 });
+const ring = new THREE.Mesh(new THREE.RingGeometry(15, 18.5, 72), ringMat);
 ring.rotation.x = -Math.PI / 2;
-ring.position.y = 0.01;
+ring.position.y = 0.005;
 scene.add(ring);
 
+// Taş yolu — küçük parlak noktalar
+(function buildPebbles() {
+    const pebbleMat = new THREE.MeshStandardMaterial({ color: 0x223344, roughness: 0.7, metalness: 0.15 });
+    for (let i = 0; i < 30; i++) {
+        const a = Math.random() * Math.PI * 2, r = 10 + Math.random() * 4;
+        const pb = new THREE.Mesh(new THREE.SphereGeometry(0.08 + Math.random()*0.10, 5, 4), pebbleMat);
+        pb.position.set(Math.cos(a)*r, 0.04, Math.sin(a)*r);
+        pb.scale.y = 0.4;
+        scene.add(pb);
+    }
+})();
+
 // ─── KAYIT SİSTEMİ ──────────────────────────────────────────────────────────
+let isLoading = false;
+
 function buildSaveData() {
     return {
         lastUpdate: Date.now(),
@@ -274,7 +429,8 @@ function buildSaveData() {
             x: f.mesh.position.x, z: f.mesh.position.z,
             h: f.h, b: f.b, w: f.w, c: f.c, t: f.t, isStunted: f.isStunted
         })),
-        badBugs: badBugs.map(b => ({ targetIndex: b.targetIndex }))
+        badBugs: badBugs.map(b => ({ targetIndex: b.targetIndex })),
+        bugCount: bugs.length
     };
 }
 
@@ -342,6 +498,7 @@ window.addEventListener('pointerdown', (e) => {
 
     document.getElementById('badCount').innerText = badBugs.length;
     markDirty();
+    save(true);
 });
 
 // ─── ZARARLII BÖCEK (Kene / Akar modeli) ────────────────────────────────────
@@ -706,6 +863,7 @@ window.addBug = function() {
 
     bugs.push({ mesh: bugGroup, wR1, wL1, wR2, wL2, target: null, time: Math.random()*100, speed: 0.008 + Math.random()*0.015 });
     document.getElementById('bCount').innerText = bugs.length;
+    if (!isLoading) { markDirty(); save(true); }
 };
 
 // ─── SULAMA & EKİM ───────────────────────────────────────────────────────────
@@ -726,6 +884,8 @@ function load() {
     if (!raw) return;
     let data;
     try { data = JSON.parse(raw); } catch(e) { localStorage.removeItem(SAVE_KEY); return; }
+
+    isLoading = true;
 
     const elapsed = Math.max(0, (Date.now() - data.lastUpdate) / 1000);
     let savedBadBugs = data.badBugs || [];
@@ -756,6 +916,13 @@ function load() {
     savedBadBugs.forEach(b => {
         if (b.targetIndex < flowers.length) createBadBug(b.targetIndex);
     });
+
+    // Dost böcekleri geri yükle
+    const savedBugCount = data.bugCount || 0;
+    for (let i = 0; i < savedBugCount; i++) window.addBug();
+
+    isLoading = false;
+    lastSaveTime = Date.now(); // load sonrası zamanlayıcıyı sıfırla
 }
 
 // ─── ANA DÖNGÜ ────────────────────────────────────────────────────────────────
@@ -763,6 +930,8 @@ function animate() {
     requestAnimationFrame(animate);
 
     const now = performance.now() * 0.001;
+    skyMat.uniforms.uTime.value = now;
+    if (window._starMat) window._starMat.uniforms.uTime.value = now;
     document.getElementById('clock').innerText = new Date().toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' });
 
     // Zararlı böcek üremesi (açıkken)
