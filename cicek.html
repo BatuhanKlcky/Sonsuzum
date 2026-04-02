@@ -1057,10 +1057,7 @@ function load() {
         createFlower(p.x, p.z, { ...p, w: newW, h: newH, isStunted: stunted });
     });
 
-    // Zararlı böcekleri ekle
-    savedBadBugs.forEach(b => {
-        if (b.targetIndex < flowers.length) createBadBug(b.targetIndex);
-    });
+   
 
     // Dost böcekleri geri yükle
     const savedBugCount = data.bugCount || 0;
