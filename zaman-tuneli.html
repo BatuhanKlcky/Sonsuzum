@@ -703,36 +703,16 @@
         const passwordInput = document.getElementById('passwordInput');
         const submitPassword = document.getElementById('submitPassword');
         const errorMessage = document.getElementById('errorMessage');
-        const countdownDisplay = document.getElementById('countdown');
         const mainContent = document.querySelector('.container') || document.querySelector('main') || document.body;
         const footer = document.querySelector('footer');
         
         // Ayarlar
         const CONFIG = {
             password: "240424", // Tüm sayfalarda geçerli şifre
-            sessionDuration: 5 * 60 * 1000, // 5 dakika (milisaniye)
-            storageKey: "unifiedAuthSystem",
             crossPageSync: false // Sayfalar arası senkronizasyon
         };
 
-        // Oturum kontrolü
-        checkAuthStatus();
-
-        function checkAuthStatus() {
-            const authData = getAuthData();
-            const currentTime = Date.now();
-
-            if (authData && authData.expires > currentTime) {
-                // Geçerli oturum varsa
-                const remainingTime = authData.expires - currentTime;
-                grantAccess();
-                startSessionTimer(remainingTime);
-            } else {
-                // Oturum yoksa veya süresi dolmuşsa
-                requestPassword();
-                if (CONFIG.crossPageSync) clearAuthData();
-            }
-        }
+        
 
         function requestPassword() {
             if (mainContent) mainContent.style.display = 'none';
