@@ -12,7 +12,6 @@
 
   let visitStart = Date.now();
 
-  // IP adresini al
   fetch('https://api.ipify.org?format=json')
     .then(response => response.json())
     .then(ipData => {
@@ -21,26 +20,10 @@
       const screen_resolution = `${window.screen.width}x${window.screen.height}`;
       const ip_address = ipData.ip;
 
-      // Sayfa kapanınca ziyaret kaydet
       window.addEventListener('beforeunload', async () => {
         const visitEnd = Date.now();
         const time_spent = Math.floor((visitEnd - visitStart) / 1000);
-
-        const { error } = await client
-          .from('visitor_logs')
-          .insert([{
-            page_url,
-            ip_address,
-            user_agent,
-            screen_resolution,
-            time_spent
-          }]);
-
-        if (error) {
-          console.error('Ziyaretçi kaydedilirken hata:', error);
-        } else {
-          console.log('Ziyaret kaydedildi!');
-        }
+        await client.from('visitor_logs').insert([{ page_url, ip_address, user_agent, screen_resolution, time_spent }]);
       });
     });
 </script>
@@ -49,116 +32,210 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Senin İçin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Genel boşlukları sıfırlayalım */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background-image: url('https://github.com/BatuhanKlcky/Sonsuzum/blob/main/arkapaln2.jpg?raw=true');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Nunito', sans-serif;
             color: #fff;
             text-align: center;
             min-height: 100vh;
         }
 
-        /* Şifre giriş alanının modern tasarımı */
-        .password-container {
+        /* ─── KAPAK EKRANI ─── */
+        .gate {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8); /* Buğulu arka plan */
+            inset: 0;
+            background: rgba(0,0,0,0.78);
+            backdrop-filter: blur(8px);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 20;
-            animation: fadeIn 0.5s ease-out; /* Giriş animasyonu */
+            animation: fadeIn 0.5s ease;
         }
 
-        /* Şifre giriş kutusu tasarımı */
-        .password-box {
-            background: linear-gradient(135deg, #ff4c8b, #ff69b4); /* Şık renk geçişi */
-            padding: 40px;
-            border-radius: 15px;
-            text-align: center;
-            width: 320px;
-            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
-            transform: scale(1);
-            animation: scaleUp 0.3s ease-in-out forwards; /* Animasyon ekledim */
+        .gate-box {
+            background: linear-gradient(145deg, #e8336d, #ff6fa0);
+            padding: 40px 34px 34px;
+            border-radius: 26px;
+            width: 350px;
+            box-shadow: 0 24px 60px rgba(232,51,109,0.45), 0 0 0 1px rgba(255,255,255,0.1) inset;
+            animation: scaleUp 0.4s cubic-bezier(.34,1.56,.64,1) forwards;
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Animasyonlar */
-        @keyframes fadeIn {
-            0% {
-                opacity: 0;
-            }
-            100% {
-                opacity: 1;
-            }
+        .gate-box::before {
+            content: '♥';
+            position: absolute;
+            font-size: 220px;
+            color: rgba(255,255,255,0.04);
+            top: -50px; right: -40px;
+            pointer-events: none;
+            line-height: 1;
         }
 
-        @keyframes scaleUp {
-            0% {
-                transform: scale(0.8);
-            }
-            100% {
-                transform: scale(1);
-            }
+        .gate-icon {
+            font-size: 2.4em;
+            margin-bottom: 10px;
+            display: block;
+            animation: heartbeat 1.5s ease infinite;
         }
 
-        .password-box h2 {
-            font-size: 1.5em;
-            margin-bottom: 20px;
-            color: white;
-            font-weight: bold;
+        .gate-box h2 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2em;
+            color: #fff;
+            margin-bottom: 6px;
         }
 
-        .password-box input {
-            padding: 15px;
+        .gate-box .subtitle {
+            font-size: 0.85em;
+            color: rgba(255,255,255,0.82);
+            margin-bottom: 26px;
+            line-height: 1.55;
+        }
+
+        /* Adım listesi */
+        .steps {
+            text-align: left;
+            margin-bottom: 22px;
+            background: rgba(0,0,0,0.12);
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            margin-bottom: 12px;
+        }
+        .step:last-child { margin-bottom: 0; }
+
+        .step-num {
+            min-width: 26px; height: 26px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.22);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.78em; font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            font-size: 0.83em;
+            color: rgba(255,255,255,0.9);
+            line-height: 1.45;
+            padding-top: 3px;
+        }
+
+        /* WhatsApp Butonu */
+        .wa-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             width: 100%;
-            margin-top: 15px;
-            border-radius: 25px;
-            border: none;
-            background-color: white;
-            font-size: 1em;
-            color: #333;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .password-box input:focus {
-            outline: none;
-            box-shadow: 0 0 10px #ff69b4;
-            border: 2px solid #ff69b4;
-        }
-
-        .password-box button {
             padding: 15px;
-            background-color: #ff69b4;
+            background: #25D366;
             border: none;
             color: white;
-            font-size: 1.1em;
-            border-radius: 25px;
-            width: 100%;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1.05em;
+            font-weight: 800;
+            border-radius: 50px;
             cursor: pointer;
-            margin-top: 20px;
-            transition: background-color 0.3s;
+            text-decoration: none;
+            margin-bottom: 0;
+            box-shadow: 0 6px 22px rgba(37,211,102,0.45);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        .password-box button:hover {
-            background-color: #ff4c8b;
+        .wa-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(37,211,102,0.55);
         }
 
-        /* Ana içerik için stil */
+        .wa-btn i { font-size: 1.35em; }
+
+        /* Bekleme notu */
+        .waiting {
+            display: none;
+            margin-top: 18px;
+            padding: 14px 16px;
+            background: rgba(0,0,0,0.18);
+            border-radius: 14px;
+            font-size: 0.83em;
+            color: rgba(255,255,255,0.92);
+            line-height: 1.6;
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .waiting .wait-icon { font-size: 1.5em; display: block; margin-bottom: 5px; }
+        .pulse { animation: pulse 1.4s infinite; display: inline-block; }
+
+        /* Kod girişi */
+        .code-section {
+            display: none;
+            margin-top: 16px;
+        }
+
+        .code-section input {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 50px;
+            border: 2px solid transparent;
+            background: rgba(255,255,255,0.92);
+            font-size: 1.3em;
+            color: #333;
+            text-align: center;
+            letter-spacing: 8px;
+            font-weight: 800;
+            font-family: 'Nunito', sans-serif;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+            transition: border 0.2s, box-shadow 0.2s;
+        }
+
+        .code-section input:focus {
+            outline: none;
+            border-color: #ff85b3;
+            box-shadow: 0 0 0 3px rgba(255,133,179,0.3);
+        }
+
+        .code-section button {
+            margin-top: 10px;
+            width: 100%;
+            padding: 14px;
+            border-radius: 50px;
+            border: none;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.98em;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            transition: background 0.2s;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .code-section button:hover { background: rgba(255,255,255,0.3); }
+
+        .error-msg {
+            color: #ffe0e0;
+            font-size: 0.8em;
+            margin-top: 8px;
+            display: none;
+            animation: shake 0.3s ease;
+        }
+
+        /* ─── ANA İÇERİK ─── */
         .container {
             padding: 20px;
             display: none;
@@ -170,7 +247,7 @@
             font-size: 3em;
             color: #fff;
             margin-bottom: 20px;
-            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
             line-height: 1.2;
         }
 
@@ -179,181 +256,136 @@
             max-width: 800px;
             margin: 0 auto;
             line-height: 1.8;
-            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+            text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
         }
 
-        /* YENİ MODERN MENÜ STİLLERİ */
+        /* MENÜ */
         .menu-toggle {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 50;
-            width: 50px;
-            height: 50px;
-            background-color: #ff758f;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: fixed; top: 20px; left: 20px;
+            z-index: 50; width: 50px; height: 50px;
+            background-color: #ff758f; border-radius: 50%;
+            display: none; justify-content: center; align-items: center;
+            color: white; font-size: 1.5rem; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
-            display: none; /* Başlangıçta gizli */
         }
-
-        .menu-toggle:hover {
-            background-color: #d62a6b;
-            transform: scale(1.1);
-        }
+        .menu-toggle:hover { background-color: #d62a6b; transform: scale(1.1); }
 
         .sidebar-menu {
-            position: fixed;
-            top: 0;
-            left: -300px;
-            width: 300px;
-            height: 100%;
+            position: fixed; top: 0; left: -300px;
+            width: 300px; height: 100%;
             background: linear-gradient(to bottom, #ff758f, #ff7eb3);
-            z-index: 40;
-            transition: all 0.3s ease;
+            z-index: 40; transition: all 0.3s ease;
             padding: 80px 20px 20px;
-            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 5px 0 15px rgba(0,0,0,0.1);
         }
-
-        .sidebar-menu.active {
-            left: 0;
-        }
+        .sidebar-menu.active { left: 0; }
 
         .menu-item {
-            display: block;
-            color: white;
-            text-decoration: none;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            font-size: 1.1rem;
-            font-weight: 500;
+            display: block; color: white; text-decoration: none;
+            padding: 15px; margin-bottom: 10px; border-radius: 5px;
+            transition: all 0.3s ease; font-size: 1.1rem; font-weight: 500;
         }
+        .menu-item:hover { background-color: rgba(255,255,255,0.2); transform: translateX(5px); }
+        .menu-item i { margin-right: 10px; width: 20px; text-align: center; }
 
-        .menu-item:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            transform: translateX(5px);
-        }
+        footer { margin-top: 40px; display: none; }
+        footer a { text-decoration: none; color: #ff69b4; }
+        footer a:hover { color: #ff4c8b; }
 
-        .menu-item i {
-            margin-right: 10px;
-            width: 20px;
-            text-align: center;
-        }
-
-        footer {
-            margin-top: 40px;
-            display: none;
-        }
-
-        footer a {
-            text-decoration: none;
-            color: #ff69b4;
-        }
-
-        footer a:hover {
-            color: #ff4c8b;
-        }
-
-        /* Pixel Kalp */
         .pixel-heart {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
-            z-index: 100;
-            cursor: pointer;
-            display: none;
+            position: fixed; bottom: 20px; right: 20px;
+            width: 40px; height: 40px;
+            z-index: 100; cursor: pointer; display: none;
         }
-
         .pixel {
-            width: 8px;
-            height: 8px;
+            width: 8px; height: 8px;
             background-color: #ff4c8b;
-            position: absolute;
-            transition: all 0.3s ease;
+            position: absolute; transition: all 0.3s ease;
         }
 
-        /* Responsive Tasarım - Mobil için */
+        /* ANİMASYONLAR */
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        @keyframes scaleUp { from { transform:scale(0.8); opacity:0; } to { transform:scale(1); opacity:1; } }
+        @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+        @keyframes heartbeat { 0%,100%{transform:scale(1);} 50%{transform:scale(1.18);} }
+        @keyframes shake {
+            0%{transform:translateX(0);} 25%{transform:translateX(-6px);}
+            75%{transform:translateX(6px);} 100%{transform:translateX(0);}
+        }
+
         @media (max-width: 768px) {
-            h1 {
-                font-size: 2.2em;
-                line-height: 1.4;
-            }
-
-            p {
-                font-size: 1.2em;
-                max-width: 100%;
-            }
-
-            .password-box {
-                width: 80%;
-                padding: 30px;
-            }
-
-            .menu-toggle {
-                display: flex; /* Mobilde göster */
-            }
-
-            .pixel-heart {
-                width: 30px;
-                height: 30px;
-            }
-
-            .pixel {
-                width: 6px;
-                height: 6px;
-            }
+            h1 { font-size: 2.2em; line-height: 1.4; }
+            p { font-size: 1.2em; max-width: 100%; }
+            .gate-box { width: 90%; padding: 30px 22px; }
+            .menu-toggle { display: flex; }
+            .pixel-heart { width: 30px; height: 30px; }
+            .pixel { width: 6px; height: 6px; }
         }
 
-        /* Full screen için */
         @media (max-width: 480px) {
-            h1 {
-                font-size: 1.8em;
-            }
-
-            p {
-                font-size: 1em;
-            }
-            
-            .sidebar-menu {
-                width: 250px;
-            }
+            h1 { font-size: 1.8em; }
+            p { font-size: 1em; }
+            .sidebar-menu { width: 250px; }
         }
     </style>
 </head>
 <body>
-    <!-- Şarkının doğru şekilde sürekli çalmasını sağlamak -->
+
     <audio autoplay loop id="bgMusic">
         <source src="https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
-        Tarayıcınız ses dosyasını desteklemiyor.
     </audio>
 
-    <!-- Şifre giriş alanı -->
-    <div class="password-container" id="passwordContainer">
-        <div class="password-box">
-            <h2>Hoşgeldin Lütfen Şifreyi Gir</h2>
-            <input type="password" id="password" placeholder="Şifre">
-            <button onclick="checkPassword()">Gönder</button>
+    <!-- ─── GİRİŞ KAPISI ─── -->
+    <div class="gate" id="gate">
+        <div class="gate-box">
+            <span class="gate-icon">👋​</span>
+            <h2>Hoş Geldin</h2>
+            <p class="subtitle">Bu sayfaya girebilmek için<br>önce WhatsApp'tan mesaj atman gerekiyor.</p>
+
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-text">Aşağıdaki butona tıkla — WhatsApp otomatik açılacak.</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-text">Mesajı olduğu gibi <strong>gönder</strong>.</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-text">Sana WhatsApp'tan <strong>4 haneli kod</strong> gelecek, buraya gir.</div>
+                </div>
+            </div>
+
+            <a class="wa-btn" id="waBtn"
+               href="https://wa.me/905372459764?text=Merhaba%2C%20siteye%20giri%C5%9F%20yapmak%20istiyorum%20%F0%9F%8C%B8"
+               target="_blank"
+               onclick="onWaClick()">
+                <i class="fab fa-whatsapp"></i> WhatsApp'tan Mesaj At
+            </a>
+
+            <div class="waiting" id="waitingNote">
+                <span class="wait-icon pulse">⏳</span>
+                Mesajın alındı! Sana WhatsApp'tan <strong>4 haneli onay kodunu</strong> göndereceğim.<br>
+                Gelince aşağıya yaz 👇
+            </div>
+
+            <div class="code-section" id="codeSection">
+                <input type="text" id="codeInput" maxlength="4" placeholder="· · · ·" inputmode="numeric" autocomplete="one-time-code">
+                <p class="error-msg" id="errorMsg">❌ Kod hatalı, tekrar dene.</p>
+                <button onclick="checkCode()">Giriş Yap ✨</button>
+            </div>
         </div>
     </div>
 
-    <!-- Ana içerik -->
+    <!-- ─── ANA İÇERİK ─── -->
     <div class="container" id="mainContent">
         <h1>Seninle geçen her saniye, hayatımın en güzel hikayesiydi.</h1>
-        <p>Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim.
+        <p>Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. 
         Şimdi bu sayfalar, bizim hikayemizin şahidi olarak burada seni bekliyor.</p>
     </div>
 
-    <!-- YENİ MODERN MENÜ -->
     <div class="menu-toggle" id="menuToggle">
         <i class="fas fa-bars"></i>
     </div>
@@ -364,144 +396,131 @@
         <a href="galeri.html" class="menu-item"><i class="fas fa-images"></i> Fotoğraf Galerisi</a>
         <a href="mesajlar.html" class="menu-item"><i class="fas fa-envelope"></i> Özel Mesajlar</a>
         <a href="x" class="menu-item"><i class="fas fa-flower"></i> (</a>
-        <a href="cicek.html" class="menu-item"><i class="fas fa-times"></i> Cicek Tarlası </a>
-        <a href="cube.html" class="menu-item"><i class="fas fa-flag-checkered"></i> Zeka Küpü </a>
+        <a href="cicek.html" class="menu-item"><i class="fas fa-times"></i> Cicek Tarlası</a>
+        <a href="cube.html" class="menu-item"><i class="fas fa-flag-checkered"></i> Zeka Küpü</a>
         <a href="stick-hero.html" class="menu-item"><i class="fas fa-gamepad"></i> Çubuk ADAM</a>
         <a href="#" class="menu-item" id="musicControl"><i class="fas fa-music"></i> Müzik: Açık</a>
     </div>
 
     <footer id="footer">
-        <p>&copy; 2026 Senin İçin. Tüm Sevgim sende saklıdır.</p>
+        <p>&copy; 2026 </p>
     </footer>
 
-    <!-- Pixel Kalp -->
     <div class="pixel-heart" id="pixelHeart"></div>
 
     <script>
-        const correctPassword = '240424'; // Doğru şifre
+        // ════════════════════════════════════
+        //  ONAY KODUNU BURADAN DEĞİŞTİR
+        //  Her seferinde WhatsApp'tan farklı
+        //  bir kod gönderip bunu güncelleyebilirsin.
+        // ════════════════════════════════════
+        const SECRET_CODE = '1234'; // ← değiştir
 
-        // Sayfa yüklendiğinde zaman kontrolü
-        window.onload = function() {
-            const lastAccess = localStorage.getItem('lastAccess');
-            const currentTime = Date.now();
-            
-            if (lastAccess && (currentTime - lastAccess) < 100) { // 600000 ms = 10 dakika
-                // 10 dakika içinde tekrar şifre isteme
-                document.getElementById('passwordContainer').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'block';
-                document.getElementById('footer').style.display = 'block';
-                document.getElementById('pixelHeart').style.display = 'block';
-                document.getElementById('menuToggle').style.display = 'flex';
-                document.getElementById('bgMusic').play(); // Şarkıyı başlat
-                createPixelHeart();
-            }
+        function onWaClick() {
+            setTimeout(() => {
+                document.getElementById('waitingNote').style.display = 'block';
+                document.getElementById('codeSection').style.display = 'block';
+                document.getElementById('codeInput').focus();
+            }, 1800);
         }
 
-        function checkPassword() {
-            const inputPassword = document.getElementById('password').value;
-            if (inputPassword === correctPassword) {
-                localStorage.setItem('lastAccess', Date.now());
-                document.getElementById('passwordContainer').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'block';
-                document.getElementById('footer').style.display = 'block';
-                document.getElementById('pixelHeart').style.display = 'block';
-                document.getElementById('menuToggle').style.display = 'flex';
-                document.getElementById('bgMusic').play(); // Şarkıyı başlat
-                createPixelHeart();
+        function checkCode() {
+            const val = document.getElementById('codeInput').value.trim();
+            const err = document.getElementById('errorMsg');
+            if (val === SECRET_CODE) {
+                localStorage.setItem('wa_auth', Date.now());
+                unlockSite();
             } else {
-                alert('Yanlış Şifre...  /) '); //Yanlış şifre. Lütfen tekrar deneyin.
+                err.style.display = 'block';
+                err.style.animation = 'none';
+                requestAnimationFrame(() => { err.style.animation = ''; });
+                document.getElementById('codeInput').value = '';
+                document.getElementById('codeInput').focus();
             }
         }
 
-        // YENİ MENÜ TOGGLE FONKSİYONU
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && document.getElementById('codeSection').style.display === 'block') {
+                checkCode();
+            }
+        });
+
+        function unlockSite() {
+            document.getElementById('gate').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            document.getElementById('footer').style.display = 'block';
+            document.getElementById('pixelHeart').style.display = 'block';
+            document.getElementById('menuToggle').style.display = 'flex';
+            document.getElementById('bgMusic').play();
+            createPixelHeart();
+        }
+
+        window.onload = function () {
+            const auth = localStorage.getItem('wa_auth');
+            // 24 saat geçerliyse tekrar isteme
+            if (auth && (Date.now() - parseInt(auth)) < 86400000) {
+                unlockSite();
+            }
+        };
+
         function toggleMenu() {
             document.getElementById('sidebarMenu').classList.toggle('active');
-            document.getElementById('menuToggle').innerHTML = 
-                document.getElementById('sidebarMenu').classList.contains('active') ? 
-                '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+            document.getElementById('menuToggle').innerHTML =
+                document.getElementById('sidebarMenu').classList.contains('active')
+                    ? '<i class="fas fa-times"></i>'
+                    : '<i class="fas fa-bars"></i>';
         }
 
-        // MÜZİK KONTROL FONKSİYONU
         function toggleMusic() {
             const bgMusic = document.getElementById('bgMusic');
-            const musicControl = document.getElementById('musicControl');
-            
+            const mc = document.getElementById('musicControl');
             if (bgMusic.paused) {
                 bgMusic.play();
-                musicControl.innerHTML = '<i class="fas fa-music"></i> Müzik: Açık';
+                mc.innerHTML = '<i class="fas fa-music"></i> Müzik: Açık';
             } else {
                 bgMusic.pause();
-                musicControl.innerHTML = '<i class="fas fa-music"></i> Müzik: Kapalı';
+                mc.innerHTML = '<i class="fas fa-music"></i> Müzik: Kapalı';
             }
         }
 
-        // Pixel Kalp oluşturma ve animasyon
         function createPixelHeart() {
             const heart = document.getElementById('pixelHeart');
             heart.innerHTML = '';
-            
-            // Pixel kalp şekli (5x5 grid)
             const heartShape = [
-                [0, 1, 0, 1, 0],
-                [1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 1],
-                [0, 1, 1, 1, 0],
-                [0, 0, 1, 0, 0]
+                [0,1,0,1,0],
+                [1,1,1,1,1],
+                [1,1,1,1,1],
+                [0,1,1,1,0],
+                [0,0,1,0,0]
             ];
-            
-            // Pixel'leri oluştur
             for (let y = 0; y < 5; y++) {
                 for (let x = 0; x < 5; x++) {
                     if (heartShape[y][x] === 1) {
                         const pixel = document.createElement('div');
                         pixel.className = 'pixel';
                         pixel.style.left = (x * 8) + 'px';
-                        pixel.style.top = (y * 8) + 'px';
-                        
-                        // Rastgele animasyon gecikmesi
+                        pixel.style.top  = (y * 8) + 'px';
                         pixel.style.transitionDelay = (Math.random() * 0.5) + 's';
-                        
                         heart.appendChild(pixel);
                     }
                 }
-            } 
-            
-            // Tıklama efekti
-            heart.addEventListener('click', () => {
-                const pixels = document.querySelectorAll('.pixel');
-                pixels.forEach(pixel => {
-                    pixel.style.transform = 'translate(0, -20px) scale(1.5)';
-                    pixel.style.opacity = '0.7';
-                    
-                    setTimeout(() => {
-                        pixel.style.transform = 'translate(0, 0) scale(1)';
-                        pixel.style.opacity = '1';
-                    }, 300);
-                });
-            });
+            }
         }
 
-        // Event listener'ları ekle
         document.getElementById('menuToggle').addEventListener('click', toggleMenu);
         document.getElementById('musicControl').addEventListener('click', toggleMusic);
+        document.getElementById('bgMusic').play().catch(() => {});
 
-        // Müzik otomatik çalmayı dene
-        document.getElementById('bgMusic').play().catch(e => console.log("Otomatik çalma engellendi: ", e));
+        let clickCount = 0;
+        document.getElementById('pixelHeart').addEventListener('click', function () {
+            clickCount++;
+            if (clickCount === 5) {
+                alert('SENİ ÇOOOOK SEVİYORUM ');
+                clickCount = 0;
+                window.location.href = 'https://batuhanklcky.github.io/Sonsuzum/kalp.html';
+            }
+        });
     </script>
 
-<script>
-  let clickCount = 0;
-  
-  document.getElementById('pixelHeart').addEventListener('click', function() {
-    clickCount++;
-
-    if (clickCount === 5) {
-      alert('SENİ ÇOOOOK SEVİYORUM ');
-      clickCount = 0; //
-        window.location.href = 'https://batuhanklcky.github.io/Sonsuzum/kalp.html';
-    }
-  });
-</script>
-    
 </body>
 </html>
