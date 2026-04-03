@@ -43,6 +43,15 @@
       });
     });
 </script>
+
+     <script>
+  // Giriş yapılmamışsa ana sayfaya geri gönder
+  const auth = localStorage.getItem('wa_auth');
+  if (!auth || (Date.now() - parseInt(auth)) >= 86400000) {
+    window.location.href = 'index.html'; // ana sayfanın adı neyse
+  }
+</script>
+     
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
