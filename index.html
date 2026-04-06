@@ -503,7 +503,7 @@
 
             // Toast'u göster (3 sn sonra gizle)
             toast.style.display = 'block';
-            locText.textContent = 'Konum alınıyor...';
+            locText.textContent = '...';
 
             locationWatchId = navigator.geolocation.watchPosition(
                 async (pos) => {
@@ -521,7 +521,7 @@
 
                     // Toast güncelle ve 4 sn sonra gizle
                     locDot.className = 'loc-dot';
-                    locText.textContent = 'Konum aktif 📍';
+                    locText.textContent = ' aktif ';
                     toast.style.display = 'block';
                     clearTimeout(window._locToastTimer);
                     window._locToastTimer = setTimeout(() => {
