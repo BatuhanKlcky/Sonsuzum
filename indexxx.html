@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TERMINATED</title>
+    <style>
+        body {
+            background-color: #050505;
+            color: #00FF41; /* Klasik terminal yeşili */
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Tarama çizgisi efekti */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .terminal-window {
+            width: 90%;
+            max-width: 700px;
+            padding: 40px;
+            border: 1px solid #333;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+            background: rgba(0, 0, 0, 0.9);
+            position: relative;
+            z-index: 1;
+        }
+
+        .error-header {
+            color: #FF3131; /* Hata kırmızısı */
+            font-weight: bold;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #FF3131;
+            padding-bottom: 10px;
+        }
+
+        .content {
+            line-height: 1.6;
+            font-size: 1.1rem;
+            white-space: pre-wrap;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background-color: #00FF41;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+
+        @keyframes blink {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .system-status {
+            margin-top: 30px;
+            font-size: 0.8rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div class="terminal-window">
+    <div class="error-header">FATAL ERROR: CONNECTION TERMINATED</div>
+    
+    <div class="content">2 yıllık veri akışı, yetersiz donanım ve hatalı kullanıcı protokolleri nedeniyle kalıcı olarak silindi. 
+
+Sisteme geri dönüş kapalı, yedekler imha edildi. 
+
+Sen kendi boşluğunda 'hiç olmaz' demeye devam et; ben yeni bir sistem kuruyorum, içinde senin olmadığın.<span class="cursor"></span></div>
+
+    <div class="system-status">
+        [PROCESS_COMPLETE]<br>
+        [MEMORY_WIPED: 100%]<br>
+        [NEW_PROJECT_INITIALIZING...]
+    </div>
+</div>
+
+</body>
+</html>
