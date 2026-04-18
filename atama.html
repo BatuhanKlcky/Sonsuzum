@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Uygulama İndiriliyor...</title>
+</head>
+<body>
+
+    <h2>İndirme işleminiz birazdan başlayacaktır...</h2>
+    <p>Başlamadıysa <a href="uygulama-dosyaniz.apk">buraya tıklayın</a>.</p>
+
+    <script>
+        window.onload = function() {
+            // 2 saniye (2000ms) bekleyip indirmeyi başlatır
+            setTimeout(function() {
+                var link = document.createElement('a');
+                link.href = 'uygulama-dosyaniz.apk'; // APK dosyasının yolu
+                link.download = 'uygulama-adi.apk';  // İnecek dosyanın adı
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }, 2000); 
+        };
+    </script>
+</body>
+</html>
