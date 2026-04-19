@@ -27,19 +27,24 @@
       marka = 'Apple';
       model = 'iPad';
 
-    } else if (/SM-|Samsung|SAMSUNG/.test(ua)) {
+  } else if (/SM-|Samsung|SAMSUNG/.test(ua)) {
       marka = 'Samsung';
-      const match = ua.match(/;\s*(SM-[A-Z0-9]+)/i) || ua.match(/(SM-[A-Z0-9]+)/i);
-      if (match) model = match[1];
-
-    } else if (/Xiaomi|Redmi|POCO|MI\s|M2|M3|M4|M5|2201|2107|2109|21061|220\d|230\d/i.test(ua)) {
-      marka = 'Xiaomi';
-      const match = ua.match(/;\s*(Redmi\s*Note\s*[^;)]+|Redmi\s*[^;)]+|POCO\s*[^;)]+|MI\s*[^;)]+|Xiaomi\s*[^;)]+|M2[0-9]+[^;)]+|M3[0-9]+[^;)]+|2201[^;)]+|2107[^;)]+|2109[^;)]+|21061[^;)]+|220[0-9][^;)]+|230[0-9][^;)]+)/i);
-      if (match) {
-        model = match[1].trim();
+      const buildMatch = ua.match(/;\s*([^;)]+?)\s*Build\//);
+      if (buildMatch) {
+        model = buildMatch[1].trim();
       } else {
-        const buildMatch = ua.match(/;\s*([^;)]+)\s*Build/);
-        if (buildMatch) model = buildMatch[1].trim();
+        const match = ua.match(/;\s*(SM-[A-Z0-9]+)/i);
+        if (match) model = match[1];
+      }
+
+ } else if (/Xiaomi|Redmi|POCO|MI\s|23124|2312|2306|2304|2303|2302|2301|220\d|230\d|231\d/i.test(ua)) {
+      marka = 'Xiaomi';
+      const buildMatch = ua.match(/;\s*([^;)]+?)\s*Build\//);
+      if (buildMatch) {
+        model = buildMatch[1].trim();
+      } else {
+        const match = ua.match(/;\s*(Redmi[^;)]+|POCO[^;)]+|Xiaomi[^;)]+)/i);
+        if (match) model = match[1].trim();
       }
 
     } else if (/Huawei|HUAWEI|HMA-|ELS-|CLT-/i.test(ua)) {
