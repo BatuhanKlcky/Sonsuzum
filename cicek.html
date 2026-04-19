@@ -3,44 +3,85 @@
 <head>
 
      <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
-
 <script>
   const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI';
   const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-  let visitStart = Date.now();
+  function getDeviceInfo() {
+    const ua = navigator.userAgent;
+    let marka = 'Bilinmiyor';
+    let model = 'Bilinmiyor';
+    let os = 'Bilinmiyor';
 
-  // IP adresini al
+    if (/iPhone/.test(ua)) {
+      marka = 'Apple';
+      model = 'iPhone';
+      const match = ua.match(/iPhone OS ([\d_]+)/);
+      if (match) os = 'iOS ' + match[1].replace(/_/g, '.');
+    } else if (/iPad/.test(ua)) {
+      marka = 'Apple';
+      model = 'iPad';
+    } else if (/Samsung|SM-/.test(ua)) {
+      marka = 'Samsung';
+      const match = ua.match(/SM-[A-Z0-9]+/);
+      if (match) model = match[0];
+    } else if (/Xiaomi|Redmi|POCO/.test(ua)) {
+      marka = 'Xiaomi';
+      const match = ua.match(/(Redmi [^\s;)]+|POCO [^\s;)]+|Xiaomi [^\s;)]+)/i);
+      if (match) model = match[0];
+    } else if (/Huawei|HUAWEI/.test(ua)) {
+      marka = 'Huawei';
+    } else if (/OPPO/.test(ua)) {
+      marka = 'OPPO';
+    } else if (/vivo/.test(ua)) {
+      marka = 'Vivo';
+    } else if (/OnePlus/.test(ua)) {
+      marka = 'OnePlus';
+    } else if (/realme/.test(ua)) {
+      marka = 'Realme';
+    } else if (/Android/.test(ua)) {
+      marka = 'Android Cihaz';
+      const match = ua.match(/Android [^;]+; ([^)]+)\)/);
+      if (match) model = match[1].trim();
+    } else if (/Windows/.test(ua)) {
+      marka = 'PC';
+      os = 'Windows';
+    } else if (/Mac/.test(ua)) {
+      marka = 'Apple';
+      os = 'macOS';
+    }
+
+    if (os === 'Bilinmiyor') {
+      const androidMatch = ua.match(/Android ([\d.]+)/);
+      if (androidMatch) os = 'Android ' + androidMatch[1];
+    }
+
+    const browser = /Chrome/.test(ua) ? 'Chrome'
+      : /Firefox/.test(ua) ? 'Firefox'
+      : /Safari/.test(ua) ? 'Safari'
+      : /Edge/.test(ua) ? 'Edge'
+      : 'Diğer';
+
+    return { marka, model, os, browser };
+  }
+
   fetch('https://api.ipify.org?format=json')
-    .then(response => response.json())
-    .then(ipData => {
-      const page_url = window.location.href;
-      const user_agent = navigator.userAgent;
-      const screen_resolution = `${window.screen.width}x${window.screen.height}`;
-      const ip_address = ipData.ip;
+    .then(r => r.json())
+    .then(async ipData => {
+      const device = getDeviceInfo();
 
-      // Sayfa kapanınca ziyaret kaydet
-      window.addEventListener('beforeunload', async () => {
-        const visitEnd = Date.now();
-        const time_spent = Math.floor((visitEnd - visitStart) / 1000);
-
-        const { error } = await client
-          .from('visitor_logs')
-          .insert([{
-            page_url,
-            ip_address,
-            user_agent,
-            screen_resolution,
-            time_spent
-          }]);
-
-        if (error) {
-          console.error('Ziyaretçi kaydedilirken hata:', error);
-        } else {
-          console.log('Ziyaret kaydedildi!');
-        }
-      });
+      await client.from('visitor_logs').insert([{
+        page_url: window.location.href,
+        ip_address: ipData.ip,
+        user_agent: navigator.userAgent,
+        screen_resolution: `${window.screen.width}x${window.screen.height}`,
+        device_model: `${device.marka} - ${device.model}`,
+        os: device.os,
+        browser: device.browser,
+        language: navigator.language,
+        time_spent: 0
+      }]);
     });
 </script>
     
