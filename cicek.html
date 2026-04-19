@@ -14,53 +14,78 @@
     let model = 'Bilinmiyor';
     let os = 'Bilinmiyor';
 
+    const androidMatch = ua.match(/Android ([\d.]+)/);
+    if (androidMatch) os = 'Android ' + androidMatch[1];
+
     if (/iPhone/.test(ua)) {
       marka = 'Apple';
       model = 'iPhone';
       const match = ua.match(/iPhone OS ([\d_]+)/);
       if (match) os = 'iOS ' + match[1].replace(/_/g, '.');
+
     } else if (/iPad/.test(ua)) {
       marka = 'Apple';
       model = 'iPad';
-    } else if (/Samsung|SM-/.test(ua)) {
+
+    } else if (/SM-|Samsung|SAMSUNG/.test(ua)) {
       marka = 'Samsung';
-      const match = ua.match(/SM-[A-Z0-9]+/);
-      if (match) model = match[0];
-    } else if (/Xiaomi|Redmi|POCO/.test(ua)) {
+      const match = ua.match(/;\s*(SM-[A-Z0-9]+)/i) || ua.match(/(SM-[A-Z0-9]+)/i);
+      if (match) model = match[1];
+
+    } else if (/Xiaomi|Redmi|POCO|MI\s|M2|M3|M4|M5|2201|2107|2109|21061|220\d|230\d/i.test(ua)) {
       marka = 'Xiaomi';
-      const match = ua.match(/(Redmi [^\s;)]+|POCO [^\s;)]+|Xiaomi [^\s;)]+)/i);
-      if (match) model = match[0];
-    } else if (/Huawei|HUAWEI/.test(ua)) {
+      const match = ua.match(/;\s*(Redmi\s*Note\s*[^;)]+|Redmi\s*[^;)]+|POCO\s*[^;)]+|MI\s*[^;)]+|Xiaomi\s*[^;)]+|M2[0-9]+[^;)]+|M3[0-9]+[^;)]+|2201[^;)]+|2107[^;)]+|2109[^;)]+|21061[^;)]+|220[0-9][^;)]+|230[0-9][^;)]+)/i);
+      if (match) {
+        model = match[1].trim();
+      } else {
+        const buildMatch = ua.match(/;\s*([^;)]+)\s*Build/);
+        if (buildMatch) model = buildMatch[1].trim();
+      }
+
+    } else if (/Huawei|HUAWEI|HMA-|ELS-|CLT-/i.test(ua)) {
       marka = 'Huawei';
-    } else if (/OPPO/.test(ua)) {
+      const match = ua.match(/;\s*([A-Z]{2,3}-[A-Z0-9]+)/i);
+      if (match) model = match[1];
+
+    } else if (/OPPO/i.test(ua)) {
       marka = 'OPPO';
-    } else if (/vivo/.test(ua)) {
+      const match = ua.match(/;\s*(CPH[0-9]+|OPPO[^;)]+)/i);
+      if (match) model = match[1].trim();
+
+    } else if (/vivo/i.test(ua)) {
       marka = 'Vivo';
-    } else if (/OnePlus/.test(ua)) {
+      const match = ua.match(/;\s*(vivo[^;)]+)/i);
+      if (match) model = match[1].trim();
+
+    } else if (/OnePlus/i.test(ua)) {
       marka = 'OnePlus';
-    } else if (/realme/.test(ua)) {
+      const match = ua.match(/;\s*(OnePlus[^;)]+)/i);
+      if (match) model = match[1].trim();
+
+    } else if (/realme/i.test(ua)) {
       marka = 'Realme';
+      const match = ua.match(/;\s*(RMX[0-9]+|realme[^;)]+)/i);
+      if (match) model = match[1].trim();
+
     } else if (/Android/.test(ua)) {
       marka = 'Android Cihaz';
-      const match = ua.match(/Android [^;]+; ([^)]+)\)/);
+      const match = ua.match(/;\s*([^;)]+)\s*Build/);
       if (match) model = match[1].trim();
+
     } else if (/Windows/.test(ua)) {
       marka = 'PC';
       os = 'Windows';
-    } else if (/Mac/.test(ua)) {
+
+    } else if (/Macintosh|Mac OS X/.test(ua)) {
       marka = 'Apple';
       os = 'macOS';
     }
 
-    if (os === 'Bilinmiyor') {
-      const androidMatch = ua.match(/Android ([\d.]+)/);
-      if (androidMatch) os = 'Android ' + androidMatch[1];
-    }
-
-    const browser = /Chrome/.test(ua) ? 'Chrome'
+    const browser = /EdgA?\//.test(ua) ? 'Edge'
+      : /OPR\/|Opera/.test(ua) ? 'Opera'
+      : /Chrome/.test(ua) ? 'Chrome'
       : /Firefox/.test(ua) ? 'Firefox'
       : /Safari/.test(ua) ? 'Safari'
-      : /Edge/.test(ua) ? 'Edge'
       : 'Diğer';
 
     return { marka, model, os, browser };
@@ -70,6 +95,7 @@
     .then(r => r.json())
     .then(async ipData => {
       const device = getDeviceInfo();
+      const visitStart = Date.now();
 
       await client.from('visitor_logs').insert([{
         page_url: window.location.href,
@@ -82,6 +108,21 @@
         language: navigator.language,
         time_spent: 0
       }]);
+
+      window.addEventListener('beforeunload', async () => {
+        const time_spent = Math.floor((Date.now() - visitStart) / 1000);
+        await client.from('visitor_logs').insert([{
+          page_url: window.location.href,
+          ip_address: ipData.ip,
+          user_agent: navigator.userAgent,
+          screen_resolution: `${window.screen.width}x${window.screen.height}`,
+          device_model: `${device.marka} - ${device.model}`,
+          os: device.os,
+          browser: device.browser,
+          language: navigator.language,
+          time_spent
+        }]);
+      });
     });
 </script>
     
