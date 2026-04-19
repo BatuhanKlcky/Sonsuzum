@@ -1,68 +1,138 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head> 
-           <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
+          
+    <script>
+  window.addEventListener('load', function() {
+    const ua = navigator.userAgent;
+    const isMobileUA = /Android|iPhone|iPad/i.test(ua);
+    const isDesktopUA = /X11|Linux x86_64|Windows NT|Macintosh/i.test(ua);
+    const isSmallScreen = window.screen.width <= 768;
 
+    if (!isMobileUA && isSmallScreen) {
+      const uyari = document.createElement('div');
+      uyari.style.cssText = `
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.92);
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-align: center;
+        padding: 30px;
+        font-family: sans-serif;
+      `;
+      uyari.innerHTML = `
+        <div style="font-size: 50px; margin-bottom: 20px;">📱</div>
+        <h2 style="margin-bottom: 15px;">Masaüstü modu kapalı</h2>
+        <p style="color: #ccc; margin-bottom: 25px; line-height: 1.6;">
+          Bu sayfayı düzgün görmek için tarayıcındaki masaüstü modunu kapatman gerekiyor.<br><br>
+          Chrome'da sağ üstteki 3 nokta → <strong>"Masaüstü sitesi"</strong> seçeneğini kapat.
+        </p>
+        <button onclick="location.reload()" style="
+          padding: 12px 30px;
+          background: #ff69b4;
+          border: none;
+          border-radius: 25px;
+          color: white;
+          font-size: 16px;
+          cursor: pointer;
+        ">Kapattım, tekrar dene</button>
+      `;
+      document.body.appendChild(uyari);
+    }
+  });
+</script>
+
+
+
+    
+    
+   <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
 <script>
   const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI';
   const client = supabase.createClient(supabaseUrl, supabaseKey);
 
   let visitStart = Date.now();
-  let rowId = null; // Veritabanından dönen ID'yi burada saklayacağız
 
-  async function logVisitStart() {
+  async function getDeviceInfo() {
+    const ua = navigator.userAgent;
+    let marka = 'Bilinmiyor';
+    let model = 'Bilinmiyor';
+
     try {
-      // 1. IP Adresini al
-      const ipResponse = await fetch('https://api.ipify.org?format=json');
-      const ipData = await ipResponse.json();
-
-      // 2. İlk kaydı oluştur (Sayfa açılır açılmaz)
-      const { data, error } = await client
-        .from('visitor_logs')
-        .insert([{
-          page_url: window.location.href,
-          ip_address: ipData.ip,
-          user_agent: navigator.userAgent,
-          screen_resolution: `${window.screen.width}x${window.screen.height}`,
-          time_spent: 0 // Başlangıçta 0
-        }])
-        .select(); // ID'yi almak için select ekliyoruz
-
-      if (error) throw error;
-      if (data && data.length > 0) {
-        rowId = data[0].id; // Oluşturulan satırın ID'sini kaydet
-        console.log("Ziyaret başlatıldı, ID:", rowId);
+      if (navigator.userAgentData) {
+        const hints = await navigator.userAgentData.getHighEntropyValues([
+          'model', 'brand', 'platform', 'platformVersion'
+        ]);
+        if (hints.model) model = hints.model;
+        if (hints.brands) {
+          const real = hints.brands.find(b =>
+            !b.brand.includes('Not') &&
+            !b.brand.includes('Chromium') &&
+            b.brand !== 'Google Chrome'
+          );
+          if (real) marka = real.brand;
+        }
       }
-    } catch (err) {
-      console.error("Başlatma hatası:", err.message);
-    }
+    } catch(e) {}
+
+    const os = ua.match(/Android ([\d.]+)/)
+      ? 'Android ' + ua.match(/Android ([\d.]+)/)[1]
+      : /iPhone/.test(ua) ? 'iOS'
+      : /Windows/.test(ua) ? 'Windows'
+      : /Mac/.test(ua) ? 'macOS' : 'Bilinmiyor';
+
+    const browser = /EdgA?\//.test(ua) ? 'Edge'
+      : /OPR\/|Opera/.test(ua) ? 'Opera'
+      : /Chrome/.test(ua) ? 'Chrome'
+      : /Firefox/.test(ua) ? 'Firefox'
+      : /Safari/.test(ua) ? 'Safari' : 'Diğer';
+
+    return { marka, model, os, browser };
   }
 
-  // Sayfa kapanırken veya sekme değiştirildiğinde çalışır
-  window.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden' && rowId) {
-      const visitEnd = Date.now();
-      const timeSpent = Math.floor((visitEnd - visitStart) / 1000);
+  fetch('https://api.ipify.org?format=json')
+    .then(r => r.json())
+    .then(async ipData => {
+      const ua = navigator.userAgent;
+      const ip_address = ipData.ip;
+      const page_url = window.location.href;
+      const screen_resolution = `${window.screen.width}x${window.screen.height}`;
+      const device = await getDeviceInfo();
 
-      // Sayfa kapanırken Supabase SDK'sı yerine 'keepalive' destekli fetch kullanıyoruz
-      // Bu, bağlantı kopsa bile verinin sunucuya ulaşmasını sağlar.
-      fetch(`${supabaseUrl}/rest/v1/visitor_logs?id=eq.${rowId}`, {
-        method: 'PATCH',
-        headers: {
-          'apikey': supabaseKey,
-          'Authorization': `Bearer ${supabaseKey}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({ time_spent: timeSpent }),
-        keepalive: true
+      await client.from('visitor_logs').insert([{
+        page_url,
+        ip_address,
+        user_agent: ua,
+        screen_resolution,
+        device_model: `${device.marka} - ${device.model}`,
+        os: device.os,
+        browser: device.browser,
+        language: navigator.language,
+        time_spent: 0
+      }]);
+
+      window.addEventListener('beforeunload', async () => {
+        const time_spent = Math.floor((Date.now() - visitStart) / 1000);
+        await client.from('visitor_logs').insert([{
+          page_url,
+          ip_address,
+          user_agent: ua,
+          screen_resolution,
+          device_model: `${device.marka} - ${device.model}`,
+          os: device.os,
+          browser: device.browser,
+          language: navigator.language,
+          time_spent
+        }]);
       });
-    }
-  });
-
-  // Fonksiyonu çalıştır
-  logVisitStart();
+    });
 </script>
 
   
