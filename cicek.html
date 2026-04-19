@@ -2,26 +2,64 @@
 <html lang="tr">
 <head>
 
-     <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
 <script>
   const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI';
   const client = supabase.createClient(supabaseUrl, supabaseKey);
 
+  async function getClientHints() {
+    let marka = 'Bilinmiyor';
+    let model = 'Bilinmiyor';
+
+    try {
+      if (navigator.userAgentData) {
+        const hints = await navigator.userAgentData.getHighEntropyValues([
+          'model', 'brand', 'platform', 'platformVersion'
+        ]);
+        marka = hints.brands?.[0]?.brand || 'Bilinmiyor';
+        model = hints.model || 'Bilinmiyor';
+        
+        if (hints.brands) {
+          const real = hints.brands.find(b => 
+            !b.brand.includes('Not') && 
+            !b.brand.includes('Chromium') &&
+            b.brand !== 'Google Chrome'
+          );
+          if (real) marka = real.brand;
+        }
+      }
+    } catch(e) {}
+
+    return { marka, model };
+  }
+
   fetch('https://api.ipify.org?format=json')
     .then(r => r.json())
     .then(async ipData => {
       const ua = navigator.userAgent;
-      const visitStart = Date.now();
+      const hints = await getClientHints();
+
+      const os = ua.match(/Android ([\d.]+)/) 
+        ? 'Android ' + ua.match(/Android ([\d.]+)/)[1]
+        : /iPhone/.test(ua) ? 'iOS' 
+        : /Windows/.test(ua) ? 'Windows' 
+        : /Mac/.test(ua) ? 'macOS' : 'Bilinmiyor';
+
+      const browser = /EdgA?\//.test(ua) ? 'Edge'
+        : /OPR\/|Opera/.test(ua) ? 'Opera'
+        : /Chrome/.test(ua) ? 'Chrome'
+        : /Firefox/.test(ua) ? 'Firefox'
+        : /Safari/.test(ua) ? 'Safari' : 'Diğer';
 
       await client.from('visitor_logs').insert([{
         page_url: window.location.href,
         ip_address: ipData.ip,
         user_agent: ua,
         screen_resolution: `${window.screen.width}x${window.screen.height}`,
-        device_model: ua,
-        os: 'kontrol',
-        browser: 'kontrol',
+        device_model: `${hints.marka} - ${hints.model}`,
+        os: os,
+        browser: browser,
         language: navigator.language,
         time_spent: 0
       }]);
