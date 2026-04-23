@@ -1,526 +1,595 @@
 <!DOCTYPE html>
 <html lang="tr">
-    
 <head>
-    
-    <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
+  <script>
+    window.addEventListener('load', function() {
+      const ua = navigator.userAgent;
+      const isMobileUA = /Android|iPhone|iPad/i.test(ua);
+      const isSmallScreen = window.screen.width <= 768;
+      if (!isMobileUA && isSmallScreen) {
+        const uyari = document.createElement('div');
+        uyari.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;text-align:center;padding:30px;font-family:sans-serif;`;
+        uyari.innerHTML = `<div style="font-size:50px;margin-bottom:20px;">📱</div><h2 style="margin-bottom:15px;">Masaüstü modu kapalı</h2><p style="color:#ccc;margin-bottom:25px;line-height:1.6;">Bu sayfayı düzgün görmek için tarayıcındaki masaüstü modunu kapatman gerekiyor.<br><br>Chrome'da sağ üstteki 3 nokta → <strong>"Masaüstü sitesi"</strong> seçeneğini kapat.</p><button onclick="location.reload()" style="padding:12px 30px;background:#ff69b4;border:none;border-radius:25px;color:white;font-size:16px;cursor:pointer;">Kapattım, tekrar dene</button>`;
+        document.body.appendChild(uyari);
+      }
+    });
+  </script>
 
-<script>
-  const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI';
-  const client = supabase.createClient(supabaseUrl, supabaseKey);
-
-  let visitStart = Date.now();
-
-  fetch('https://api.ipify.org?format=json')
-    .then(response => response.json())
-    .then(ipData => {
-      const page_url = window.location.href;
-      const user_agent = navigator.userAgent;
-      const screen_resolution = `${window.screen.width}x${window.screen.height}`;
+  <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
+  <script>
+    const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI';
+    const client = supabase.createClient(supabaseUrl, supabaseKey);
+    let visitStart = Date.now();
+    async function getDeviceInfo() {
+      const ua = navigator.userAgent;
+      let marka = 'Bilinmiyor', model = 'Bilinmiyor';
+      try {
+        if (navigator.userAgentData) {
+          const hints = await navigator.userAgentData.getHighEntropyValues(['model','brand','platform','platformVersion']);
+          if (hints.model) model = hints.model;
+          if (hints.brands) { const real = hints.brands.find(b => !b.brand.includes('Not') && !b.brand.includes('Chromium') && b.brand !== 'Google Chrome'); if (real) marka = real.brand; }
+        }
+      } catch(e) {}
+      const os = ua.match(/Android ([\d.]+)/) ? 'Android ' + ua.match(/Android ([\d.]+)/)[1] : /iPhone/.test(ua) ? 'iOS' : /Windows/.test(ua) ? 'Windows' : /Mac/.test(ua) ? 'macOS' : 'Bilinmiyor';
+      const browser = /EdgA?\//.test(ua) ? 'Edge' : /OPR\/|Opera/.test(ua) ? 'Opera' : /Chrome/.test(ua) ? 'Chrome' : /Firefox/.test(ua) ? 'Firefox' : /Safari/.test(ua) ? 'Safari' : 'Diğer';
+      return { marka, model, os, browser };
+    }
+    fetch('https://api.ipify.org?format=json').then(r => r.json()).then(async ipData => {
+      const ua = navigator.userAgent;
       const ip_address = ipData.ip;
-
+      const page_url = window.location.href;
+      const screen_resolution = `${window.screen.width}x${window.screen.height}`;
+      const device = await getDeviceInfo();
+      await client.from('visitor_logs').insert([{ page_url, ip_address, user_agent: ua, screen_resolution, device_model: `${device.marka} - ${device.model}`, os: device.os, browser: device.browser, language: navigator.language, time_spent: 0 }]);
       window.addEventListener('beforeunload', async () => {
-        const visitEnd = Date.now();
-        const time_spent = Math.floor((visitEnd - visitStart) / 1000);
-        await client.from('visitor_logs').insert([{ page_url, ip_address, user_agent, screen_resolution, time_spent }]);
+        const time_spent = Math.floor((Date.now() - visitStart) / 1000);
+        await client.from('visitor_logs').insert([{ page_url, ip_address, user_agent: ua, screen_resolution, device_model: `${device.marka} - ${device.model}`, os: device.os, browser: device.browser, language: navigator.language, time_spent }]);
       });
     });
-</script>
-    
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Senin İçin</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+  </script>
 
-        body {
-            background-image: url('https://github.com/BatuhanKlcky/Sonsuzum/blob/main/arkapaln2.jpg?raw=true');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            font-family: 'Nunito', sans-serif;
-            color: #fff;
-            text-align: center;
-            min-height: 100vh;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Senin İçin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        /* ─── KAPAK EKRANI ─── */
-        .gate {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.78);
-            backdrop-filter: blur(8px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 20;
-            animation: fadeIn 0.5s ease;
-        }
+  <style>
+    :root {
+      --rose: #e8738a;
+      --rose-deep: #c45070;
+      --blush: #f5c6d0;
+      --cream: #fff5f7;
+      --dark: #1a0a0f;
+      --glass: rgba(255,255,255,0.08);
+      --glass-border: rgba(255,255,255,0.18);
+    }
 
-        .gate-box {
-            background: linear-gradient(145deg, #e8336d, #ff6fa0);
-            padding: 40px 34px 34px;
-            border-radius: 26px;
-            width: 350px;
-            box-shadow: 0 24px 60px rgba(232,51,109,0.45), 0 0 0 1px rgba(255,255,255,0.1) inset;
-            animation: scaleUp 0.4s cubic-bezier(.34,1.56,.64,1) forwards;
-            position: relative;
-            overflow: hidden;
-        }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        .gate-box::before {
-            content: '♥';
-            position: absolute;
-            font-size: 220px;
-            color: rgba(255,255,255,0.04);
-            top: -50px; right: -40px;
-            pointer-events: none;
-            line-height: 1;
-        }
+    body {
+      background-image: url('https://github.com/BatuhanKlcky/Sonsuzum/blob/main/arkapaln2.jpg?raw=true');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      font-family: 'Montserrat', sans-serif;
+      color: #fff;
+      text-align: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-        .gate-icon {
-            font-size: 2.4em;
-            margin-bottom: 10px;
-            display: block;
-            animation: heartbeat 1.5s ease infinite;
-        }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(160deg, rgba(20,5,10,0.45) 0%, rgba(100,20,50,0.25) 50%, rgba(20,5,10,0.55) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
 
-        .gate-box h2 {
-            font-family: 'Dancing Script', cursive;
-            font-size: 2em;
-            color: #fff;
-            margin-bottom: 6px;
-        }
+    /* ── FLOATING PETALS ── */
+    .petals { position: fixed; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+    .petal {
+      position: absolute;
+      top: -40px;
+      width: 10px; height: 14px;
+      background: radial-gradient(ellipse at 40% 30%, #ffb3c6, #e8738a88);
+      border-radius: 50% 0 50% 0;
+      opacity: 0;
+      animation: fall linear infinite;
+    }
+    @keyframes fall {
+      0%   { transform: translateY(0) rotate(0deg) scale(1);   opacity: 0; }
+      5%   { opacity: 0.7; }
+      95%  { opacity: 0.4; }
+      100% { transform: translateY(110vh) rotate(540deg) scale(0.5); opacity: 0; }
+    }
 
-        .gate-box .subtitle {
-            font-size: 0.85em;
-            color: rgba(255,255,255,0.82);
-            margin-bottom: 26px;
-            line-height: 1.55;
-        }
+    /* ── PASSWORD SCREEN ── */
+    .password-container {
+      position: fixed; inset: 0; z-index: 200;
+      display: flex; justify-content: center; align-items: center;
+      background: rgba(10,2,6,0.75);
+      backdrop-filter: blur(12px);
+      animation: fadeIn 0.6s ease;
+    }
 
-        /* Adım listesi */
-        .steps {
-            text-align: left;
-            margin-bottom: 22px;
-            background: rgba(0,0,0,0.12);
-            border-radius: 14px;
-            padding: 16px;
-        }
+    .password-box {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(24px);
+      padding: 50px 40px;
+      border-radius: 24px;
+      width: 340px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+      animation: slideUp 0.5s cubic-bezier(.22,.68,0,1.4) forwards;
+      position: relative;
+      overflow: hidden;
+    }
 
-        .step {
-            display: flex;
-            align-items: flex-start;
-            gap: 11px;
-            margin-bottom: 12px;
-        }
-        .step:last-child { margin-bottom: 0; }
+    .password-box::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: 50%; transform: translateX(-50%);
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(232,115,138,0.3), transparent 70%);
+      pointer-events: none;
+    }
 
-        .step-num {
-            min-width: 26px; height: 26px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.22);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.78em; font-weight: 800;
-            flex-shrink: 0;
-        }
+    .password-box .lock-icon {
+      font-size: 2rem;
+      color: var(--blush);
+      margin-bottom: 16px;
+      display: block;
+      animation: pulse 2s ease-in-out infinite;
+    }
 
-        .step-text {
-            font-size: 0.83em;
-            color: rgba(255,255,255,0.9);
-            line-height: 1.45;
-            padding-top: 3px;
-        }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
 
-        /* WhatsApp Butonu */
-        .wa-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            padding: 15px;
-            background: #25D366;
-            border: none;
-            color: white;
-            font-family: 'Nunito', sans-serif;
-            font-size: 1.05em;
-            font-weight: 800;
-            border-radius: 50px;
-            cursor: pointer;
-            text-decoration: none;
-            margin-bottom: 0;
-            box-shadow: 0 6px 22px rgba(37,211,102,0.45);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
+    .password-box h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.55rem;
+      font-weight: 300;
+      letter-spacing: 0.03em;
+      color: #fff;
+      margin-bottom: 8px;
+    }
 
-        .wa-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(37,211,102,0.55);
-        }
+    .password-box .subtitle {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
 
-        .wa-btn i { font-size: 1.35em; }
+    .input-wrap {
+      position: relative;
+      margin-bottom: 20px;
+    }
 
-        /* Bekleme notu */
-        .waiting {
-            display: none;
-            margin-top: 18px;
-            padding: 14px 16px;
-            background: rgba(0,0,0,0.18);
-            border-radius: 14px;
-            font-size: 0.83em;
-            color: rgba(255,255,255,0.92);
-            line-height: 1.6;
-            border: 1px solid rgba(255,255,255,0.12);
-        }
+    .input-wrap i {
+      position: absolute;
+      left: 18px; top: 50%; transform: translateY(-50%);
+      color: var(--rose);
+      font-size: 0.85rem;
+    }
 
-        .waiting .wait-icon { font-size: 1.5em; display: block; margin-bottom: 5px; }
-        .pulse { animation: pulse 1.4s infinite; display: inline-block; }
+    .password-box input {
+      width: 100%;
+      padding: 14px 18px 14px 42px;
+      border-radius: 50px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.07);
+      color: #fff;
+      font-size: 0.95rem;
+      font-family: 'Montserrat', sans-serif;
+      letter-spacing: 0.15em;
+      transition: all 0.3s;
+    }
 
-        /* Kod girişi */
-        .code-section {
-            display: none;
-            margin-top: 16px;
-        }
+    .password-box input::placeholder { color: rgba(255,255,255,0.3); letter-spacing: 0.05em; }
+    .password-box input:focus {
+      outline: none;
+      border-color: var(--rose);
+      background: rgba(255,255,255,0.11);
+      box-shadow: 0 0 0 3px rgba(232,115,138,0.2);
+    }
 
-        .code-section input {
-            width: 100%;
-            padding: 14px 18px;
-            border-radius: 50px;
-            border: 2px solid transparent;
-            background: rgba(255,255,255,0.92);
-            font-size: 1.3em;
-            color: #333;
-            text-align: center;
-            letter-spacing: 8px;
-            font-weight: 800;
-            font-family: 'Nunito', sans-serif;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.12);
-            transition: border 0.2s, box-shadow 0.2s;
-        }
+    .password-box button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+      border: none;
+      color: white;
+      font-size: 0.85rem;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 8px 24px rgba(196,80,112,0.4);
+    }
 
-        .code-section input:focus {
-            outline: none;
-            border-color: #ff85b3;
-            box-shadow: 0 0 0 3px rgba(255,133,179,0.3);
-        }
+    .password-box button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(196,80,112,0.55);
+    }
+    .password-box button:active { transform: translateY(0); }
 
-        .code-section button {
-            margin-top: 10px;
-            width: 100%;
-            padding: 14px;
-            border-radius: 50px;
-            border: none;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            font-family: 'Nunito', sans-serif;
-            font-size: 0.98em;
-            font-weight: 700;
-            cursor: pointer;
-            letter-spacing: 0.5px;
-            transition: background 0.2s;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
+    /* ── MAIN CONTENT ── */
+    .container {
+      display: none;
+      position: relative;
+      z-index: 5;
+      min-height: 100vh;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 24px;
+    }
 
-        .code-section button:hover { background: rgba(255,255,255,0.3); }
+    .hero-badge {
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--blush);
+      opacity: 0.8;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .hero-badge::before, .hero-badge::after {
+      content: '';
+      display: inline-block;
+      width: 32px; height: 1px;
+      background: var(--blush);
+      opacity: 0.5;
+    }
 
-        .error-msg {
-            color: #ffe0e0;
-            font-size: 0.8em;
-            margin-top: 8px;
-            display: none;
-            animation: shake 0.3s ease;
-        }
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 6vw, 3.8rem);
+      font-weight: 300;
+      font-style: italic;
+      color: #fff;
+      line-height: 1.25;
+      max-width: 780px;
+      margin-bottom: 32px;
+      text-shadow: 0 4px 40px rgba(0,0,0,0.6);
+      letter-spacing: 0.01em;
+    }
 
-        /* ─── ANA İÇERİK ─── */
-        .container {
-            padding: 20px;
-            display: none;
-            position: relative;
-            z-index: 5;
-        }
+    .divider {
+      width: 60px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--rose), transparent);
+      margin: 0 auto 28px;
+    }
 
-        h1 {
-            font-size: 3em;
-            color: #fff;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
-            line-height: 1.2;
-        }
+    p {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+      font-weight: 300;
+      max-width: 580px;
+      margin: 0 auto;
+      line-height: 2;
+      color: rgba(255,255,255,0.75);
+      letter-spacing: 0.02em;
+    }
 
-        p {
-            font-size: 1.5em;
-            max-width: 800px;
-            margin: 0 auto;
-            line-height: 1.8;
-            text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
-        }
+    .version-tag {
+      margin-top: 40px;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: rgba(255,255,255,0.2);
+      text-transform: uppercase;
+    }
 
-        /* MENÜ */
-        .menu-toggle {
-            position: fixed; top: 20px; left: 20px;
-            z-index: 50; width: 50px; height: 50px;
-            background-color: #ff758f; border-radius: 50%;
-            display: none; justify-content: center; align-items: center;
-            color: white; font-size: 1.5rem; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-        }
-        .menu-toggle:hover { background-color: #d62a6b; transform: scale(1.1); }
+    /* ── SIDEBAR ── */
+    .menu-toggle {
+      position: fixed;
+      top: 24px; left: 24px;
+      z-index: 50;
+      width: 46px; height: 46px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(12px);
+      border-radius: 50%;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .menu-toggle:hover { background: rgba(255,255,255,0.15); transform: scale(1.05); }
 
-        .sidebar-menu {
-            position: fixed; top: 0; left: -300px;
-            width: 300px; height: 100%;
-            background: linear-gradient(to bottom, #ff758f, #ff7eb3);
-            z-index: 40; transition: all 0.3s ease;
-            padding: 80px 20px 20px;
-            box-shadow: 5px 0 15px rgba(0,0,0,0.1);
-        }
-        .sidebar-menu.active { left: 0; }
+    .sidebar-menu {
+      position: fixed;
+      top: 0; left: -290px;
+      width: 280px; height: 100%;
+      background: rgba(15,4,9,0.85);
+      backdrop-filter: blur(24px);
+      border-right: 1px solid rgba(255,255,255,0.08);
+      z-index: 40;
+      transition: left 0.4s cubic-bezier(.77,0,.175,1);
+      padding: 90px 24px 24px;
+    }
+    .sidebar-menu.active { left: 0; }
 
-        .menu-item {
-            display: block; color: white; text-decoration: none;
-            padding: 15px; margin-bottom: 10px; border-radius: 5px;
-            transition: all 0.3s ease; font-size: 1.1rem; font-weight: 500;
-        }
-        .menu-item:hover { background-color: rgba(255,255,255,0.2); transform: translateX(5px); }
-        .menu-item i { margin-right: 10px; width: 20px; text-align: center; }
+    .sidebar-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      font-style: italic;
+      color: var(--blush);
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      letter-spacing: 0.05em;
+    }
 
-        footer { margin-top: 40px; display: none; }
-        footer a { text-decoration: none; color: #ff69b4; }
-        footer a:hover { color: #ff4c8b; }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      padding: 12px 14px;
+      margin-bottom: 4px;
+      border-radius: 10px;
+      transition: all 0.25s;
+      font-size: 0.88rem;
+      letter-spacing: 0.04em;
+      font-weight: 400;
+    }
+    .menu-item i { width: 16px; color: var(--rose); font-size: 0.8rem; }
+    .menu-item:hover {
+      background: rgba(232,115,138,0.12);
+      color: #fff;
+      padding-left: 20px;
+    }
 
-        .pixel-heart {
-            position: fixed; bottom: 20px; right: 20px;
-            width: 40px; height: 40px;
-            z-index: 100; cursor: pointer; display: none;
-        }
-        .pixel {
-            width: 8px; height: 8px;
-            background-color: #ff4c8b;
-            position: absolute; transition: all 0.3s ease;
-        }
+    .menu-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      z-index: 35;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(2px);
+    }
+    .menu-overlay.active { display: block; }
 
-        /* ANİMASYONLAR */
-        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-        @keyframes scaleUp { from { transform:scale(0.8); opacity:0; } to { transform:scale(1); opacity:1; } }
-        @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
-        @keyframes heartbeat { 0%,100%{transform:scale(1);} 50%{transform:scale(1.18);} }
-        @keyframes shake {
-            0%{transform:translateX(0);} 25%{transform:translateX(-6px);}
-            75%{transform:translateX(6px);} 100%{transform:translateX(0);}
-        }
+    /* ── PIXEL HEART ── */
+    .pixel-heart {
+      position: fixed;
+      bottom: 28px; right: 28px;
+      width: 40px; height: 40px;
+      z-index: 100;
+      cursor: pointer;
+      display: none;
+      filter: drop-shadow(0 4px 12px rgba(232,115,138,0.6));
+      transition: filter 0.3s;
+    }
+    .pixel-heart:hover { filter: drop-shadow(0 6px 20px rgba(232,115,138,0.9)); }
+    .pixel { width: 8px; height: 8px; background-color: #e8738a; position: absolute; border-radius: 1px; }
 
-        @media (max-width: 768px) {
-            h1 { font-size: 2.2em; line-height: 1.4; }
-            p { font-size: 1.2em; max-width: 100%; }
-            .gate-box { width: 90%; padding: 30px 22px; }
-            .menu-toggle { display: flex; }
-            .pixel-heart { width: 30px; height: 30px; }
-            .pixel { width: 6px; height: 6px; }
-        }
+    /* ── ANIMATIONS ── */
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes slideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes contentReveal {
+      from { opacity:0; transform:translateY(20px) }
+      to   { opacity:1; transform:translateY(0) }
+    }
 
-        @media (max-width: 480px) {
-            h1 { font-size: 1.8em; }
-            p { font-size: 1em; }
-            .sidebar-menu { width: 250px; }
-        }
-    </style>
+    .animate-in { animation: contentReveal 0.8s cubic-bezier(.22,.68,0,1) forwards; opacity: 0; }
+    .delay-1 { animation-delay: 0.15s }
+    .delay-2 { animation-delay: 0.3s }
+    .delay-3 { animation-delay: 0.45s }
+    .delay-4 { animation-delay: 0.6s }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .menu-toggle { display: flex; }
+      .password-box { width: 88%; padding: 40px 28px; }
+    }
+    @media (max-width: 480px) {
+      .sidebar-menu { width: 240px; }
+    }
+  </style>
 </head>
 <body>
 
-    <audio autoplay loop id="bgMusic">
-        <source src="https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
-    </audio>
+  <!-- Petals -->
+  <div class="petals" id="petals"></div>
 
-    <!-- ─── GİRİŞ KAPISI ─── -->
-    <div class="gate" id="gate">
-        <div class="gate-box">
-            <span class="gate-icon">🌸</span>
-            <h2>Hoş Geldin</h2>
-            <p class="subtitle">Bu sayfaya girebilmek için<br>önce WhatsApp'tan mesaj atman gerekiyor.</p>
+  <!-- Background music -->
+  <audio autoplay loop id="bgMusic">
+    <source src="https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
+  </audio>
 
-            <div class="steps">
-                <div class="step">
-                    <div class="step-num">1</div>
-                    <div class="step-text">Aşağıdaki butona tıkla — WhatsApp otomatik açılacak.</div>
-                </div>
-                <div class="step">
-                    <div class="step-num">2</div>
-                    <div class="step-text">Mesajı olduğu gibi <strong>gönder</strong>.</div>
-                </div>
-                <div class="step">
-                    <div class="step-num">3</div>
-                    <div class="step-text">Sana WhatsApp'tan <strong>4 haneli kod</strong> gelecek, buraya gir.</div>
-                </div>
-            </div>
-
-            <a class="wa-btn" id="waBtn"
-               href="https://wa.me/905372459764?text=Merhaba%2C%20siteye%20giri%C5%9F%20yapmak%20istiyorum%20%F0%9F%8C%B8"
-               target="_blank"
-               onclick="onWaClick()">
-                <i class="fab fa-whatsapp"></i> WhatsApp'tan Mesaj At
-            </a>
-
-            <div class="waiting" id="waitingNote">
-                <span class="wait-icon pulse">⏳</span>
-                Mesajın alındı! Sana WhatsApp'tan <strong>4 haneli onay kodunu</strong> göndereceğim.<br>
-                Gelince aşağıya yaz 👇
-            </div>
-
-            <div class="code-section" id="codeSection">
-                <input type="text" id="codeInput" maxlength="4" placeholder="· · · ·" inputmode="numeric" autocomplete="one-time-code">
-                <p class="error-msg" id="errorMsg">❌ Kod hatalı, tekrar dene.</p>
-                <button onclick="checkCode()">Giriş Yap ✨</button>
-            </div>
-        </div>
+  <!-- Password -->
+  <div class="password-container" id="passwordContainer">
+    <div class="password-box">
+      <i class="fas fa-lock lock-icon"></i>
+      <h2>Hoşgeldin</h2>
+      <p class="subtitle">Lütfen şifreyi gir</p>
+      <div class="input-wrap">
+        <i class="fas fa-key"></i>
+        <input type="password" id="password" placeholder="••••••" onkeydown="if(event.key==='Enter')checkPassword()">
+      </div>
+      <button onclick="checkPassword()">Giriş Yap</button>
     </div>
+  </div>
 
-    <!-- ─── ANA İÇERİK ─── -->
-    <div class="container" id="mainContent">
-        <h1>Seninle geçen her saniye, hayatımın en güzel hikayesiydi.</h1>
-        <p>Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti. Bu site, senin için kalbimde açan bir çiçek gibi… Seni sonsuza kadar seveceğim.
-        Şimdi bu sayfalar, bizim hikayemizin şahidi olarak burada seni bekliyor.</p>
-    </div>
+  <!-- Main content -->
+  <div class="container" id="mainContent">
+    <div class="hero-badge animate-in delay-1">Yalnızca senin için</div>
+    <h1 class="animate-in delay-2">Seninle geçen her saniye, hayatımın en güzel hikayesiydi.</h1>
+    <div class="divider animate-in delay-3"></div>
+    <p class="animate-in delay-3">
+      Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti.
+      Şimdi bu sayfalar, bizim hikayemizin şahidi olarak burada seni bekliyor.
+    </p>
+    <div class="version-tag animate-in delay-4">v1.1</div>
+  </div>
 
-    <div class="menu-toggle" id="menuToggle">
-        <i class="fas fa-bars"></i>
-    </div>
+  <!-- Menu toggle -->
+  <div class="menu-toggle" id="menuToggle">
+    <i class="fas fa-bars"></i>
+  </div>
 
-    <div class="sidebar-menu" id="sidebarMenu">
-        <a href="xx" class="menu-item"><i class="fas fa-home"></i> X</a>
-        <a href="zaman-tuneli.html" class="menu-item"><i class="fas fa-history"></i> Zaman Tüneli</a>
-        <a href="galeri.html" class="menu-item"><i class="fas fa-images"></i> Fotoğraf Galerisi</a>
-        <a href="mesajlar.html" class="menu-item"><i class="fas fa-envelope"></i> Özel Mesajlar</a>
-        <a href="x" class="menu-item"><i class="fas fa-flower"></i> (</a>
-        <a href="cicek.html" class="menu-item"><i class="fas fa-times"></i> Cicek Tarlası</a>
-        <a href="cube.html" class="menu-item"><i class="fas fa-flag-checkered"></i> Zeka Küpü</a>
-        <a href="stick-hero.html" class="menu-item"><i class="fas fa-gamepad"></i> Çubuk ADAM</a>
-        <a href="#" class="menu-item" id="musicControl"><i class="fas fa-music"></i> Müzik: Açık</a>
-    </div>
+  <!-- Overlay -->
+  <div class="menu-overlay" id="menuOverlay"></div>
 
-    <footer id="footer">
-        <p>&copy; 2026 Senin İçin. Tüm Sevgim sende saklıdır.</p>
-    </footer>
+  <!-- Sidebar -->
+  <div class="sidebar-menu" id="sidebarMenu">
+    <div class="sidebar-title">✦ Keşfet</div>
+    <a href="X" class="menu-item"><i class="fas fa-home"></i> Anasayfa</a>
+    <a href="zaman-tuneli.html" class="menu-item"><i class="fas fa-history"></i> Zaman Tüneli</a>
+    <a href="galeri.html" class="menu-item"><i class="fas fa-images"></i> Fotoğraf Galerisi</a>
+    <a href="mesajlar.html" class="menu-item"><i class="fas fa-envelope"></i> Özel Mesajlar</a>
+    <a href="cicek.html" class="menu-item"><i class="fas fa-seedling"></i> Çiçek Tarlası</a>
+    <a href="cube.html" class="menu-item"><i class="fas fa-cube"></i> Zeka Küpü</a>
+    <a href="stick-hero.html" class="menu-item"><i class="fas fa-gamepad"></i> Çubuk Adam</a>
+    <a href="#" class="menu-item" id="musicControl"><i class="fas fa-music"></i> Müzik: Açık</a>
+  </div>
 
-    <div class="pixel-heart" id="pixelHeart"></div>
+  <!-- Pixel Heart -->
+  <div class="pixel-heart" id="pixelHeart"></div>
 
-    <script>
-        // ════════════════════════════════════
-        //  ONAY KODUNU BURADAN DEĞİŞTİR
-        //  Her seferinde WhatsApp'tan farklı
-        //  bir kod gönderip bunu güncelleyebilirsin.
-        // ════════════════════════════════════
-        const SECRET_CODE = '1234'; // ← değiştir
+  <script>
+    const correctPassword = '240424';
 
-        function onWaClick() {
-            setTimeout(() => {
-                document.getElementById('waitingNote').style.display = 'block';
-                document.getElementById('codeSection').style.display = 'block';
-                document.getElementById('codeInput').focus();
-            }, 1800);
+    // Petals
+    function createPetals() {
+      const container = document.getElementById('petals');
+      for (let i = 0; i < 18; i++) {
+        const p = document.createElement('div');
+        p.className = 'petal';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.animationDuration = (8 + Math.random() * 12) + 's';
+        p.style.animationDelay = (Math.random() * 10) + 's';
+        p.style.width = (7 + Math.random() * 8) + 'px';
+        p.style.height = (10 + Math.random() * 10) + 'px';
+        p.style.opacity = 0;
+        container.appendChild(p);
+      }
+    }
+    createPetals();
+
+    window.onload = function() {
+      const lastAccess = localStorage.getItem('lastAccess');
+      const currentTime = Date.now();
+      if (lastAccess && (currentTime - lastAccess) < 100) {
+        unlockPage();
+      }
+    }
+
+    function checkPassword() {
+      const inputPassword = document.getElementById('password').value;
+      if (inputPassword === correctPassword) {
+        localStorage.setItem('lastAccess', Date.now());
+        document.getElementById('passwordContainer').style.animation = 'fadeIn 0.4s reverse forwards';
+        setTimeout(unlockPage, 350);
+      } else {
+        const box = document.querySelector('.password-box');
+        box.style.animation = 'shake 0.4s ease';
+        box.addEventListener('animationend', () => box.style.animation = '', {once:true});
+        document.getElementById('password').value = '';
+        document.getElementById('password').placeholder = 'Yanlış şifre...';
+        setTimeout(() => document.getElementById('password').placeholder = '••••••', 2000);
+      }
+    }
+
+    function unlockPage() {
+      document.getElementById('passwordContainer').style.display = 'none';
+      const mc = document.getElementById('mainContent');
+      mc.style.display = 'flex';
+      document.getElementById('pixelHeart').style.display = 'block';
+      document.getElementById('menuToggle').style.display = 'flex';
+      document.getElementById('bgMusic').play().catch(()=>{});
+      createPixelHeart();
+    }
+
+    // Shake animation
+    const styleEl = document.createElement('style');
+    styleEl.textContent = `@keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }`;
+    document.head.appendChild(styleEl);
+
+    // Menu
+    document.getElementById('menuToggle').addEventListener('click', () => {
+      document.getElementById('sidebarMenu').classList.toggle('active');
+      document.getElementById('menuOverlay').classList.toggle('active');
+      document.getElementById('menuToggle').innerHTML =
+        document.getElementById('sidebarMenu').classList.contains('active')
+          ? '<i class="fas fa-times"></i>'
+          : '<i class="fas fa-bars"></i>';
+    });
+
+    document.getElementById('menuOverlay').addEventListener('click', () => {
+      document.getElementById('sidebarMenu').classList.remove('active');
+      document.getElementById('menuOverlay').classList.remove('active');
+      document.getElementById('menuToggle').innerHTML = '<i class="fas fa-bars"></i>';
+    });
+
+    // Music
+    document.getElementById('musicControl').addEventListener('click', function() {
+      const mus = document.getElementById('bgMusic');
+      if (mus.paused) { mus.play(); this.innerHTML = '<i class="fas fa-music"></i> Müzik: Açık'; }
+      else { mus.pause(); this.innerHTML = '<i class="fas fa-volume-mute"></i> Müzik: Kapalı'; }
+    });
+
+    // Pixel Heart
+    function createPixelHeart() {
+      const heart = document.getElementById('pixelHeart');
+      heart.innerHTML = '';
+      const heartShape = [
+        [0,1,0,1,0],
+        [1,1,1,1,1],
+        [1,1,1,1,1],
+        [0,1,1,1,0],
+        [0,0,1,0,0]
+      ];
+      for (let y = 0; y < 5; y++) {
+        for (let x = 0; x < 5; x++) {
+          if (heartShape[y][x] === 1) {
+            const px = document.createElement('div');
+            px.className = 'pixel';
+            px.style.left = (x * 8) + 'px';
+            px.style.top = (y * 8) + 'px';
+            px.style.transitionDelay = (Math.random() * 0.3) + 's';
+            heart.appendChild(px);
+          }
         }
+      }
+    }
 
-        function checkCode() {
-            const val = document.getElementById('codeInput').value.trim();
-            const err = document.getElementById('errorMsg');
-            if (val === SECRET_CODE) {
-                localStorage.setItem('wa_auth', Date.now());
-                unlockSite();
-            } else {
-                err.style.display = 'block';
-                err.style.animation = 'none';
-                requestAnimationFrame(() => { err.style.animation = ''; });
-                document.getElementById('codeInput').value = '';
-                document.getElementById('codeInput').focus();
-            }
-        }
+    let clickCount = 0;
+    document.getElementById('pixelHeart').addEventListener('click', function() {
+      clickCount++;
+      const pixels = document.querySelectorAll('.pixel');
+      pixels.forEach(px => {
+        px.style.transform = 'scale(1.5)';
+        px.style.background = '#ff4c8b';
+        setTimeout(() => { px.style.transform = 'scale(1)'; px.style.background = '#e8738a'; }, 300);
+      });
+      if (clickCount === 5) {
+        alert('Seni çok seviyorum 💗');
+        clickCount = 0;
+        window.location.href = 'https://batuhanklcky.github.io/Sonsuzum/kalp.html';
+      }
+    });
 
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Enter' && document.getElementById('codeSection').style.display === 'block') {
-                checkCode();
-            }
-        });
-
-        function unlockSite() {
-            document.getElementById('gate').style.display = 'none';
-            document.getElementById('mainContent').style.display = 'block';
-            document.getElementById('footer').style.display = 'block';
-            document.getElementById('pixelHeart').style.display = 'block';
-            document.getElementById('menuToggle').style.display = 'flex';
-            document.getElementById('bgMusic').play();
-            createPixelHeart();
-        }
-
-        window.onload = function () {
-            const auth = localStorage.getItem('wa_auth');
-            // 24 saat geçerliyse tekrar isteme
-            if (auth && (Date.now() - parseInt(auth)) < 86400000) {
-                unlockSite();
-            }
-        };
-
-        function toggleMenu() {
-            document.getElementById('sidebarMenu').classList.toggle('active');
-            document.getElementById('menuToggle').innerHTML =
-                document.getElementById('sidebarMenu').classList.contains('active')
-                    ? '<i class="fas fa-times"></i>'
-                    : '<i class="fas fa-bars"></i>';
-        }
-
-        function toggleMusic() {
-            const bgMusic = document.getElementById('bgMusic');
-            const mc = document.getElementById('musicControl');
-            if (bgMusic.paused) {
-                bgMusic.play();
-                mc.innerHTML = '<i class="fas fa-music"></i> Müzik: Açık';
-            } else {
-                bgMusic.pause();
-                mc.innerHTML = '<i class="fas fa-music"></i> Müzik: Kapalı';
-            }
-        }
-
-        function createPixelHeart() {
-            const heart = document.getElementById('pixelHeart');
-            heart.innerHTML = '';
-            const heartShape = [
-                [0,1,0,1,0],
-                [1,1,1,1,1],
-                [1,1,1,1,1],
-                [0,1,1,1,0],
-                [0,0,1,0,0]
-            ];
-            for (let y = 0; y < 5; y++) {
-                for (let x = 0; x < 5; x++) {
-                    if (heartShape[y][x] === 1) {
-                        const pixel = document.createElement('div');
-                        pixel.className = 'pixel';
-                        pixel.style.left = (x * 8) + 'px';
-                        pixel.style.top  = (y * 8) + 'px';
-                        pixel.style.transitionDelay = (Math.random() * 0.5) + 's';
-                        heart.appendChild(pixel);
-                    }
-                }
-            }
-        }
-
-        document.getElementById('menuToggle').addEventListener('click', toggleMenu);
-        document.getElementById('musicControl').addEventListener('click', toggleMusic);
-        document.getElementById('bgMusic').play().catch(() => {});
-
-        let clickCount = 0;
-        document.getElementById('pixelHeart').addEventListener('click', function () {
-            clickCount++;
-            if (clickCount === 5) {
-                alert('SENİ ÇOOOOK SEVİYORUM ');
-                clickCount = 0;
-                window.location.href = 'https://batuhanklcky.github.io/Sonsuzum/kalp.html';
-            }
-        });
-    </script>
-
+    document.getElementById('bgMusic').play().catch(()=>{});
+  </script>
 </body>
 </html>
