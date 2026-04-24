@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> </title> <style>
+        body {
+            background-color: #ffffff; /* Bembeyaz sayfa */
+            margin: 0;
+            padding: 0;
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+
+    <script>
+        // Basit bir log fonksiyonu (Burayı kendi veritabanına veya log servisine bağlayabilirsin)
+        function logVisit() {
+            const data = {
+                time: new Date().toLocaleString(),
+                platform: navigator.platform,
+                userAgent: navigator.userAgent,
+                action: "Beyaz sayfada bekliyor"
+            };
+            
+            // Eğer Google Analytics veya Vercel Analytics kullanıyorsan buraya event ekleyebilirsin
+            console.log("Sistem Logu:", data); 
+            
+            // Örnek: localStorage kullanarak giriş sayısını tutabilirsin (Sadece kendi tarayıcında görmek için)
+            let visits = localStorage.getItem('visit_count') || 0;
+            localStorage.setItem('visit_count', parseInt(visits) + 1);
+        }
+
+        window.onload = logVisit;
+    </script>
+
+</body>
+</html>
