@@ -1,39 +1,47 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> </title> <style>
+    <title>404 Not Found</title>
+    <style>
         body {
-            background-color: #ffffff; /* Bembeyaz sayfa */
+            background-color: #fff;
+            color: #000;
+            font-family: "Courier New", Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             margin: 0;
-            padding: 0;
-            cursor: default;
+        }
+        .container {
+            text-align: center;
+        }
+        h1 {
+            font-size: 24px;
+            border-bottom: 1px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            font-weight: normal;
+        }
+        p {
+            font-size: 14px;
+            margin: 0;
         }
     </style>
 </head>
 <body>
+    <div class="container">
+        <h1>404 Not Found</h1>
+        <p>nginx/1.18.0 (Ubuntu)</p>
+    </div>
 
     <script>
-        // Basit bir log fonksiyonu (Burayı kendi veritabanına veya log servisine bağlayabilirsin)
-        function logVisit() {
-            const data = {
-                time: new Date().toLocaleString(),
-                platform: navigator.platform,
-                userAgent: navigator.userAgent,
-                action: "Beyaz sayfada bekliyor"
-            };
-            
-            // Eğer Google Analytics veya Vercel Analytics kullanıyorsan buraya event ekleyebilirsin
-            console.log("Sistem Logu:", data); 
-            
-            // Örnek: localStorage kullanarak giriş sayısını tutabilirsin (Sadece kendi tarayıcında görmek için)
-            let visits = localStorage.getItem('visit_count') || 0;
-            localStorage.setItem('visit_count', parseInt(visits) + 1);
-        }
-
-        window.onload = logVisit;
+        window.onload = function() {
+            // Buraya kendi log sistemini (Vercel Analytics, Google vb.) bağla
+            // O her "Not Found" gördüğünde sen panelden girişini izleyeceksin.
+            console.log("Tracking access attempt...");
+        };
     </script>
-
 </body>
 </html>
