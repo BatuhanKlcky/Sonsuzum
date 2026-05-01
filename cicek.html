@@ -1,92 +1,750 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sanal Bahçe — İndir</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green-deep:   #0a1f0d;
+  --green-mid:    #1a3d20;
+  --green-bright: #2d7a3a;
+  --green-glow:   #4caf65;
+  --green-light:  #a8d8b0;
+  --gold:         #d4a843;
+  --gold-light:   #f0c96a;
+  --cream:        #f5f0e8;
+  --text-main:    #e8f0ea;
+  --text-muted:   rgba(200,220,205,0.55);
+  --glass:        rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.08);
+}
 
-<script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
-<script>
-  const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI';
-  const client = supabase.createClient(supabaseUrl, supabaseKey);
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-  async function getClientHints() {
-    let marka = 'Bilinmiyor';
-    let model = 'Bilinmiyor';
+html { scroll-behavior: smooth; }
 
-    try {
-      if (navigator.userAgentData) {
-        const hints = await navigator.userAgentData.getHighEntropyValues([
-          'model', 'brand', 'platform', 'platformVersion'
-        ]);
-        marka = hints.brands?.[0]?.brand || 'Bilinmiyor';
-        model = hints.model || 'Bilinmiyor';
-        
-        if (hints.brands) {
-          const real = hints.brands.find(b => 
-            !b.brand.includes('Not') && 
-            !b.brand.includes('Chromium') &&
-            b.brand !== 'Google Chrome'
-          );
-          if (real) marka = real.brand;
-        }
-      }
-    } catch(e) {}
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--green-deep);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-    return { marka, model };
-  }
+/* ── NOISE TEXTURE ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
 
-  fetch('https://api.ipify.org?format=json')
-    .then(r => r.json())
-    .then(async ipData => {
-      const ua = navigator.userAgent;
-      const hints = await getClientHints();
+/* ── BACKGROUND ORBS ── */
+.orb {
+  position: fixed; border-radius: 50%;
+  filter: blur(80px); pointer-events: none; z-index: 0;
+}
+.orb-1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(45,122,58,0.18) 0%, transparent 70%); top: -200px; left: -100px; animation: drift1 18s ease-in-out infinite; }
+.orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(212,168,67,0.1) 0%, transparent 70%); bottom: 100px; right: -100px; animation: drift2 22s ease-in-out infinite; }
+.orb-3 { width: 300px; height: 300px; background: radial-gradient(circle, rgba(76,175,101,0.12) 0%, transparent 70%); top: 50%; left: 60%; animation: drift1 15s ease-in-out infinite reverse; }
 
-      const os = ua.match(/Android ([\d.]+)/) 
-        ? 'Android ' + ua.match(/Android ([\d.]+)/)[1]
-        : /iPhone/.test(ua) ? 'iOS' 
-        : /Windows/.test(ua) ? 'Windows' 
-        : /Mac/.test(ua) ? 'macOS' : 'Bilinmiyor';
+@keyframes drift1 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(40px,-30px)} 66%{transform:translate(-20px,40px)} }
+@keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,-20px)} }
 
-      const browser = /EdgA?\//.test(ua) ? 'Edge'
-        : /OPR\/|Opera/.test(ua) ? 'Opera'
-        : /Chrome/.test(ua) ? 'Chrome'
-        : /Firefox/.test(ua) ? 'Firefox'
-        : /Safari/.test(ua) ? 'Safari' : 'Diğer';
+/* ── NAVBAR ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 20px 40px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(to bottom, rgba(10,31,13,0.9) 0%, transparent 100%);
+  backdrop-filter: blur(12px);
+}
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 700;
+  color: var(--green-glow);
+  letter-spacing: -0.5px;
+  display: flex; align-items: center; gap: 10px;
+}
+.nav-logo span { color: var(--gold); }
+.nav-version {
+  background: rgba(76,175,101,0.12);
+  border: 1px solid rgba(76,175,101,0.25);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 12px; font-weight: 600;
+  color: var(--green-glow);
+  letter-spacing: 0.05em;
+}
 
-      await client.from('visitor_logs').insert([{
-        page_url: window.location.href,
-        ip_address: ipData.ip,
-        user_agent: ua,
-        screen_resolution: `${window.screen.width}x${window.screen.height}`,
-        device_model: `${hints.marka} - ${hints.model}`,
-        os: os,
-        browser: browser,
-        language: navigator.language,
-        time_spent: 0
-      }]);
-    });
-</script>
-    
-    <meta charset="UTF-8">
-    <title>Uygulama İndiriliyor...</title>
+/* ── HERO ── */
+.hero {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 120px 24px 80px;
+}
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(212,168,67,0.1);
+  border: 1px solid rgba(212,168,67,0.25);
+  border-radius: 30px;
+  padding: 8px 18px;
+  font-size: 12px; font-weight: 600;
+  color: var(--gold-light);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+  animation: fadeUp 0.8s ease both;
+}
+.badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 8px var(--gold); animation: pulse 2s ease infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(52px, 10vw, 110px);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -3px;
+  margin-bottom: 24px;
+  animation: fadeUp 0.8s 0.1s ease both;
+}
+.hero-title .line1 { display: block; color: var(--text-main); }
+.hero-title .line2 { display: block; color: var(--green-glow); -webkit-text-stroke: 1px var(--green-bright); }
+
+.hero-desc {
+  font-size: clamp(15px, 2vw, 18px);
+  font-weight: 300;
+  color: var(--text-muted);
+  max-width: 520px;
+  line-height: 1.7;
+  margin-bottom: 48px;
+  animation: fadeUp 0.8s 0.2s ease both;
+}
+
+/* ── DOWNLOAD BTN ── */
+.dl-group {
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  animation: fadeUp 0.8s 0.3s ease both;
+}
+
+.btn-download {
+  position: relative;
+  display: inline-flex; align-items: center; gap: 14px;
+  background: linear-gradient(135deg, var(--green-bright), var(--green-glow));
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px; font-weight: 600;
+  padding: 18px 40px;
+  border-radius: 60px;
+  text-decoration: none;
+  border: none; cursor: pointer;
+  box-shadow: 0 0 40px rgba(76,175,101,0.3), 0 8px 32px rgba(0,0,0,0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+}
+.btn-download::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  border-radius: inherit;
+}
+.btn-download:hover { transform: translateY(-3px); box-shadow: 0 0 60px rgba(76,175,101,0.45), 0 16px 40px rgba(0,0,0,0.5); }
+.btn-download:active { transform: translateY(0); }
+.btn-icon { font-size: 24px; }
+.btn-text { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2; }
+.btn-text small { font-size: 11px; font-weight: 400; opacity: .7; letter-spacing: .05em; }
+
+.dl-info {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex; align-items: center; gap: 8px;
+}
+.dl-info span { display: flex; align-items: center; gap: 4px; }
+.dl-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-muted); }
+
+/* ── PREVIEW DEVICE ── */
+.device-wrap {
+  position: relative; z-index: 1;
+  display: flex; justify-content: center;
+  margin: 80px auto 0;
+  animation: fadeUp 0.8s 0.4s ease both;
+}
+.device {
+  position: relative;
+  width: 260px;
+  background: #0d0d0f;
+  border-radius: 40px;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  box-shadow: 0 0 0 6px rgba(255,255,255,0.03), 0 40px 80px rgba(0,0,0,0.6), 0 0 60px rgba(76,175,101,0.12);
+  overflow: hidden;
+  padding: 12px;
+}
+.device-screen {
+  background: linear-gradient(160deg, #0a2010 0%, #051008 40%, #0d1a0f 100%);
+  border-radius: 30px;
+  height: 480px;
+  overflow: hidden;
+  position: relative;
+  display: flex; flex-direction: column;
+}
+.device-notch {
+  width: 90px; height: 24px;
+  background: #0d0d0f;
+  border-radius: 0 0 16px 16px;
+  margin: 0 auto 0;
+  flex-shrink: 0;
+}
+.screen-content {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 16px;
+  position: relative;
+}
+/* Animated garden preview */
+.screen-sky {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, #0a0a20 0%, #0d1a0f 60%, #0a150a 100%);
+}
+.screen-stars {
+  position: absolute; top: 0; left: 0; right: 0; height: 60%;
+  background-image: radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 15%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 80% 40%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 40% 25%, rgba(255,255,255,0.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 10% 50%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(2px 2px at 70% 20%, rgba(200,200,255,0.5) 0%, transparent 100%);
+  animation: twinkle 3s ease-in-out infinite;
+}
+@keyframes twinkle { 0%,100%{opacity:1} 50%{opacity:.6} }
+.screen-ground {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 45%;
+  background: linear-gradient(180deg, #0d2010 0%, #0a1a0a 100%);
+  border-radius: 50% 50% 0 0 / 20px 20px 0 0;
+}
+.screen-flowers {
+  position: absolute; bottom: 30%; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 10px; align-items: flex-end;
+}
+.s-flower {
+  display: flex; flex-direction: column; align-items: center;
+  animation: sway 3s ease-in-out infinite;
+}
+.s-flower:nth-child(2) { animation-delay: .5s; }
+.s-flower:nth-child(3) { animation-delay: 1s; }
+.s-flower:nth-child(4) { animation-delay: 1.5s; }
+@keyframes sway { 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(3deg)} }
+.s-stem { width: 2px; background: #2d7a3a; border-radius: 1px; }
+.s-head { font-size: 14px; margin-bottom: 1px; }
+.screen-moon {
+  position: absolute; top: 18%; right: 22%;
+  width: 22px; height: 22px;
+  background: radial-gradient(circle at 35% 35%, #dde8ff, #aabfcc);
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgba(180,200,255,0.4);
+}
+.screen-butterfly {
+  position: absolute; top: 40%; left: 25%;
+  font-size: 12px;
+  animation: flutter 4s ease-in-out infinite;
+}
+@keyframes flutter { 0%,100%{transform:translate(0,0) rotate(-10deg)} 25%{transform:translate(20px,-10px) rotate(10deg)} 50%{transform:translate(40px,0) rotate(-5deg)} 75%{transform:translate(20px,10px) rotate(5deg)} }
+.screen-ui {
+  position: absolute; bottom: 8px; left: 8px; right: 8px;
+  background: rgba(6,10,20,0.9);
+  border-radius: 16px;
+  padding: 8px 10px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,.08);
+}
+.screen-clock { font-size: 16px; font-weight: 900; color: #fff; letter-spacing: -1px; margin-bottom: 4px; }
+.screen-btns { display: flex; gap: 4px; }
+.screen-btn { flex: 1; height: 22px; border-radius: 8px; }
+.sb1 { background: linear-gradient(135deg,#003660,#005db8); }
+.sb2 { background: linear-gradient(135deg,#0a2800,#2d7a00); }
+.sb3 { background: linear-gradient(135deg,#2a0040,#9424b8); }
+.sb4 { background: linear-gradient(135deg,#3a0000,#cc1100); }
+
+/* ── FEATURES ── */
+.features {
+  position: relative; z-index: 1;
+  max-width: 1100px; margin: 0 auto;
+  padding: 100px 24px;
+}
+.section-label {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--green-glow); margin-bottom: 16px;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 700; line-height: 1.1;
+  margin-bottom: 60px;
+  color: var(--text-main);
+}
+.section-title em { color: var(--green-glow); font-style: normal; }
+
+.feat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+.feat-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 32px 28px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s, border-color 0.3s;
+}
+.feat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(76,175,101,0.4), transparent);
+}
+.feat-card:hover { transform: translateY(-4px); border-color: rgba(76,175,101,0.2); }
+.feat-icon {
+  font-size: 36px; margin-bottom: 16px;
+  display: block;
+  filter: drop-shadow(0 4px 12px rgba(76,175,101,0.3));
+}
+.feat-name {
+  font-size: 17px; font-weight: 600;
+  margin-bottom: 8px; color: var(--text-main);
+}
+.feat-desc {
+  font-size: 13px; font-weight: 300;
+  color: var(--text-muted); line-height: 1.6;
+}
+.feat-tag {
+  display: inline-block; margin-top: 12px;
+  background: rgba(76,175,101,0.1);
+  border: 1px solid rgba(76,175,101,0.2);
+  border-radius: 20px; padding: 3px 10px;
+  font-size: 10px; font-weight: 600;
+  color: var(--green-glow); letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+/* ── VERSION HISTORY ── */
+.versions {
+  position: relative; z-index: 1;
+  max-width: 720px; margin: 0 auto;
+  padding: 0 24px 100px;
+}
+.version-list { display: flex; flex-direction: column; gap: 0; }
+.version-item {
+  display: flex; gap: 24px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--glass-border);
+  position: relative;
+}
+.version-item:last-child { border-bottom: none; }
+.v-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 13px; font-weight: 700;
+  color: var(--green-glow);
+  white-space: nowrap; padding-top: 3px;
+  min-width: 60px;
+}
+.v-latest .v-num { color: var(--gold); }
+.v-content { flex: 1; }
+.v-title {
+  font-size: 15px; font-weight: 600;
+  margin-bottom: 8px; color: var(--text-main);
+  display: flex; align-items: center; gap: 10px;
+}
+.v-badge {
+  font-size: 10px; font-weight: 700;
+  background: rgba(212,168,67,0.15);
+  border: 1px solid rgba(212,168,67,0.3);
+  color: var(--gold-light);
+  padding: 2px 8px; border-radius: 10px;
+  letter-spacing: .05em; text-transform: uppercase;
+}
+.v-changes { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.v-changes li {
+  font-size: 13px; font-weight: 300;
+  color: var(--text-muted); padding-left: 14px;
+  position: relative;
+}
+.v-changes li::before {
+  content: '→';
+  position: absolute; left: 0;
+  color: var(--green-bright); font-size: 11px;
+}
+.v-date {
+  font-size: 11px; color: var(--text-muted);
+  margin-top: 8px; letter-spacing: .04em;
+}
+
+/* ── STATS ROW ── */
+.stats-row {
+  position: relative; z-index: 1;
+  max-width: 900px; margin: 0 auto;
+  padding: 0 24px 100px;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.stat-box {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px; padding: 28px 24px;
+  text-align: center;
+}
+.stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 40px; font-weight: 900;
+  color: var(--green-glow);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.stat-label {
+  font-size: 12px; font-weight: 400;
+  color: var(--text-muted); letter-spacing: .06em;
+}
+
+/* ── CTA BOTTOM ── */
+.cta {
+  position: relative; z-index: 1;
+  text-align: center;
+  padding: 0 24px 120px;
+}
+.cta-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 700; margin-bottom: 24px;
+}
+.cta-title span { color: var(--green-glow); }
+
+/* ── FOOTER ── */
+footer {
+  position: relative; z-index: 1;
+  border-top: 1px solid var(--glass-border);
+  padding: 32px 40px;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 12px;
+}
+.footer-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px; color: var(--green-glow); font-weight: 700;
+}
+.footer-copy { font-size: 12px; color: var(--text-muted); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  nav { padding: 16px 20px; }
+  .stats-row { grid-template-columns: 1fr; }
+  footer { flex-direction: column; text-align: center; }
+  .device { width: 220px; }
+  .device-screen { height: 400px; }
+}
+</style>
 </head>
 <body>
 
-    <h2>İndirme işleminiz birazdan başlayacaktır...
-    W.I.P</h2>
-    <p>Başlamadıysa <a href="uygulama-dosyaniz.apk">buraya tıklayın</a>.</p>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
 
-    <script>
-        window.onload = function() {
-            // 2 saniye (2000ms) bekleyip indirmeyi başlatır
-            setTimeout(function() {
-                var link = document.createElement('a');
-                link.href = 'sanalbahce.apk'; // APK dosyasının yolu
-                link.download = 'sanalbahce.apk';  // İnecek dosyanın adı
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }, 2000); 
-        };
-    </script>
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">🌿 Sanal <span>Bahçe</span></div>
+  <div class="nav-version">v1.4.0</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <span class="badge-dot"></span>
+    Android için ücretsiz
+  </div>
+
+  <h1 class="hero-title">
+    <span class="line1">Kendi Bahçeni</span>
+    <span class="line2">Yarat.</span>
+  </h1>
+
+  <p class="hero-desc">
+    3D sanal bahçeni inşa et, çiçeklerini büyüt, evcil hayvanlarınla vakit geç.
+    Gece/gündüz döngüsü, hasat sistemi ve çok daha fazlası.
+  </p>
+
+  <div class="dl-group">
+    <a href="sanal-bahce.apk" class="btn-download" download>
+      <span class="btn-icon">⬇️</span>
+      <span class="btn-text">
+        <small>Android APK İndir</small>
+        İndirmeye Başla
+      </span>
+    </a>
+    <div class="dl-info">
+      <span>📦 ~8 MB</span>
+      <span class="dl-dot"></span>
+      <span>📱 Android 7+</span>
+      <span class="dl-dot"></span>
+      <span>🆓 Ücretsiz</span>
+    </div>
+  </div>
+
+  <!-- PHONE MOCKUP -->
+  <div class="device-wrap">
+    <div class="device">
+      <div class="device-screen">
+        <div class="device-notch"></div>
+        <div class="screen-content">
+          <div class="screen-sky"></div>
+          <div class="screen-stars"></div>
+          <div class="screen-moon"></div>
+          <div class="screen-ground"></div>
+          <div class="screen-butterfly">🦋</div>
+          <div class="screen-flowers">
+            <div class="s-flower">
+              <div class="s-head">🌸</div>
+              <div class="s-stem" style="height:28px"></div>
+            </div>
+            <div class="s-flower">
+              <div class="s-head">🌺</div>
+              <div class="s-stem" style="height:38px"></div>
+            </div>
+            <div class="s-flower">
+              <div class="s-head">🌼</div>
+              <div class="s-stem" style="height:22px"></div>
+            </div>
+            <div class="s-flower">
+              <div class="s-head">💐</div>
+              <div class="s-stem" style="height:32px"></div>
+            </div>
+          </div>
+          <div class="screen-ui">
+            <div class="screen-clock" id="sc">00:00</div>
+            <div class="screen-btns">
+              <div class="screen-btn sb1"></div>
+              <div class="screen-btn sb2"></div>
+              <div class="screen-btn sb3"></div>
+              <div class="screen-btn sb4"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-row">
+  <div class="stat-box">
+    <div class="stat-num">18+</div>
+    <div class="stat-label">İNŞA OBJESİ</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num">4</div>
+    <div class="stat-label">ÇİÇEK TÜRÜ</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num">24/7</div>
+    <div class="stat-label">CANLI DÜNYA</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="section-label">Özellikler</div>
+  <h2 class="section-title">Gerçek bir bahçe<br><em>deneyimi</em></h2>
+
+  <div class="feat-grid">
+    <div class="feat-card">
+      <span class="feat-icon">🌙</span>
+      <div class="feat-name">Gece/Gündüz Döngüsü</div>
+      <div class="feat-desc">Gerçek saatinle senkronize gökyüzü. Şafak, gündüz, akşam ve gece atmosferleri.</div>
+      <span class="feat-tag">Gerçek Saat</span>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🏡</span>
+      <div class="feat-name">Sürükle-Bırak İnşa</div>
+      <div class="feat-desc">Ağaç, gölet, ev, köprü, çardak ve daha fazlasını istediğin yere yerleştir.</div>
+      <span class="feat-tag">18 Obje</span>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🍅</span>
+      <div class="feat-name">Hasat Sistemi</div>
+      <div class="feat-desc">Domates, çilek ve kabak yetiştir. Hasat et, coin kazan, bahçeni büyüt.</div>
+      <span class="feat-tag">Yeni</span>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🐱</span>
+      <div class="feat-name">Evcil Hayvanlar</div>
+      <div class="feat-desc">Kedi ve köpeğin bahçende özgürce dolaşır, çiçeklere yaklaşır, seninle vakit geçirir.</div>
+      <span class="feat-tag">Yeni</span>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">📊</span>
+      <div class="feat-name">İstatistikler</div>
+      <div class="feat-desc">Günlük streak, toplam sulama, hasat sayıları ve oynama süren kayıt altında.</div>
+      <span class="feat-tag">Yeni</span>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🌧️</span>
+      <div class="feat-name">Hava Efektleri</div>
+      <div class="feat-desc">Gece yağmuru bitkilerini sular. Kar yağdır, sonbahar yaprakları döksün.</div>
+      <span class="feat-tag">Dinamik</span>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🎵</span>
+      <div class="feat-name">Ambient Sesler</div>
+      <div class="feat-desc">Kuş cıvıltıları, su sesleri ve lo-fi melodiler bahçeni hayata geçirir.</div>
+      <span class="feat-tag">Atmosfer</span>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">📋</span>
+      <div class="feat-name">Günlük Görevler</div>
+      <div class="feat-desc">Her gün yeni görevler, XP kazan ve seviye atla. 10 seviyeye kadar ilerle.</div>
+      <span class="feat-tag">10 Seviye</span>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">💾</span>
+      <div class="feat-name">Otomatik Kayıt</div>
+      <div class="feat-desc">Bahçen, dekorların ve hayvanların güvenle kaydedilir. Hiçbir şey kaybolmaz.</div>
+      <span class="feat-tag">Kalıcı</span>
+    </div>
+  </div>
+</section>
+
+<!-- VERSION HISTORY -->
+<section class="versions">
+  <div class="section-label">Sürüm Geçmişi</div>
+  <h2 class="section-title" style="margin-bottom:40px">Güncellemeler</h2>
+
+  <div class="version-list">
+    <div class="version-item v-latest">
+      <div class="v-num">v1.4.0</div>
+      <div class="v-content">
+        <div class="v-title">
+          Büyük Güncelleme
+          <span class="v-badge">Güncel</span>
+        </div>
+        <ul class="v-changes">
+          <li>Hasat sistemi eklendi (Domates, Çilek, Kabak)</li>
+          <li>Evcil hayvan sistemi — Kedi & Köpek</li>
+          <li>Bahçe istatistikleri paneli & Streak sistemi</li>
+          <li>Coin sistemi eklendi</li>
+          <li>Kamera parazit sorunu düzeltildi</li>
+          <li>Kayıt sistemi güçlendirildi, güncelleme sonrası veri kaybı yok</li>
+        </ul>
+        <div class="v-date">Mayıs 2026</div>
+      </div>
+    </div>
+
+    <div class="version-item">
+      <div class="v-num">v1.3.0</div>
+      <div class="v-content">
+        <div class="v-title">İnşa & Silme</div>
+        <ul class="v-changes">
+          <li>Sürükle-bırak yerleştirme sistemi</li>
+          <li>Dekor silme modu eklendi</li>
+          <li>Ev modeli eklendi (baca, pencere, ışık)</li>
+          <li>Çiçek yerleştirme modu — istediğin yere ek</li>
+          <li>Dekorlar artık kaydediliyor</li>
+        </ul>
+        <div class="v-date">Nisan 2026</div>
+      </div>
+    </div>
+
+    <div class="version-item">
+      <div class="v-num">v1.2.0</div>
+      <div class="v-content">
+        <div class="v-title">Dünya Genişlemesi</div>
+        <ul class="v-changes">
+          <li>18 inşa objesi eklendi</li>
+          <li>Hava durumu sistemi (Kar, Yaprak, Yağmur)</li>
+          <li>Günlük görev sistemi & XP/Seviye</li>
+          <li>Bitki büyüme aşamaları</li>
+          <li>Geniş açık dünya haritası</li>
+        </ul>
+        <div class="v-date">Nisan 2026</div>
+      </div>
+    </div>
+
+    <div class="version-item">
+      <div class="v-num">v1.0.0</div>
+      <div class="v-content">
+        <div class="v-title">İlk Sürüm</div>
+        <ul class="v-changes">
+          <li>3D bahçe motoru (Three.js)</li>
+          <li>Gece/gündüz döngüsü — gerçek saate göre</li>
+          <li>Çiçekler, kelebekler, zararlı böcekler</li>
+          <li>Sulama ve büyüme sistemi</li>
+        </ul>
+        <div class="v-date">Nisan 2026</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <h2 class="cta-title">Bahçene <span>şimdi</span> başla.</h2>
+  <div class="dl-group">
+    <a href="sanal-bahce.apk" class="btn-download" download>
+      <span class="btn-icon">⬇️</span>
+      <span class="btn-text">
+        <small>Android APK — Ücretsiz</small>
+        İndir & Kur
+      </span>
+    </a>
+    <div class="dl-info">
+      <span>⚠️ Ayarlar → Güvenlik → Bilinmeyen kaynaklara izin ver</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">🌿 Sanal Bahçe</div>
+  <div class="footer-copy">v1.4.0 · 2026 · Android</div>
+</footer>
+
+<script>
+// Live clock in mockup
+function updateClock() {
+  var now = new Date();
+  var h = String(now.getHours()).padStart(2,'0');
+  var m = String(now.getMinutes()).padStart(2,'0');
+  var el = document.getElementById('sc');
+  if (el) el.textContent = h + ':' + m;
+}
+updateClock();
+setInterval(updateClock, 10000);
+
+// Scroll reveal
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.feat-card, .stat-box, .version-item').forEach(function(el) {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+  observer.observe(el);
+});
+</script>
 </body>
 </html>
