@@ -2,540 +2,214 @@
 <html lang="tr">
 <head>
 
-   <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
-  <script>
-    const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI';
-    const client = supabase.createClient(supabaseUrl, supabaseKey);
-    let visitStart = Date.now();
-    async function getDeviceInfo() {
-      const ua = navigator.userAgent;
-      let marka = 'Bilinmiyor', model = 'Bilinmiyor';
-      try {
-        if (navigator.userAgentData) {
-          const hints = await navigator.userAgentData.getHighEntropyValues(['model','brand','platform','platformVersion']);
-          if (hints.model) model = hints.model;
-          if (hints.brands) { const real = hints.brands.find(b => !b.brand.includes('Not') && !b.brand.includes('Chromium') && b.brand !== 'Google Chrome'); if (real) marka = real.brand; }
-        }
-      } catch(e) {}
-      const os = ua.match(/Android ([\d.]+)/) ? 'Android ' + ua.match(/Android ([\d.]+)/)[1] : /iPhone/.test(ua) ? 'iOS' : /Windows/.test(ua) ? 'Windows' : /Mac/.test(ua) ? 'macOS' : 'Bilinmiyor';
-      const browser = /EdgA?\//.test(ua) ? 'Edge' : /OPR\/|Opera/.test(ua) ? 'Opera' : /Chrome/.test(ua) ? 'Chrome' : /Firefox/.test(ua) ? 'Firefox' : /Safari/.test(ua) ? 'Safari' : 'Diğer';
-      return { marka, model, os, browser };
-    }
-    fetch('https://api.ipify.org?format=json').then(r => r.json()).then(async ipData => {
-      const ua = navigator.userAgent;
-      const ip_address = ipData.ip;
-      const page_url = window.location.href;
-      const screen_resolution = `${window.screen.width}x${window.screen.height}`;
-      const device = await getDeviceInfo();
-      await client.from('visitor_logs').insert([{ page_url, ip_address, user_agent: ua, screen_resolution, device_model: `${device.marka} - ${device.model}`, os: device.os, browser: device.browser, language: navigator.language, time_spent: 0 }]);
-      window.addEventListener('beforeunload', async () => {
-        const time_spent = Math.floor((Date.now() - visitStart) / 1000);
-        await client.from('visitor_logs').insert([{ page_url, ip_address, user_agent: ua, screen_resolution, device_model: `${device.marka} - ${device.model}`, os: device.os, browser: device.browser, language: navigator.language, time_spent }]);
-      });
-    });
-  </script>
-  
+
+   <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script> <script> const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co'; const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFZSzIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI'; const client = supabase.createClient(supabaseUrl, supabaseKey); let visitStart = Date.now(); async function getDeviceInfo() { const ua = navigator.userAgent; let marka = 'Bilinmiyor', model = 'Bilinmiyor'; try { if (navigator.userAgentData) { const hints = await navigator.userAgentData.getHighEntropyValues(['model','brand','platform','platformVersion']); if (hints.model) model = hints.model; if (hints.brands) { const real = hints.brands.find(b => !b.brand.includes('Not') && !b.brand.includes('Chromium') && b.brand !== 'Google Chrome'); if (real) marka = real.brand; } } } catch(e) {} const os = ua.match(/Android ([\d.]+)/) ? 'Android ' + ua.match(/Android ([\d.]+)/)[1] : /iPhone/.test(ua) ? 'iOS' : /Windows/.test(ua) ? 'Windows' : /Mac/.test(ua) ? 'macOS' : 'Bilinmiyor'; const browser = /EdgA?\//.test(ua) ? 'Edge' : /OPR\/|Opera/.test(ua) ? 'Opera' : /Chrome/.test(ua) ? 'Chrome' : /Firefox/.test(ua) ? 'Firefox' : /Safari/.test(ua) ? 'Safari' : 'Diğer'; return { marka, model, os, browser }; } fetch('https://api.ipify.org?format=json').then(r => r.json()).then(async ipData => { const ua = navigator.userAgent; const ip_address = ipData.ip; const page_url = window.location.href; const screen_resolution = `${window.screen.width}x${window.screen.height}`; const device = await getDeviceInfo(); await client.from('visitor_logs').insert([{ page_url, ip_address, user_agent: ua, screen_resolution, device_model: `${device.marka} - ${device.model}`, os: device.os, browser: device.browser, language: navigator.language, time_spent: 0 }]); window.addEventListener('beforeunload', async () => { const time_spent = Math.floor((Date.now() - visitStart) / 1000); await client.from('visitor_logs').insert([{ page_url, ip_address, user_agent: ua, screen_resolution, device_model: `${device.marka} - ${device.model}`, os: device.os, browser: device.browser, language: navigator.language, time_spent }]); }); }); </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sanal Bahçe — İndir</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root {
-  --green-deep:   #0a1f0d;
-  --green-mid:    #1a3d20;
-  --green-bright: #2d7a3a;
-  --green-glow:   #4caf65;
-  --green-light:  #a8d8b0;
-  --gold:         #d4a843;
-  --gold-light:   #f0c96a;
-  --cream:        #f5f0e8;
-  --text-main:    #e8f0ea;
-  --text-muted:   rgba(200,220,205,0.55);
-  --glass:        rgba(255,255,255,0.04);
-  --glass-border: rgba(255,255,255,0.08);
-}
+:root{--gd:#0a1f0d;--gm:#1a3d20;--gb:#2d7a3a;--gg:#4caf65;--gl:#a8d8b0;--gold:#d4a843;--gol:#f0c96a;--cr:#f5f0e8;--tm:#e8f0ea;--mu:rgba(200,220,205,0.55);--glass:rgba(255,255,255,0.04);--gb2:rgba(255,255,255,0.08)}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--gd);color:var(--tm);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none}
+.orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0}
+.orb-1{width:600px;height:600px;background:radial-gradient(circle,rgba(45,122,58,0.18) 0%,transparent 70%);top:-200px;left:-100px;animation:drift1 18s ease-in-out infinite}
+.orb-2{width:400px;height:400px;background:radial-gradient(circle,rgba(212,168,67,0.1) 0%,transparent 70%);bottom:100px;right:-100px;animation:drift2 22s ease-in-out infinite}
+.orb-3{width:300px;height:300px;background:radial-gradient(circle,rgba(76,175,101,0.12) 0%,transparent 70%);top:50%;left:60%;animation:drift1 15s ease-in-out infinite reverse}
+@keyframes drift1{0%,100%{transform:translate(0,0)}33%{transform:translate(40px,-30px)}66%{transform:translate(-20px,40px)}}
+@keyframes drift2{0%,100%{transform:translate(0,0)}50%{transform:translate(-40px,-20px)}}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 40px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(10,31,13,0.9) 0%,transparent 100%);backdrop-filter:blur(12px)}
+.nav-logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--gg);letter-spacing:-.5px;display:flex;align-items:center;gap:10px}
+.nav-logo span{color:var(--gold)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-version{background:rgba(76,175,101,0.12);border:1px solid rgba(76,175,101,0.25);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:var(--gg);letter-spacing:.05em}
+.nav-dl{background:linear-gradient(135deg,var(--gb),var(--gg));color:#fff;border:none;border-radius:20px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;transition:transform .2s}
+.nav-dl:hover{transform:translateY(-2px)}
+.hero{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(212,168,67,0.1);border:1px solid rgba(212,168,67,0.25);border-radius:30px;padding:8px 18px;font-size:12px;font-weight:600;color:var(--gol);letter-spacing:.1em;text-transform:uppercase;margin-bottom:32px;animation:fadeUp .8s ease both}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.hero-title{font-family:'Playfair Display',serif;font-size:clamp(52px,10vw,110px);font-weight:900;line-height:.95;letter-spacing:-3px;margin-bottom:24px;animation:fadeUp .8s .1s ease both}
+.hero-title .line1{display:block;color:var(--tm)}
+.hero-title .line2{display:block;color:var(--gg);-webkit-text-stroke:1px var(--gb)}
+.hero-desc{font-size:clamp(15px,2vw,18px);font-weight:300;color:var(--mu);max-width:520px;line-height:1.7;margin-bottom:48px;animation:fadeUp .8s .2s ease both}
+.dl-group{display:flex;flex-direction:column;align-items:center;gap:16px;animation:fadeUp .8s .3s ease both}
+.btn-download{position:relative;display:inline-flex;align-items:center;gap:14px;background:linear-gradient(135deg,var(--gb),var(--gg));color:#fff;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;padding:18px 40px;border-radius:60px;text-decoration:none;border:none;cursor:pointer;box-shadow:0 0 40px rgba(76,175,101,0.3),0 8px 32px rgba(0,0,0,0.4);transition:transform .2s,box-shadow .2s;overflow:hidden}
+.btn-download::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);border-radius:inherit}
+.btn-download:hover{transform:translateY(-3px);box-shadow:0 0 60px rgba(76,175,101,0.45),0 16px 40px rgba(0,0,0,0.5)}
+.btn-icon{font-size:24px}
+.btn-text{display:flex;flex-direction:column;align-items:flex-start;line-height:1.2}
+.btn-text small{font-size:11px;font-weight:400;opacity:.7;letter-spacing:.05em}
+.dl-info{font-size:12px;color:var(--mu);display:flex;align-items:center;gap:8px}
+.dl-dot{width:3px;height:3px;border-radius:50%;background:var(--mu)}
+.device-wrap{position:relative;z-index:1;display:flex;justify-content:center;margin:80px auto 0;animation:fadeUp .8s .4s ease both}
+.device{position:relative;width:260px;background:#0d0d0f;border-radius:40px;border:1.5px solid rgba(255,255,255,0.1);box-shadow:0 0 0 6px rgba(255,255,255,0.03),0 40px 80px rgba(0,0,0,0.6),0 0 60px rgba(76,175,101,0.12);overflow:hidden;padding:12px}
+.device-screen{background:linear-gradient(160deg,#0a2010 0%,#051008 40%,#0d1a0f 100%);border-radius:30px;height:480px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.device-notch{width:90px;height:24px;background:#0d0d0f;border-radius:0 0 16px 16px;margin:0 auto 0;flex-shrink:0}
+.screen-content{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;position:relative}
+.screen-sky{position:absolute;inset:0;background:linear-gradient(180deg,#0a0a20 0%,#0d1a0f 60%,#0a150a 100%)}
+.screen-stars{position:absolute;top:0;left:0;right:0;height:60%;background-image:radial-gradient(1px 1px at 20% 30%,rgba(255,255,255,0.6) 0%,transparent 100%),radial-gradient(1px 1px at 60% 15%,rgba(255,255,255,0.5) 0%,transparent 100%),radial-gradient(1px 1px at 80% 40%,rgba(255,255,255,0.4) 0%,transparent 100%),radial-gradient(1px 1px at 40% 25%,rgba(255,255,255,0.7) 0%,transparent 100%),radial-gradient(2px 2px at 70% 20%,rgba(200,200,255,0.5) 0%,transparent 100%);animation:twinkle 3s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:1}50%{opacity:.6}}
+.screen-ground{position:absolute;bottom:0;left:0;right:0;height:45%;background:linear-gradient(180deg,#0d2010 0%,#0a1a0a 100%);border-radius:50% 50% 0 0/20px 20px 0 0}
+.screen-flowers{position:absolute;bottom:30%;left:50%;transform:translateX(-50%);display:flex;gap:10px;align-items:flex-end}
+.s-flower{display:flex;flex-direction:column;align-items:center;animation:sway 3s ease-in-out infinite}
+.s-flower:nth-child(2){animation-delay:.5s}
+.s-flower:nth-child(3){animation-delay:1s}
+.s-flower:nth-child(4){animation-delay:1.5s}
+@keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+.s-stem{width:2px;background:#2d7a3a;border-radius:1px}
+.s-head{font-size:14px;margin-bottom:1px}
+.screen-moon{position:absolute;top:18%;right:22%;width:22px;height:22px;background:radial-gradient(circle at 35% 35%,#dde8ff,#aabfcc);border-radius:50%;box-shadow:0 0 12px rgba(180,200,255,0.4)}
+.screen-butterfly{position:absolute;top:40%;left:25%;font-size:12px;animation:flutter 4s ease-in-out infinite}
+@keyframes flutter{0%,100%{transform:translate(0,0) rotate(-10deg)}25%{transform:translate(20px,-10px) rotate(10deg)}50%{transform:translate(40px,0) rotate(-5deg)}75%{transform:translate(20px,10px) rotate(5deg)}}
+.screen-harvest{position:absolute;bottom:42%;right:20%;font-size:18px;animation:bob 2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.screen-pet{position:absolute;bottom:46%;left:18%;font-size:16px;animation:waddle 3s ease-in-out infinite}
+@keyframes waddle{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+.screen-ui{position:absolute;bottom:8px;left:8px;right:8px;background:rgba(6,10,20,0.9);border-radius:16px;padding:8px 10px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.08)}
+.screen-clock{font-size:16px;font-weight:900;color:#fff;letter-spacing:-1px;margin-bottom:4px}
+.screen-btns{display:flex;gap:4px}
+.screen-btn{flex:1;height:22px;border-radius:8px}
+.sb1{background:linear-gradient(135deg,#003660,#005db8)}
+.sb2{background:linear-gradient(135deg,#0a2800,#2d7a00)}
+.sb3{background:linear-gradient(135deg,#2a0040,#9424b8)}
+.sb4{background:linear-gradient(135deg,#3a0000,#cc1100)}
+/* NEW badge */
+.new-tag{display:inline-block;background:linear-gradient(135deg,#ff6b35,#ff4500);border-radius:6px;padding:2px 7px;font-size:9px;font-weight:800;color:#fff;letter-spacing:.05em;margin-left:6px;vertical-align:middle;text-transform:uppercase}
+/* stats row */
+.stats-row{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 24px 80px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.stat-box{background:var(--glass);border:1px solid var(--gb2);border-radius:20px;padding:24px;text-align:center}
+.stat-num{font-family:'Playfair Display',serif;font-size:36px;font-weight:900;color:var(--gg);line-height:1;margin-bottom:6px}
+.stat-label{font-size:11px;font-weight:400;color:var(--mu);letter-spacing:.06em}
+/* features */
+.features{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:60px 24px 80px}
+.section-label{font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--gg);margin-bottom:16px}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(32px,5vw,52px);font-weight:700;line-height:1.1;margin-bottom:50px;color:var(--tm)}
+.section-title em{color:var(--gg);font-style:normal}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.feat-card{background:var(--glass);border:1px solid var(--gb2);border-radius:24px;padding:28px 24px;position:relative;overflow:hidden;transition:transform .3s,border-color .3s}
+.feat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(76,175,101,0.4),transparent)}
+.feat-card:hover{transform:translateY(-4px);border-color:rgba(76,175,101,0.2)}
+.feat-card.feat-new{border-color:rgba(76,175,101,0.25);background:rgba(76,175,101,0.04)}
+.feat-icon{font-size:32px;margin-bottom:14px;display:block;filter:drop-shadow(0 4px 12px rgba(76,175,101,0.3))}
+.feat-name{font-size:16px;font-weight:600;margin-bottom:6px;color:var(--tm)}
+.feat-desc{font-size:13px;font-weight:300;color:var(--mu);line-height:1.6}
+.feat-tag{display:inline-block;margin-top:10px;background:rgba(76,175,101,0.1);border:1px solid rgba(76,175,101,0.2);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:600;color:var(--gg);letter-spacing:.05em;text-transform:uppercase}
+.feat-tag.gold{background:rgba(212,168,67,0.1);border-color:rgba(212,168,67,0.25);color:var(--gol)}
+/* shop preview */
+.shop-preview{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:0 24px 80px}
+.shop-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:20px}
+.shop-card{background:var(--glass);border:1px solid var(--gb2);border-radius:18px;padding:18px;text-align:center;transition:transform .2s}
+.shop-card:hover{transform:translateY(-3px)}
+.shop-card-emoji{font-size:32px;margin-bottom:8px}
+.shop-card-name{font-size:13px;font-weight:600;color:var(--tm);margin-bottom:4px}
+.shop-card-price{font-size:12px;color:var(--gol);font-weight:700}
+.shop-card.rare{border-color:rgba(212,168,67,0.3);background:rgba(212,168,67,0.04)}
+/* version history */
+.versions{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:0 24px 80px}
+.version-list{display:flex;flex-direction:column;gap:0}
+.version-item{display:flex;gap:24px;padding:24px 0;border-bottom:1px solid var(--gb2);position:relative}
+.version-item:last-child{border-bottom:none}
+.v-num{font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:var(--gg);white-space:nowrap;padding-top:3px;min-width:60px}
+.v-latest .v-num{color:var(--gold)}
+.v-content{flex:1}
+.v-title{font-size:15px;font-weight:600;margin-bottom:8px;color:var(--tm);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.v-badge{font-size:10px;font-weight:700;background:rgba(212,168,67,0.15);border:1px solid rgba(212,168,67,0.3);color:var(--gol);padding:2px 8px;border-radius:10px;letter-spacing:.05em;text-transform:uppercase}
+.v-changes{list-style:none;display:flex;flex-direction:column;gap:4px}
+.v-changes li{font-size:13px;font-weight:300;color:var(--mu);padding-left:14px;position:relative}
+.v-changes li::before{content:'→';position:absolute;left:0;color:var(--gb);font-size:11px}
+.v-date{font-size:11px;color:var(--mu);margin-top:8px;letter-spacing:.04em}
+/* install steps */
+.install{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 24px 80px}
+.steps{display:flex;flex-direction:column;gap:16px;margin-top:24px}
+.step{display:flex;gap:16px;align-items:flex-start;padding:20px;background:var(--glass);border:1px solid var(--gb2);border-radius:18px}
+.step-num{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gb),var(--gg));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0}
+.step-text{flex:1}
+.step-title{font-size:14px;font-weight:600;color:var(--tm);margin-bottom:4px}
+.step-desc{font-size:12px;color:var(--mu);line-height:1.5}
+/* cta */
+.cta{position:relative;z-index:1;text-align:center;padding:0 24px 120px}
+.cta-title{font-family:'Playfair Display',serif;font-size:clamp(28px,5vw,48px);font-weight:700;margin-bottom:24px}
+.cta-title span{color:var(--gg)}
+footer{position:relative;z-index:1;border-top:1px solid var(--gb2);padding:28px 40px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-logo{font-family:'Playfair Display',serif;font-size:16px;color:var(--gg);font-weight:700}
+.footer-links{display:flex;gap:20px}
+.footer-links a{font-size:12px;color:var(--mu);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:var(--gg)}
+.footer-copy{font-size:12px;color:var(--mu)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+/* ── YORUMLAR ── */
+.reviews{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:0 24px 80px}
+.review-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:48px}
+.review-card{background:var(--glass);border:1px solid var(--gb2);border-radius:20px;padding:24px;transition:transform .2s}
+.review-card:hover{transform:translateY(-3px)}
+.review-stars{font-size:14px;margin-bottom:10px}
+.review-text{font-size:13px;font-weight:300;color:var(--mu);line-height:1.7;margin-bottom:16px;font-style:italic}
+.review-author{display:flex;align-items:center;gap:10px}
+.review-avatar{width:36px;height:36px;border-radius:50%;background:rgba(76,175,101,0.15);border:1px solid rgba(76,175,101,0.2);display:flex;align-items:center;justify-content:center;font-size:18px}
+.review-name{font-size:13px;font-weight:600;color:var(--tm)}
+.review-date{font-size:11px;color:var(--mu)}
+/* Form */
+.review-form-wrap{background:var(--glass);border:1px solid var(--gb2);border-radius:24px;padding:32px;max-width:600px;margin:0 auto}
+.form-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--tm);margin-bottom:20px}
+.star-selector{display:flex;gap:8px;margin-bottom:16px}
+.star-pick{font-size:28px;cursor:pointer;transition:transform .15s;opacity:.4;filter:grayscale(1)}
+.star-pick.active{opacity:1;filter:none;transform:scale(1.2)}
+.form-row{display:grid;grid-template-columns:1fr auto;gap:10px;margin-bottom:10px}
+.form-input{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px 14px;color:var(--tm);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s;width:100%}
+.form-input:focus{border-color:rgba(76,175,101,.4)}
+.form-input::placeholder{color:var(--mu)}
+select.form-input{width:auto;cursor:pointer;padding:12px 10px}
+.form-textarea{resize:vertical;min-height:100px;margin-bottom:14px;display:block}
+.form-submit{background:linear-gradient(135deg,var(--gb),var(--gg));color:#fff;border:none;border-radius:50px;padding:14px 32px;font-size:14px;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s;font-family:'DM Sans',sans-serif;width:100%}
+.form-submit:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(76,175,101,.3)}
+.form-submit:active{transform:scale(.97)}
+.form-msg{margin-top:12px;font-size:12px;font-weight:600;text-align:center;min-height:18px}
+.form-msg.ok{color:var(--gg)}
+.form-msg.err{color:#ff6b6b}
+.review-card.user-review{border-color:rgba(76,175,101,.25);background:rgba(76,175,101,.04)}
+.review-card.user-review::before{content:'Yeni';position:absolute;top:12px;right:12px;background:rgba(76,175,101,.2);color:var(--gg);font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;letter-spacing:.05em}
+.review-card{position:relative}
 
-html { scroll-behavior: smooth; }
-
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--green-deep);
-  color: var(--text-main);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-/* ── NOISE TEXTURE ── */
-body::before {
-  content: '';
-  position: fixed; inset: 0; z-index: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events: none;
-}
-
-/* ── BACKGROUND ORBS ── */
-.orb {
-  position: fixed; border-radius: 50%;
-  filter: blur(80px); pointer-events: none; z-index: 0;
-}
-.orb-1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(45,122,58,0.18) 0%, transparent 70%); top: -200px; left: -100px; animation: drift1 18s ease-in-out infinite; }
-.orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(212,168,67,0.1) 0%, transparent 70%); bottom: 100px; right: -100px; animation: drift2 22s ease-in-out infinite; }
-.orb-3 { width: 300px; height: 300px; background: radial-gradient(circle, rgba(76,175,101,0.12) 0%, transparent 70%); top: 50%; left: 60%; animation: drift1 15s ease-in-out infinite reverse; }
-
-@keyframes drift1 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(40px,-30px)} 66%{transform:translate(-20px,40px)} }
-@keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,-20px)} }
-
-/* ── NAVBAR ── */
-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  padding: 20px 40px;
-  display: flex; align-items: center; justify-content: space-between;
-  background: linear-gradient(to bottom, rgba(10,31,13,0.9) 0%, transparent 100%);
-  backdrop-filter: blur(12px);
-}
-.nav-logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 22px; font-weight: 700;
-  color: var(--green-glow);
-  letter-spacing: -0.5px;
-  display: flex; align-items: center; gap: 10px;
-}
-.nav-logo span { color: var(--gold); }
-.nav-version {
-  background: rgba(76,175,101,0.12);
-  border: 1px solid rgba(76,175,101,0.25);
-  border-radius: 20px;
-  padding: 5px 14px;
-  font-size: 12px; font-weight: 600;
-  color: var(--green-glow);
-  letter-spacing: 0.05em;
-}
-
-/* ── HERO ── */
-.hero {
-  position: relative; z-index: 1;
-  min-height: 100vh;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  text-align: center;
-  padding: 120px 24px 80px;
-}
-
-.hero-badge {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(212,168,67,0.1);
-  border: 1px solid rgba(212,168,67,0.25);
-  border-radius: 30px;
-  padding: 8px 18px;
-  font-size: 12px; font-weight: 600;
-  color: var(--gold-light);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-bottom: 32px;
-  animation: fadeUp 0.8s ease both;
-}
-.badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 8px var(--gold); animation: pulse 2s ease infinite; }
-@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
-
-.hero-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(52px, 10vw, 110px);
-  font-weight: 900;
-  line-height: 0.95;
-  letter-spacing: -3px;
-  margin-bottom: 24px;
-  animation: fadeUp 0.8s 0.1s ease both;
-}
-.hero-title .line1 { display: block; color: var(--text-main); }
-.hero-title .line2 { display: block; color: var(--green-glow); -webkit-text-stroke: 1px var(--green-bright); }
-
-.hero-desc {
-  font-size: clamp(15px, 2vw, 18px);
-  font-weight: 300;
-  color: var(--text-muted);
-  max-width: 520px;
-  line-height: 1.7;
-  margin-bottom: 48px;
-  animation: fadeUp 0.8s 0.2s ease both;
-}
-
-/* ── DOWNLOAD BTN ── */
-.dl-group {
-  display: flex; flex-direction: column; align-items: center; gap: 16px;
-  animation: fadeUp 0.8s 0.3s ease both;
-}
-
-.btn-download {
-  position: relative;
-  display: inline-flex; align-items: center; gap: 14px;
-  background: linear-gradient(135deg, var(--green-bright), var(--green-glow));
-  color: #fff;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 16px; font-weight: 600;
-  padding: 18px 40px;
-  border-radius: 60px;
-  text-decoration: none;
-  border: none; cursor: pointer;
-  box-shadow: 0 0 40px rgba(76,175,101,0.3), 0 8px 32px rgba(0,0,0,0.4);
-  transition: transform 0.2s, box-shadow 0.2s;
-  overflow: hidden;
-}
-.btn-download::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
-  border-radius: inherit;
-}
-.btn-download:hover { transform: translateY(-3px); box-shadow: 0 0 60px rgba(76,175,101,0.45), 0 16px 40px rgba(0,0,0,0.5); }
-.btn-download:active { transform: translateY(0); }
-.btn-icon { font-size: 24px; }
-.btn-text { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2; }
-.btn-text small { font-size: 11px; font-weight: 400; opacity: .7; letter-spacing: .05em; }
-
-.dl-info {
-  font-size: 12px;
-  color: var(--text-muted);
-  display: flex; align-items: center; gap: 8px;
-}
-.dl-info span { display: flex; align-items: center; gap: 4px; }
-.dl-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-muted); }
-
-/* ── PREVIEW DEVICE ── */
-.device-wrap {
-  position: relative; z-index: 1;
-  display: flex; justify-content: center;
-  margin: 80px auto 0;
-  animation: fadeUp 0.8s 0.4s ease both;
-}
-.device {
-  position: relative;
-  width: 260px;
-  background: #0d0d0f;
-  border-radius: 40px;
-  border: 1.5px solid rgba(255,255,255,0.1);
-  box-shadow: 0 0 0 6px rgba(255,255,255,0.03), 0 40px 80px rgba(0,0,0,0.6), 0 0 60px rgba(76,175,101,0.12);
-  overflow: hidden;
-  padding: 12px;
-}
-.device-screen {
-  background: linear-gradient(160deg, #0a2010 0%, #051008 40%, #0d1a0f 100%);
-  border-radius: 30px;
-  height: 480px;
-  overflow: hidden;
-  position: relative;
-  display: flex; flex-direction: column;
-}
-.device-notch {
-  width: 90px; height: 24px;
-  background: #0d0d0f;
-  border-radius: 0 0 16px 16px;
-  margin: 0 auto 0;
-  flex-shrink: 0;
-}
-.screen-content {
-  flex: 1;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 16px;
-  position: relative;
-}
-/* Animated garden preview */
-.screen-sky {
-  position: absolute; inset: 0;
-  background: linear-gradient(180deg, #0a0a20 0%, #0d1a0f 60%, #0a150a 100%);
-}
-.screen-stars {
-  position: absolute; top: 0; left: 0; right: 0; height: 60%;
-  background-image: radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.6) 0%, transparent 100%),
-    radial-gradient(1px 1px at 60% 15%, rgba(255,255,255,0.5) 0%, transparent 100%),
-    radial-gradient(1px 1px at 80% 40%, rgba(255,255,255,0.4) 0%, transparent 100%),
-    radial-gradient(1px 1px at 40% 25%, rgba(255,255,255,0.7) 0%, transparent 100%),
-    radial-gradient(1px 1px at 10% 50%, rgba(255,255,255,0.3) 0%, transparent 100%),
-    radial-gradient(2px 2px at 70% 20%, rgba(200,200,255,0.5) 0%, transparent 100%);
-  animation: twinkle 3s ease-in-out infinite;
-}
-@keyframes twinkle { 0%,100%{opacity:1} 50%{opacity:.6} }
-.screen-ground {
-  position: absolute; bottom: 0; left: 0; right: 0; height: 45%;
-  background: linear-gradient(180deg, #0d2010 0%, #0a1a0a 100%);
-  border-radius: 50% 50% 0 0 / 20px 20px 0 0;
-}
-.screen-flowers {
-  position: absolute; bottom: 30%; left: 50%; transform: translateX(-50%);
-  display: flex; gap: 10px; align-items: flex-end;
-}
-.s-flower {
-  display: flex; flex-direction: column; align-items: center;
-  animation: sway 3s ease-in-out infinite;
-}
-.s-flower:nth-child(2) { animation-delay: .5s; }
-.s-flower:nth-child(3) { animation-delay: 1s; }
-.s-flower:nth-child(4) { animation-delay: 1.5s; }
-@keyframes sway { 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(3deg)} }
-.s-stem { width: 2px; background: #2d7a3a; border-radius: 1px; }
-.s-head { font-size: 14px; margin-bottom: 1px; }
-.screen-moon {
-  position: absolute; top: 18%; right: 22%;
-  width: 22px; height: 22px;
-  background: radial-gradient(circle at 35% 35%, #dde8ff, #aabfcc);
-  border-radius: 50%;
-  box-shadow: 0 0 12px rgba(180,200,255,0.4);
-}
-.screen-butterfly {
-  position: absolute; top: 40%; left: 25%;
-  font-size: 12px;
-  animation: flutter 4s ease-in-out infinite;
-}
-@keyframes flutter { 0%,100%{transform:translate(0,0) rotate(-10deg)} 25%{transform:translate(20px,-10px) rotate(10deg)} 50%{transform:translate(40px,0) rotate(-5deg)} 75%{transform:translate(20px,10px) rotate(5deg)} }
-.screen-ui {
-  position: absolute; bottom: 8px; left: 8px; right: 8px;
-  background: rgba(6,10,20,0.9);
-  border-radius: 16px;
-  padding: 8px 10px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,.08);
-}
-.screen-clock { font-size: 16px; font-weight: 900; color: #fff; letter-spacing: -1px; margin-bottom: 4px; }
-.screen-btns { display: flex; gap: 4px; }
-.screen-btn { flex: 1; height: 22px; border-radius: 8px; }
-.sb1 { background: linear-gradient(135deg,#003660,#005db8); }
-.sb2 { background: linear-gradient(135deg,#0a2800,#2d7a00); }
-.sb3 { background: linear-gradient(135deg,#2a0040,#9424b8); }
-.sb4 { background: linear-gradient(135deg,#3a0000,#cc1100); }
-
-/* ── FEATURES ── */
-.features {
-  position: relative; z-index: 1;
-  max-width: 1100px; margin: 0 auto;
-  padding: 100px 24px;
-}
-.section-label {
-  font-size: 11px; font-weight: 600;
-  letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--green-glow); margin-bottom: 16px;
-}
-.section-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(32px, 5vw, 52px);
-  font-weight: 700; line-height: 1.1;
-  margin-bottom: 60px;
-  color: var(--text-main);
-}
-.section-title em { color: var(--green-glow); font-style: normal; }
-
-.feat-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-}
-.feat-card {
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  border-radius: 24px;
-  padding: 32px 28px;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.3s, border-color 0.3s;
-}
-.feat-card::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(76,175,101,0.4), transparent);
-}
-.feat-card:hover { transform: translateY(-4px); border-color: rgba(76,175,101,0.2); }
-.feat-icon {
-  font-size: 36px; margin-bottom: 16px;
-  display: block;
-  filter: drop-shadow(0 4px 12px rgba(76,175,101,0.3));
-}
-.feat-name {
-  font-size: 17px; font-weight: 600;
-  margin-bottom: 8px; color: var(--text-main);
-}
-.feat-desc {
-  font-size: 13px; font-weight: 300;
-  color: var(--text-muted); line-height: 1.6;
-}
-.feat-tag {
-  display: inline-block; margin-top: 12px;
-  background: rgba(76,175,101,0.1);
-  border: 1px solid rgba(76,175,101,0.2);
-  border-radius: 20px; padding: 3px 10px;
-  font-size: 10px; font-weight: 600;
-  color: var(--green-glow); letter-spacing: .05em;
-  text-transform: uppercase;
-}
-
-/* ── VERSION HISTORY ── */
-.versions {
-  position: relative; z-index: 1;
-  max-width: 720px; margin: 0 auto;
-  padding: 0 24px 100px;
-}
-.version-list { display: flex; flex-direction: column; gap: 0; }
-.version-item {
-  display: flex; gap: 24px;
-  padding: 28px 0;
-  border-bottom: 1px solid var(--glass-border);
-  position: relative;
-}
-.version-item:last-child { border-bottom: none; }
-.v-num {
-  font-family: 'Playfair Display', serif;
-  font-size: 13px; font-weight: 700;
-  color: var(--green-glow);
-  white-space: nowrap; padding-top: 3px;
-  min-width: 60px;
-}
-.v-latest .v-num { color: var(--gold); }
-.v-content { flex: 1; }
-.v-title {
-  font-size: 15px; font-weight: 600;
-  margin-bottom: 8px; color: var(--text-main);
-  display: flex; align-items: center; gap: 10px;
-}
-.v-badge {
-  font-size: 10px; font-weight: 700;
-  background: rgba(212,168,67,0.15);
-  border: 1px solid rgba(212,168,67,0.3);
-  color: var(--gold-light);
-  padding: 2px 8px; border-radius: 10px;
-  letter-spacing: .05em; text-transform: uppercase;
-}
-.v-changes { list-style: none; display: flex; flex-direction: column; gap: 4px; }
-.v-changes li {
-  font-size: 13px; font-weight: 300;
-  color: var(--text-muted); padding-left: 14px;
-  position: relative;
-}
-.v-changes li::before {
-  content: '→';
-  position: absolute; left: 0;
-  color: var(--green-bright); font-size: 11px;
-}
-.v-date {
-  font-size: 11px; color: var(--text-muted);
-  margin-top: 8px; letter-spacing: .04em;
-}
-
-/* ── STATS ROW ── */
-.stats-row {
-  position: relative; z-index: 1;
-  max-width: 900px; margin: 0 auto;
-  padding: 0 24px 100px;
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-.stat-box {
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px; padding: 28px 24px;
-  text-align: center;
-}
-.stat-num {
-  font-family: 'Playfair Display', serif;
-  font-size: 40px; font-weight: 900;
-  color: var(--green-glow);
-  line-height: 1;
-  margin-bottom: 6px;
-}
-.stat-label {
-  font-size: 12px; font-weight: 400;
-  color: var(--text-muted); letter-spacing: .06em;
-}
-
-/* ── CTA BOTTOM ── */
-.cta {
-  position: relative; z-index: 1;
-  text-align: center;
-  padding: 0 24px 120px;
-}
-.cta-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(28px, 5vw, 48px);
-  font-weight: 700; margin-bottom: 24px;
-}
-.cta-title span { color: var(--green-glow); }
-
-/* ── FOOTER ── */
-footer {
-  position: relative; z-index: 1;
-  border-top: 1px solid var(--glass-border);
-  padding: 32px 40px;
-  display: flex; justify-content: space-between; align-items: center;
-  flex-wrap: wrap; gap: 12px;
-}
-.footer-logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 16px; color: var(--green-glow); font-weight: 700;
-}
-.footer-copy { font-size: 12px; color: var(--text-muted); }
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── RESPONSIVE ── */
-@media (max-width: 600px) {
-  nav { padding: 16px 20px; }
-  .stats-row { grid-template-columns: 1fr; }
-  footer { flex-direction: column; text-align: center; }
-  .device { width: 220px; }
-  .device-screen { height: 400px; }
-}
+@media(max-width:768px){nav{padding:16px 20px}.stats-row{grid-template-columns:repeat(2,1fr)}.device{width:220px}.device-screen{height:400px}footer{flex-direction:column;text-align:center}}
+@media(max-width:480px){.stats-row{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
-
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
 <div class="orb orb-3"></div>
 
-<!-- NAV -->
 <nav>
   <div class="nav-logo">🌿 Sanal <span>Bahçe</span></div>
-  <div class="nav-version">v1.4.0</div>
+  <div class="nav-right">
+    <div class="nav-version">v1.5.0</div>
+    <a href="sanal-bahce.apk" class="nav-dl" download>⬇️ İndir</a>
+  </div>
 </nav>
 
-<!-- HERO -->
 <section class="hero">
-  <div class="hero-badge">
-    <span class="badge-dot"></span>
-    Android için ücretsiz
-  </div>
-
+  <div class="hero-badge"><span class="badge-dot"></span>Android için ücretsiz · v1.5.0</div>
   <h1 class="hero-title">
     <span class="line1">Kendi Bahçeni</span>
     <span class="line2">Yarat.</span>
   </h1>
-
-  <p class="hero-desc">
-    3D sanal bahçeni inşa et, çiçeklerini büyüt, evcil hayvanlarınla vakit geçir.
-    Gece/gündüz döngüsü, hasat sistemi ve çok daha fazlası.
-  </p>
-
+  <p class="hero-desc">3D sanal bahçeni inşa et, ürün hasat et, evcil hayvanlarınla vakit geç. Gece/gündüz döngüsü, mağaza sistemi, melek kanadı ve çok daha fazlası.</p>
   <div class="dl-group">
-    <a href="sanalbahce.apk" class="btn-download" download>
+    <a href="sanal-bahce.apk" class="btn-download" download>
       <span class="btn-icon">⬇️</span>
-      <span class="btn-text">
-        <small>Android APK İndir</small>
-        İndirmeye Başla
-      </span>
+      <span class="btn-text"><small>Android APK İndir · Ücretsiz</small>İndirmeye Başla</span>
     </a>
     <div class="dl-info">
-      <span>📦 ~8 MB</span>
-      <span class="dl-dot"></span>
-      <span>📱 Android 7+</span>
-      <span class="dl-dot"></span>
+      <span>📦 ~12 MB</span><span class="dl-dot"></span>
+      <span>📱 Android 7+</span><span class="dl-dot"></span>
       <span>🆓 Ücretsiz</span>
     </div>
   </div>
 
-  <!-- PHONE MOCKUP -->
   <div class="device-wrap">
     <div class="device">
       <div class="device-screen">
@@ -546,23 +220,13 @@ footer {
           <div class="screen-moon"></div>
           <div class="screen-ground"></div>
           <div class="screen-butterfly">🦋</div>
+          <div class="screen-harvest">🍅</div>
+          <div class="screen-pet">🐱</div>
           <div class="screen-flowers">
-            <div class="s-flower">
-              <div class="s-head">🌸</div>
-              <div class="s-stem" style="height:28px"></div>
-            </div>
-            <div class="s-flower">
-              <div class="s-head">🌺</div>
-              <div class="s-stem" style="height:38px"></div>
-            </div>
-            <div class="s-flower">
-              <div class="s-head">🌼</div>
-              <div class="s-stem" style="height:22px"></div>
-            </div>
-            <div class="s-flower">
-              <div class="s-head">💐</div>
-              <div class="s-stem" style="height:32px"></div>
-            </div>
+            <div class="s-flower"><div class="s-head">🌸</div><div class="s-stem" style="height:28px"></div></div>
+            <div class="s-flower"><div class="s-head">🌺</div><div class="s-stem" style="height:38px"></div></div>
+            <div class="s-flower"><div class="s-head">🌼</div><div class="s-stem" style="height:22px"></div></div>
+            <div class="s-flower"><div class="s-head">💐</div><div class="s-stem" style="height:32px"></div></div>
           </div>
           <div class="screen-ui">
             <div class="screen-clock" id="sc">00:00</div>
@@ -579,28 +243,47 @@ footer {
   </div>
 </section>
 
-<!-- STATS -->
 <div class="stats-row">
-  <div class="stat-box">
-    <div class="stat-num">18+</div>
-    <div class="stat-label">İNŞA OBJESİ</div>
-  </div>
-  <div class="stat-box">
-    <div class="stat-num">4</div>
-    <div class="stat-label">ÇİÇEK TÜRÜ</div>
-  </div>
-  <div class="stat-box">
-    <div class="stat-num">24/7</div>
-    <div class="stat-label">CANLI DÜNYA</div>
-  </div>
+  <div class="stat-box"><div class="stat-num">20+</div><div class="stat-label">İNŞA OBJESİ</div></div>
+  <div class="stat-box"><div class="stat-num">16</div><div class="stat-label">MAĞAZA ÜRÜNÜ</div></div>
+  <div class="stat-box"><div class="stat-num">10</div><div class="stat-label">SEVİYE</div></div>
+  <div class="stat-box"><div class="stat-num">24/7</div><div class="stat-label">CANLI DÜNYA</div></div>
 </div>
 
-<!-- FEATURES -->
 <section class="features">
   <div class="section-label">Özellikler</div>
   <h2 class="section-title">Gerçek bir bahçe<br><em>deneyimi</em></h2>
-
   <div class="feat-grid">
+    <div class="feat-card feat-new">
+      <span class="feat-icon">🏪</span>
+      <div class="feat-name">Mağaza Sistemi <span class="new-tag">Yeni</span></div>
+      <div class="feat-desc">Coin kazan, özel tohumlar ve nadir eşyalar satın al. Ejder yumurtası, altın ağaç ve daha fazlası.</div>
+      <span class="feat-tag gold">16 Ürün</span>
+    </div>
+    <div class="feat-card feat-new">
+      <span class="feat-icon">🍅</span>
+      <div class="feat-name">Hasat Sistemi <span class="new-tag">Yeni</span></div>
+      <div class="feat-desc">Domates, çilek ve kabak yetiştir. Gerçek zamanlı büyüme, hasat et ve coin kazan.</div>
+      <span class="feat-tag">Gerçek Zamanlı</span>
+    </div>
+    <div class="feat-card feat-new">
+      <span class="feat-icon">🐱</span>
+      <div class="feat-name">Evcil Hayvanlar <span class="new-tag">Yeni</span></div>
+      <div class="feat-desc">Kedi ve köpeğin bahçende özgürce dolaşır. Köpek kuyruk sallar, kedi kuyruğunu kıpırdatır.</div>
+      <span class="feat-tag">2 Hayvan</span>
+    </div>
+    <div class="feat-card feat-new">
+      <span class="feat-icon">🔔</span>
+      <div class="feat-name">Bildirimler <span class="new-tag">Yeni</span></div>
+      <div class="feat-desc">Sulama zamanı, hasat hazır, zararlı böcek ve günlük görev hatırlatıcısı.</div>
+      <span class="feat-tag">Akıllı</span>
+    </div>
+    <div class="feat-card feat-new">
+      <span class="feat-icon">📊</span>
+      <div class="feat-name">İstatistikler <span class="new-tag">Yeni</span></div>
+      <div class="feat-desc">Günlük streak, toplam sulama, hasat sayıları, oynama süresi ve coin takibi.</div>
+      <span class="feat-tag">Detaylı</span>
+    </div>
     <div class="feat-card">
       <span class="feat-icon">🌙</span>
       <div class="feat-name">Gece/Gündüz Döngüsü</div>
@@ -610,26 +293,8 @@ footer {
     <div class="feat-card">
       <span class="feat-icon">🏡</span>
       <div class="feat-name">Sürükle-Bırak İnşa</div>
-      <div class="feat-desc">Ağaç, gölet, ev, köprü, çardak ve daha fazlasını istediğin yere yerleştir.</div>
-      <span class="feat-tag">18 Obje</span>
-    </div>
-    <div class="feat-card">
-      <span class="feat-icon">🍅</span>
-      <div class="feat-name">Hasat Sistemi</div>
-      <div class="feat-desc">Domates, çilek ve kabak yetiştir. Hasat et, coin kazan, bahçeni büyüt.</div>
-      <span class="feat-tag">Yeni</span>
-    </div>
-    <div class="feat-card">
-      <span class="feat-icon">🐱</span>
-      <div class="feat-name">Evcil Hayvanlar</div>
-      <div class="feat-desc">Kedi ve köpeğin bahçende özgürce dolaşır, çiçeklere yaklaşır, seninle vakit geçirir.</div>
-      <span class="feat-tag">Yeni</span>
-    </div>
-    <div class="feat-card">
-      <span class="feat-icon">📊</span>
-      <div class="feat-name">İstatistikler</div>
-      <div class="feat-desc">Günlük streak, toplam sulama, hasat sayıları ve oynama süren kayıt altında.</div>
-      <span class="feat-tag">Yeni</span>
+      <div class="feat-desc">20+ obje. Ağaç, gölet, ev, çeşme, çardak, ağaç evi ve daha fazlasını istediğin yere koy.</div>
+      <span class="feat-tag">20+ Obje</span>
     </div>
     <div class="feat-card">
       <span class="feat-icon">🌧️</span>
@@ -638,90 +303,116 @@ footer {
       <span class="feat-tag">Dinamik</span>
     </div>
     <div class="feat-card">
-      <span class="feat-icon">🎵</span>
-      <div class="feat-name">Ambient Sesler</div>
-      <div class="feat-desc">Kuş cıvıltıları, su sesleri ve lo-fi melodiler bahçeni hayata geçirir.</div>
-      <span class="feat-tag">Atmosfer</span>
-    </div>
-    <div class="feat-card">
       <span class="feat-icon">📋</span>
       <div class="feat-name">Günlük Görevler</div>
-      <div class="feat-desc">Her gün yeni görevler, XP kazan ve seviye atla. 10 seviyeye kadar ilerle.</div>
+      <div class="feat-desc">Her gün yeni görevler, XP kazan ve 10 seviyeye kadar ilerle.</div>
       <span class="feat-tag">10 Seviye</span>
     </div>
     <div class="feat-card">
       <span class="feat-icon">💾</span>
       <div class="feat-name">Otomatik Kayıt</div>
-      <div class="feat-desc">Bahçen, dekorların ve hayvanların güvenle kaydedilir. Hiçbir şey kaybolmaz.</div>
+      <div class="feat-desc">Bahçen, dekorların ve hayvanların güvenle kaydedilir. Güncelleme sonrası kayıp yok.</div>
       <span class="feat-tag">Kalıcı</span>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">📤</span>
+      <div class="feat-name">Paylaşım</div>
+      <div class="feat-desc">Bahçe durumunu arkadaşlarınla paylaş. Seviye, coin ve streak bilgilerin.</div>
+      <span class="feat-tag">Sosyal</span>
     </div>
   </div>
 </section>
 
-<!-- VERSION HISTORY -->
+<section class="shop-preview">
+  <div class="section-label">Mağaza</div>
+  <h2 class="section-title">Nadir <em>eşyalar</em></h2>
+  <div class="shop-cards">
+    <div class="shop-card rare"><div class="shop-card-emoji">🥚</div><div class="shop-card-name">Ejder Yumurtası</div><div class="shop-card-price">💰 300 coin</div></div>
+    <div class="shop-card rare"><div class="shop-card-emoji">🌳</div><div class="shop-card-name">Altın Ağaç</div><div class="shop-card-price">💰 350 coin</div></div>
+    <div class="shop-card"><div class="shop-card-emoji">⛲</div><div class="shop-card-name">Çeşme</div><div class="shop-card-price">💰 200 coin</div></div>
+    <div class="shop-card"><div class="shop-card-emoji">🏚️</div><div class="shop-card-name">Ağaç Evi</div><div class="shop-card-price">💰 250 coin</div></div>
+    <div class="shop-card"><div class="shop-card-emoji">🌹</div><div class="shop-card-name">Gül Tohumu</div><div class="shop-card-price">💰 30 coin</div></div>
+  </div>
+</section>
+
+<section class="install">
+  <div class="section-label">Kurulum</div>
+  <h2 class="section-title">3 adımda <em>kur</em></h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text">
+        <div class="step-title">APK'yı İndir</div>
+        <div class="step-desc">Yukarıdaki "İndirmeye Başla" butonuna bas ve APK dosyasını indir.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">
+        <div class="step-title">Bilinmeyen Kaynaklara İzin Ver</div>
+        <div class="step-desc">Ayarlar → Güvenlik → Bilinmeyen uygulamalara izin ver. Bu sadece bir kere yapılır.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">
+        <div class="step-title">APK'ya Tıkla ve Kur</div>
+        <div class="step-desc">İndirilen dosyaya dokun, "Yükle" de. Bahçen seni bekliyor! 🌿</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="versions">
   <div class="section-label">Sürüm Geçmişi</div>
-  <h2 class="section-title" style="margin-bottom:40px">Güncellemeler</h2>
-
+  <h2 class="section-title" style="margin-bottom:32px">Güncellemeler</h2>
   <div class="version-list">
     <div class="version-item v-latest">
-      <div class="v-num">v1.4.0</div>
+      <div class="v-num">v1.5.0</div>
       <div class="v-content">
-        <div class="v-title">
-          Büyük Güncelleme
-          <span class="v-badge">Güncel</span>
-        </div>
+        <div class="v-title">Mağaza & Nadir Eşyalar <span class="v-badge">Güncel</span></div>
         <ul class="v-changes">
-          <li>Hasat sistemi eklendi (Domates, Çilek, Kabak)</li>
-          <li>Evcil hayvan sistemi — Kedi & Köpek</li>
-          <li>Bahçe istatistikleri paneli & Streak sistemi</li>
-          <li>Coin sistemi eklendi</li>
-          <li>Kamera parazit sorunu düzeltildi</li>
-          <li>Kayıt sistemi güçlendirildi, güncelleme sonrası veri kaybı yok</li>
+          <li>Beyaz altın heykeli, dönen halo, titrek ışık</li>
+          <li>🏪 Mağaza sistemi — 16 ürün (tohum, eşya, nadir)</li>
+          <li>🔔 Bildirim sistemi — sulama, hasat, zararlı, görev</li>
+          <li>📤 Bahçe paylaşım özelliği</li>
+          <li>⚡ FPS optimizasyonu — 30fps limiter, shadow kapalı</li>
+          <li>💾 Güncelleme sonrası veri kaybı sorunu düzeltildi</li>
         </ul>
         <div class="v-date">Mayıs 2026</div>
       </div>
     </div>
-
+    <div class="version-item">
+      <div class="v-num">v1.4.0</div>
+      <div class="v-content">
+        <div class="v-title">Hasat & Evcil Hayvan</div>
+        <ul class="v-changes">
+          <li>🍅 Hasat sistemi — domates, çilek, kabak</li>
+          <li>🐱🐶 Evcil hayvan — kedi ve köpek</li>
+          <li>📊 Bahçe istatistikleri & streak sistemi</li>
+          <li>💰 Coin sistemi</li>
+        </ul>
+        <div class="v-date">Mayıs 2026</div>
+      </div>
+    </div>
     <div class="version-item">
       <div class="v-num">v1.3.0</div>
       <div class="v-content">
         <div class="v-title">İnşa & Silme</div>
         <ul class="v-changes">
-          <li>Sürükle-bırak yerleştirme sistemi</li>
-          <li>Dekor silme modu eklendi</li>
-          <li>Ev modeli eklendi (baca, pencere, ışık)</li>
-          <li>Çiçek yerleştirme modu — istediğin yere ek</li>
+          <li>Sürükle-bırak yerleştirme, dekor silme</li>
+          <li>Ev modeli, çeşme, ağaç evi</li>
           <li>Dekorlar artık kaydediliyor</li>
         </ul>
         <div class="v-date">Nisan 2026</div>
       </div>
     </div>
-
-    <div class="version-item">
-      <div class="v-num">v1.2.0</div>
-      <div class="v-content">
-        <div class="v-title">Dünya Genişlemesi</div>
-        <ul class="v-changes">
-          <li>18 inşa objesi eklendi</li>
-          <li>Hava durumu sistemi (Kar, Yaprak, Yağmur)</li>
-          <li>Günlük görev sistemi & XP/Seviye</li>
-          <li>Bitki büyüme aşamaları</li>
-          <li>Geniş açık dünya haritası</li>
-        </ul>
-        <div class="v-date">Nisan 2026</div>
-      </div>
-    </div>
-
     <div class="version-item">
       <div class="v-num">v1.0.0</div>
       <div class="v-content">
         <div class="v-title">İlk Sürüm</div>
         <ul class="v-changes">
-          <li>3D bahçe motoru (Three.js)</li>
-          <li>Gece/gündüz döngüsü — gerçek saate göre</li>
-          <li>Çiçekler, kelebekler, zararlı böcekler</li>
-          <li>Sulama ve büyüme sistemi</li>
+          <li>3D bahçe, gece/gündüz, çiçekler, kelebekler</li>
         </ul>
         <div class="v-date">Nisan 2026</div>
       </div>
@@ -729,57 +420,149 @@ footer {
   </div>
 </section>
 
-<!-- CTA -->
-<section class="cta">
-  <h2 class="cta-title">Bahçene <span>şimdi</span> başla.</h2>
-  <div class="dl-group">
-    <a href="sanalbahce.apk" class="btn-download" download>
-      <span class="btn-icon">⬇️</span>
-      <span class="btn-text">
-        <small>Android APK — Ücretsiz</small>
-        İndir & Kur
-      </span>
-    </a>
-    <div class="dl-info">
-      <span>⚠️ Ayarlar → Güvenlik → Bilinmeyen kaynaklara izin ver</span>
+
+<!-- KULLANICI DENEYİMLERİ -->
+<section class="reviews" id="yorumlar">
+  <div class="section-label">Kullanıcı Deneyimleri</div>
+  <h2 class="section-title">Bahçeseverler <em>ne diyor?</em></h2>
+
+
+
+  <!-- Yorum yazma formu -->
+  <div class="review-form-wrap">
+    <h3 class="form-title">Sen de yorum yap</h3>
+    <div class="star-selector" id="starSelector">
+      <span class="star-pick" data-v="1">⭐</span>
+      <span class="star-pick" data-v="2">⭐</span>
+      <span class="star-pick" data-v="3">⭐</span>
+      <span class="star-pick" data-v="4">⭐</span>
+      <span class="star-pick" data-v="5">⭐</span>
     </div>
+    <div class="form-row">
+      <input class="form-input" id="reviewName" type="text" placeholder="İsmin (örn. Ahmet K.)" maxlength="30">
+      <select class="form-input" id="reviewEmoji">
+        <option value="🌸">🌸</option><option value="🌿">🌿</option>
+        <option value="🦋">🦋</option><option value="🌺">🌺</option>
+        <option value="🐱">🐱</option><option value="🐶">🐶</option>
+        <option value="🍅">🍅</option><option value="⭐">⭐</option>
+      </select>
+    </div>
+    <textarea class="form-input form-textarea" id="reviewText" placeholder="Deneyimini paylaş... (en az 20 karakter)" maxlength="280"></textarea>
+    <button class="form-submit" onclick="submitReview()">Yorumu Gönder 🌿</button>
+    <div id="formMsg" class="form-msg"></div>
   </div>
 </section>
 
-<!-- FOOTER -->
+<section class="cta">
+  <h2 class="cta-title">Bahçene <span>şimdi</span> başla.</h2>
+  <div class="dl-group">
+    <a href="sanal-bahce.apk" class="btn-download" download>
+      <span class="btn-icon">⬇️</span>
+      <span class="btn-text"><small>Android APK — Ücretsiz</small>İndir & Kur</span>
+    </a>
+    <div class="dl-info"><span>⚠️ Ayarlar → Güvenlik → Bilinmeyen kaynaklara izin ver</span></div>
+  </div>
+</section>
+
 <footer>
   <div class="footer-logo">🌿 Sanal Bahçe</div>
-  <div class="footer-copy">v1.4.0 · 2026 · Android</div>
+  <div class="footer-links">
+    <a href="https://batuhanklcky.github.io/sanalbahce/">🌐 Oyna</a>
+  </div>
+  <div class="footer-copy">v1.5.0 · 2026 · Android</div>
 </footer>
 
 <script>
-// Live clock in mockup
-function updateClock() {
-  var now = new Date();
-  var h = String(now.getHours()).padStart(2,'0');
-  var m = String(now.getMinutes()).padStart(2,'0');
-  var el = document.getElementById('sc');
-  if (el) el.textContent = h + ':' + m;
-}
-updateClock();
-setInterval(updateClock, 10000);
 
-// Scroll reveal
-var observer = new IntersectionObserver(function(entries) {
-  entries.forEach(function(e) {
-    if (e.isIntersecting) {
-      e.target.style.opacity = '1';
-      e.target.style.transform = 'translateY(0)';
-    }
+// ── YORUM SİSTEMİ ────────────────────────────────────────────────────────
+var selectedStars = 0;
+
+document.querySelectorAll('.star-pick').forEach(function(el) {
+  el.addEventListener('click', function() {
+    selectedStars = parseInt(this.dataset.v);
+    document.querySelectorAll('.star-pick').forEach(function(s, i) {
+      s.classList.toggle('active', i < selectedStars);
+    });
   });
-}, { threshold: 0.1 });
-
-document.querySelectorAll('.feat-card, .stat-box, .version-item').forEach(function(el) {
-  el.style.opacity = '0';
-  el.style.transform = 'translateY(20px)';
-  el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-  observer.observe(el);
+  el.addEventListener('mouseover', function() {
+    var v = parseInt(this.dataset.v);
+    document.querySelectorAll('.star-pick').forEach(function(s, i) {
+      s.style.opacity = i < v ? '1' : '.4';
+      s.style.filter = i < v ? 'none' : 'grayscale(1)';
+    });
+  });
 });
+document.getElementById('starSelector').addEventListener('mouseleave', function() {
+  document.querySelectorAll('.star-pick').forEach(function(s, i) {
+    s.style.opacity = i < selectedStars ? '1' : '.4';
+    s.style.filter = i < selectedStars ? 'none' : 'grayscale(1)';
+  });
+});
+
+// localStorage'dan yorumları yükle
+function loadReviews() {
+  var saved = JSON.parse(localStorage.getItem('sb_reviews') || '[]');
+  saved.forEach(function(r) { addReviewCard(r, false); });
+}
+
+function addReviewCard(r, prepend) {
+  var grid = document.getElementById('reviewGrid');
+  var stars = '';
+  for(var i=0;i<r.stars;i++) stars += '⭐';
+  var card = document.createElement('div');
+  card.className = 'review-card' + (prepend ? ' user-review' : '');
+  card.innerHTML = '<div class="review-stars">'+stars+'</div>'
+    + '<div class="review-text">"'+r.text+'"</div>'
+    + '<div class="review-author">'
+    + '<div class="review-avatar">'+r.emoji+'</div>'
+    + '<div><div class="review-name">'+r.name+'</div>'
+    + '<div class="review-date">'+r.date+'</div></div></div>';
+  if(prepend) grid.insertBefore(card, grid.firstChild);
+  else grid.appendChild(card);
+}
+
+function submitReview() {
+  var name = document.getElementById('reviewName').value.trim();
+  var text = document.getElementById('reviewText').value.trim();
+  var emoji = document.getElementById('reviewEmoji').value;
+  var msg = document.getElementById('formMsg');
+
+  if(!name) { msg.textContent = '⚠️ İsmini yaz!'; msg.className='form-msg err'; return; }
+  if(selectedStars === 0) { msg.textContent = '⚠️ Yıldız seç!'; msg.className='form-msg err'; return; }
+  if(text.length < 20) { msg.textContent = '⚠️ En az 20 karakter yaz!'; msg.className='form-msg err'; return; }
+
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('tr-TR', {day:'numeric', month:'long'});
+  var review = { name: name, text: text, emoji: emoji, stars: selectedStars, date: dateStr };
+
+  // Kaydet
+  var saved = JSON.parse(localStorage.getItem('sb_reviews') || '[]');
+  saved.unshift(review);
+  if(saved.length > 20) saved = saved.slice(0, 20); // Max 20 yorum
+  localStorage.setItem('sb_reviews', JSON.stringify(saved));
+
+  // Göster
+  addReviewCard(review, true);
+
+  // Formu sıfırla
+  document.getElementById('reviewName').value = '';
+  document.getElementById('reviewText').value = '';
+  selectedStars = 0;
+  document.querySelectorAll('.star-pick').forEach(function(s){ s.classList.remove('active'); s.style.opacity='.4'; s.style.filter='grayscale(1)'; });
+  msg.textContent = '✅ Yorum eklendi, teşekkürler! 🌿';
+  msg.className = 'form-msg ok';
+  setTimeout(function(){ msg.textContent = ''; }, 3000);
+
+  // Scroll to new review
+  document.getElementById('reviewGrid').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+loadReviews();
+
+function updateClock(){var n=new Date(),h=String(n.getHours()).padStart(2,'0'),m=String(n.getMinutes()).padStart(2,'0'),el=document.getElementById('sc');if(el)el.textContent=h+':'+m;}
+updateClock();setInterval(updateClock,10000);
+var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';}});},{threshold:.1});
+document.querySelectorAll('.feat-card,.stat-box,.version-item,.shop-card,.step').forEach(function(el){el.style.opacity='0';el.style.transform='translateY(20px)';el.style.transition='opacity 0.6s ease, transform 0.6s ease';obs.observe(el);});
 </script>
 </body>
 </html>
