@@ -2,7 +2,22 @@
 <html lang="tr">
 <head>
 
- <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
+
+<script>
+    window.addEventListener('load', function() {
+      const ua = navigator.userAgent;
+      const isMobileUA = /Android|iPhone|iPad/i.test(ua);
+      const isSmallScreen = window.screen.width <= 768;
+      if (!isMobileUA && isSmallScreen) {
+        const uyari = document.createElement('div');
+        uyari.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;text-align:center;padding:30px;font-family:sans-serif;`;
+        uyari.innerHTML = `<div style="font-size:50px;margin-bottom:20px;">📱</div><h2 style="margin-bottom:15px;">Masaüstü modu kapalı</h2><p style="color:#ccc;margin-bottom:25px;line-height:1.6;">Bu sayfayı düzgün görmek için tarayıcındaki masaüstü modunu kapatman gerekiyor.<br><br>Chrome'da sağ üstteki 3 nokta → <strong>"Masaüstü sitesi"</strong> seçeneğini kapat.</p><button onclick="location.reload()" style="padding:12px 30px;background:#ff69b4;border:none;border-radius:25px;color:white;font-size:16px;cursor:pointer;">Kapattım, tekrar dene</button>`;
+        document.body.appendChild(uyari);
+      }
+    });
+  </script>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
   <script>
     const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI';
@@ -35,10 +50,8 @@
       });
     });
   </script>
-
-   
-
-   <meta charset="UTF-8">
+ 
+ <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sanal Bahçe — İndir</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -455,111 +468,37 @@ select.form-input{width:auto;cursor:pointer;padding:12px 10px}
 </section>
 
 
-<!-- Mevcut Supabase bağlantı kodlarının (supabaseUrl, supabaseKey olan kısım) hemen altına -->
+<!-- KULLANICI DENEYİMLERİ -->
+<section class="reviews" id="yorumlar">
+  <div class="section-label">Kullanıcı Deneyimleri</div>
+  <h2 class="section-title">Bahçeseverler <em>ne diyor?</em></h2>
 
-<script>
-let selectedStars = 5;
 
-// Sayfa yüklendiğinde çalışacak başlangıç ayarları
-document.addEventListener('DOMContentLoaded', () => {
-    loadReviews();
-    setupStarRating();
-});
 
-// Yıldız seçme fonksiyonu
-function setupStarRating() {
-    const stars = document.querySelectorAll('.star-pick');
-    stars.forEach((star, index) => {
-        star.addEventListener('click', () => {
-            selectedStars = index + 1;
-            stars.forEach((s, i) => {
-                s.style.opacity = i < selectedStars ? "1" : "0.3";
-                s.style.filter = i < selectedStars ? "none" : "grayscale(1)";
-                s.classList.toggle('active', i < selectedStars);
-            });
-        });
-    });
-}
-
-// Veritabanından yorumları çekme
-async function loadReviews() {
-    const { data, error } = await client
-        .from('reviews')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-    if (error) {
-        console.error("Yorumlar yüklenirken hata oluştu:", error.message);
-        return;
-    }
-
-    const grid = document.getElementById('reviewGrid');
-    if (grid && data) {
-        grid.innerHTML = ''; 
-        data.forEach(review => addReviewCard(review));
-    }
-}
-
-// Ekrana kart ekleme
-function addReviewCard(review, isNew = false) {
-    const grid = document.getElementById('reviewGrid');
-    if (!grid) return;
-
-    const card = document.createElement('div');
-    card.className = `review-card ${isNew ? 'user-review' : ''}`;
-    
-    const starsStr = '⭐'.repeat(review.stars);
-    const dateStr = isNew ? 'Az önce' : new Date(review.created_at).toLocaleDateString('tr-TR');
-
-    card.innerHTML = `
-        <div class="review-stars">${starsStr}</div>
-        <div class="review-text">"${review.text}"</div>
-        <div class="review-author">
-            <div class="review-avatar">${review.emoji || '🌿'}</div>
-            <div class="review-info">
-                <div class="review-name">${review.name || 'Anonim'}</div>
-                <div class="review-date">${dateStr}</div>
-            </div>
-        </div>
-    `;
-
-    isNew ? grid.insertBefore(card, grid.firstChild) : grid.appendChild(card);
-}
-
-// Yeni yorum gönderme
-async function submitReview() {
-    const nameInput = document.getElementById('reviewName');
-    const textInput = document.getElementById('reviewText');
-    const emojiInput = document.getElementById('reviewEmoji');
-    const msg = document.getElementById('formMsg');
-
-    const name = nameInput.value.trim();
-    const text = textInput.value.trim();
-    const emoji = emojiInput.value;
-
-    if (!name || text.length < 20) {
-        msg.innerText = "Lütfen isminizi girin ve en az 20 karakter yazın.";
-        msg.className = "form-msg err";
-        return;
-    }
-
-    const { error } = await client.from('reviews').insert([
-        { name, text, emoji, stars: selectedStars }
-    ]);
-
-    if (!error) {
-        msg.innerText = "Yorumun yayınlandı! 🌿";
-        msg.className = "form-msg ok";
-        addReviewCard({ name, text, emoji, stars: selectedStars, created_at: new Date() }, true);
-        nameInput.value = "";
-        textInput.value = "";
-    } else {
-        msg.innerText = "Bir hata oluştu, tekrar deneyin.";
-        msg.className = "form-msg err";
-        console.error(error);
-    }
-}
-</script>
+  <!-- Yorum yazma formu -->
+  <div class="review-form-wrap">
+    <h3 class="form-title">Sen de yorum yap</h3>
+    <div class="star-selector" id="starSelector">
+      <span class="star-pick" data-v="1">⭐</span>
+      <span class="star-pick" data-v="2">⭐</span>
+      <span class="star-pick" data-v="3">⭐</span>
+      <span class="star-pick" data-v="4">⭐</span>
+      <span class="star-pick" data-v="5">⭐</span>
+    </div>
+    <div class="form-row">
+      <input class="form-input" id="reviewName" type="text" placeholder="İsmin (örn. Ahmet K.)" maxlength="30">
+      <select class="form-input" id="reviewEmoji">
+        <option value="🌸">🌸</option><option value="🌿">🌿</option>
+        <option value="🦋">🦋</option><option value="🌺">🌺</option>
+        <option value="🐱">🐱</option><option value="🐶">🐶</option>
+        <option value="🍅">🍅</option><option value="⭐">⭐</option>
+      </select>
+    </div>
+    <textarea class="form-input form-textarea" id="reviewText" placeholder="Deneyimini paylaş... (en az 20 karakter)" maxlength="280"></textarea>
+    <button class="form-submit" onclick="submitReview()">Yorumu Gönder 🌿</button>
+    <div id="formMsg" class="form-msg"></div>
+  </div>
+</section>
 
 <section class="cta">
   <h2 class="cta-title">Bahçene <span>şimdi</span> başla.</h2>
