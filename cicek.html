@@ -1,57 +1,7 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-
-
-<script>
-    window.addEventListener('load', function() {
-      const ua = navigator.userAgent;
-      const isMobileUA = /Android|iPhone|iPad/i.test(ua);
-      const isSmallScreen = window.screen.width <= 768;
-      if (!isMobileUA && isSmallScreen) {
-        const uyari = document.createElement('div');
-        uyari.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;text-align:center;padding:30px;font-family:sans-serif;`;
-        uyari.innerHTML = `<div style="font-size:50px;margin-bottom:20px;">📱</div><h2 style="margin-bottom:15px;">Masaüstü modu kapalı</h2><p style="color:#ccc;margin-bottom:25px;line-height:1.6;">Bu sayfayı düzgün görmek için tarayıcındaki masaüstü modunu kapatman gerekiyor.<br><br>Chrome'da sağ üstteki 3 nokta → <strong>"Masaüstü sitesi"</strong> seçeneğini kapat.</p><button onclick="location.reload()" style="padding:12px 30px;background:#ff69b4;border:none;border-radius:25px;color:white;font-size:16px;cursor:pointer;">Kapattım, tekrar dene</button>`;
-        document.body.appendChild(uyari);
-      }
-    });
-  </script>
-
-  <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
-  <script>
-    const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI';
-    const client = supabase.createClient(supabaseUrl, supabaseKey);
-    let visitStart = Date.now();
-    async function getDeviceInfo() {
-      const ua = navigator.userAgent;
-      let marka = 'Bilinmiyor', model = 'Bilinmiyor';
-      try {
-        if (navigator.userAgentData) {
-          const hints = await navigator.userAgentData.getHighEntropyValues(['model','brand','platform','platformVersion']);
-          if (hints.model) model = hints.model;
-          if (hints.brands) { const real = hints.brands.find(b => !b.brand.includes('Not') && !b.brand.includes('Chromium') && b.brand !== 'Google Chrome'); if (real) marka = real.brand; }
-        }
-      } catch(e) {}
-      const os = ua.match(/Android ([\d.]+)/) ? 'Android ' + ua.match(/Android ([\d.]+)/)[1] : /iPhone/.test(ua) ? 'iOS' : /Windows/.test(ua) ? 'Windows' : /Mac/.test(ua) ? 'macOS' : 'Bilinmiyor';
-      const browser = /EdgA?\//.test(ua) ? 'Edge' : /OPR\/|Opera/.test(ua) ? 'Opera' : /Chrome/.test(ua) ? 'Chrome' : /Firefox/.test(ua) ? 'Firefox' : /Safari/.test(ua) ? 'Safari' : 'Diğer';
-      return { marka, model, os, browser };
-    }
-    fetch('https://api.ipify.org?format=json').then(r => r.json()).then(async ipData => {
-      const ua = navigator.userAgent;
-      const ip_address = ipData.ip;
-      const page_url = window.location.href;
-      const screen_resolution = `${window.screen.width}x${window.screen.height}`;
-      const device = await getDeviceInfo();
-      await client.from('visitor_logs').insert([{ page_url, ip_address, user_agent: ua, screen_resolution, device_model: `${device.marka} - ${device.model}`, os: device.os, browser: device.browser, language: navigator.language, time_spent: 0 }]);
-      window.addEventListener('beforeunload', async () => {
-        const time_spent = Math.floor((Date.now() - visitStart) / 1000);
-        await client.from('visitor_logs').insert([{ page_url, ip_address, user_agent: ua, screen_resolution, device_model: `${device.marka} - ${device.model}`, os: device.os, browser: device.browser, language: navigator.language, time_spent }]);
-      });
-    });
-  </script>
- 
- <meta charset="UTF-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sanal Bahçe — İndir</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -308,6 +258,12 @@ select.form-input{width:auto;cursor:pointer;padding:12px 10px}
       <span class="feat-tag gold">16 Ürün</span>
     </div>
     <div class="feat-card feat-new">
+      <span class="feat-icon">🪽</span>
+      <div class="feat-name">Melek Kanadı <span class="new-tag">Yeni</span></div>
+      <div class="feat-desc">Beyaz altın melek kanadı heykeli. Dönen halo, titrek ışık ve tüy detaylarıyla eşsiz dekorasyon.</div>
+      <span class="feat-tag gold">Nadir</span>
+    </div>
+    <div class="feat-card feat-new">
       <span class="feat-icon">🍅</span>
       <div class="feat-name">Hasat Sistemi <span class="new-tag">Yeni</span></div>
       <div class="feat-desc">Domates, çilek ve kabak yetiştir. Gerçek zamanlı büyüme, hasat et ve coin kazan.</div>
@@ -374,12 +330,12 @@ select.form-input{width:auto;cursor:pointer;padding:12px 10px}
   <div class="section-label">Mağaza</div>
   <h2 class="section-title">Nadir <em>eşyalar</em></h2>
   <div class="shop-cards">
-    <div class="shop-card rare"><div class="shop-card-emoji">🥚</div><div class="shop-card-name">Ejder Yumurtası</div><div class="shop-card-price">💰 450 coin</div></div>
-    <div class="shop-card rare"><div class="shop-card-emoji">🌳</div><div class="shop-card-name">Altın Ağaç</div><div class="shop-card-price">💰 550 coin</div></div>
+    <div class="shop-card rare"><div class="shop-card-emoji">🪽</div><div class="shop-card-name">Melek Kanadı</div><div class="shop-card-price">💰 400 coin</div></div>
+    <div class="shop-card rare"><div class="shop-card-emoji">🥚</div><div class="shop-card-name">Ejder Yumurtası</div><div class="shop-card-price">💰 300 coin</div></div>
+    <div class="shop-card rare"><div class="shop-card-emoji">🌳</div><div class="shop-card-name">Altın Ağaç</div><div class="shop-card-price">💰 350 coin</div></div>
     <div class="shop-card"><div class="shop-card-emoji">⛲</div><div class="shop-card-name">Çeşme</div><div class="shop-card-price">💰 200 coin</div></div>
     <div class="shop-card"><div class="shop-card-emoji">🏚️</div><div class="shop-card-name">Ağaç Evi</div><div class="shop-card-price">💰 250 coin</div></div>
     <div class="shop-card"><div class="shop-card-emoji">🌹</div><div class="shop-card-name">Gül Tohumu</div><div class="shop-card-price">💰 30 coin</div></div>
-      <div class="shop-card rare"><div class="shop-card-emoji">🌕</div><div class="shop-card-name">Ay Çiçeği</div><div class="shop-card-price">💰 500 coin</div></div>
   </div>
 </section>
 
@@ -420,7 +376,7 @@ select.form-input{width:auto;cursor:pointer;padding:12px 10px}
       <div class="v-content">
         <div class="v-title">Mağaza & Nadir Eşyalar <span class="v-badge">Güncel</span></div>
         <ul class="v-changes">
-          <li>Beyaz altın heykeli, dönen halo, titrek ışık</li>
+          <li>🪽 Melek Kanadı — Beyaz altın heykeli, dönen halo, titrek ışık</li>
           <li>🏪 Mağaza sistemi — 16 ürün (tohum, eşya, nadir)</li>
           <li>🔔 Bildirim sistemi — sulama, hasat, zararlı, görev</li>
           <li>📤 Bahçe paylaşım özelliği</li>
@@ -471,10 +427,10 @@ select.form-input{width:auto;cursor:pointer;padding:12px 10px}
 
 <!-- KULLANICI DENEYİMLERİ -->
 <section class="reviews" id="yorumlar">
-  <div class="section-label">Kullanıcı Deneyimleri (YAPIM AŞAMASINDA) </div>
+  <div class="section-label">Kullanıcı Deneyimleri</div>
   <h2 class="section-title">Bahçeseverler <em>ne diyor?</em></h2>
 
-
+  
 
   <!-- Yorum yazma formu -->
   <div class="review-form-wrap">
@@ -522,90 +478,157 @@ select.form-input{width:auto;cursor:pointer;padding:12px 10px}
 
 <script>
 
-// ── YORUM SİSTEMİ ────────────────────────────────────────────────────────
+// ── SUPABASE YORUM SİSTEMİ ───────────────────────────────────────────────
+var SB_URL = 'https://lvoeziofefbczugymzft.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI';
 var selectedStars = 0;
 
-document.querySelectorAll('.star-pick').forEach(function(el) {
-  el.addEventListener('click', function() {
-    selectedStars = parseInt(this.dataset.v);
-    document.querySelectorAll('.star-pick').forEach(function(s, i) {
-      s.classList.toggle('active', i < selectedStars);
-    });
-  });
-  el.addEventListener('mouseover', function() {
-    var v = parseInt(this.dataset.v);
-    document.querySelectorAll('.star-pick').forEach(function(s, i) {
-      s.style.opacity = i < v ? '1' : '.4';
-      s.style.filter = i < v ? 'none' : 'grayscale(1)';
-    });
-  });
-});
-document.getElementById('starSelector').addEventListener('mouseleave', function() {
-  document.querySelectorAll('.star-pick').forEach(function(s, i) {
-    s.style.opacity = i < selectedStars ? '1' : '.4';
-    s.style.filter = i < selectedStars ? 'none' : 'grayscale(1)';
-  });
-});
-
-// localStorage'dan yorumları yükle
-function loadReviews() {
-  var saved = JSON.parse(localStorage.getItem('sb_reviews') || '[]');
-  saved.forEach(function(r) { addReviewCard(r, false); });
+// ── Supabase fetch helper ─────────────────────────────────────────────────
+function sbFetch(path, method, body) {
+  return fetch(SB_URL + path, {
+    method: method || 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + SB_KEY,
+      'Prefer': method === 'POST' ? 'return=representation' : ''
+    },
+    body: body ? JSON.stringify(body) : undefined
+  }).then(function(r) { return r.json(); });
 }
 
+// ── Yıldız seçici ─────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', function() {
+  var stars = document.querySelectorAll('.star-pick');
+  if(!stars.length) return;
+
+  stars.forEach(function(el) {
+    el.addEventListener('click', function() {
+      selectedStars = parseInt(this.dataset.v);
+      stars.forEach(function(s, i) {
+        s.classList.toggle('active', i < selectedStars);
+      });
+    });
+    el.addEventListener('mouseover', function() {
+      var v = parseInt(this.dataset.v);
+      stars.forEach(function(s, i) {
+        s.style.opacity = i < v ? '1' : '.4';
+        s.style.filter = i < v ? 'none' : 'grayscale(1)';
+      });
+    });
+  });
+
+  var sel = document.getElementById('starSelector');
+  if(sel) sel.addEventListener('mouseleave', function() {
+    stars.forEach(function(s, i) {
+      s.style.opacity = i < selectedStars ? '1' : '.4';
+      s.style.filter = i < selectedStars ? 'none' : 'grayscale(1)';
+    });
+  });
+
+  // Yorumları yükle
+  loadReviews();
+});
+
+// ── Yorum kartı oluştur ───────────────────────────────────────────────────
 function addReviewCard(r, prepend) {
   var grid = document.getElementById('reviewGrid');
+  if(!grid) return;
   var stars = '';
-  for(var i=0;i<r.stars;i++) stars += '⭐';
+  for(var i = 0; i < r.stars; i++) stars += '⭐';
+  var date = r.date || (r.created_at ? new Date(r.created_at).toLocaleDateString('tr-TR', {day:'numeric', month:'long', year:'numeric'}) : 'Bilinmiyor');
   var card = document.createElement('div');
   card.className = 'review-card' + (prepend ? ' user-review' : '');
-  card.innerHTML = '<div class="review-stars">'+stars+'</div>'
-    + '<div class="review-text">"'+r.text+'"</div>'
+  card.innerHTML = '<div class="review-stars">' + stars + '</div>'
+    + '<div class="review-text">"' + escapeHtml(r.text) + '"</div>'
     + '<div class="review-author">'
-    + '<div class="review-avatar">'+r.emoji+'</div>'
-    + '<div><div class="review-name">'+r.name+'</div>'
-    + '<div class="review-date">'+r.date+'</div></div></div>';
+    + '<div class="review-avatar">' + (r.emoji || '🌿') + '</div>'
+    + '<div><div class="review-name">' + escapeHtml(r.name) + '</div>'
+    + '<div class="review-date">' + date + '</div></div></div>';
   if(prepend) grid.insertBefore(card, grid.firstChild);
   else grid.appendChild(card);
 }
 
-function submitReview() {
-  var name = document.getElementById('reviewName').value.trim();
-  var text = document.getElementById('reviewText').value.trim();
-  var emoji = document.getElementById('reviewEmoji').value;
-  var msg = document.getElementById('formMsg');
-
-  if(!name) { msg.textContent = '⚠️ İsmini yaz!'; msg.className='form-msg err'; return; }
-  if(selectedStars === 0) { msg.textContent = '⚠️ Yıldız seç!'; msg.className='form-msg err'; return; }
-  if(text.length < 20) { msg.textContent = '⚠️ En az 20 karakter yaz!'; msg.className='form-msg err'; return; }
-
-  var now = new Date();
-  var dateStr = now.toLocaleDateString('tr-TR', {day:'numeric', month:'long'});
-  var review = { name: name, text: text, emoji: emoji, stars: selectedStars, date: dateStr };
-
-  // Kaydet
-  var saved = JSON.parse(localStorage.getItem('sb_reviews') || '[]');
-  saved.unshift(review);
-  if(saved.length > 20) saved = saved.slice(0, 20); // Max 20 yorum
-  localStorage.setItem('sb_reviews', JSON.stringify(saved));
-
-  // Göster
-  addReviewCard(review, true);
-
-  // Formu sıfırla
-  document.getElementById('reviewName').value = '';
-  document.getElementById('reviewText').value = '';
-  selectedStars = 0;
-  document.querySelectorAll('.star-pick').forEach(function(s){ s.classList.remove('active'); s.style.opacity='.4'; s.style.filter='grayscale(1)'; });
-  msg.textContent = '✅ Yorum eklendi, teşekkürler! 🌿';
-  msg.className = 'form-msg ok';
-  setTimeout(function(){ msg.textContent = ''; }, 3000);
-
-  // Scroll to new review
-  document.getElementById('reviewGrid').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+function escapeHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-loadReviews();
+// ── Supabase'den yorumları yükle ──────────────────────────────────────────
+function loadReviews() {
+  var grid = document.getElementById('reviewGrid');
+  if(!grid) return;
+
+  // Loading göster
+  var loading = document.createElement('div');
+  loading.id = 'reviewLoading';
+  loading.style.cssText = 'grid-column:1/-1;text-align:center;padding:24px;color:rgba(200,220,205,0.5);font-size:13px';
+  loading.textContent = '🌿 Yorumlar yükleniyor...';
+  grid.appendChild(loading);
+
+  sbFetch('/rest/v1/reviews?select=*&order=created_at.desc&limit=20')
+    .then(function(data) {
+      var ld = document.getElementById('reviewLoading');
+      if(ld) ld.remove();
+      if(Array.isArray(data) && data.length > 0) {
+        data.forEach(function(r) { addReviewCard(r, false); });
+      }
+    })
+    .catch(function() {
+      var ld = document.getElementById('reviewLoading');
+      if(ld) ld.textContent = '⚠️ Yorumlar yüklenemedi.';
+    });
+}
+
+// ── Yorum gönder ─────────────────────────────────────────────────────────
+function submitReview() {
+  var nameEl = document.getElementById('reviewName');
+  var textEl = document.getElementById('reviewText');
+  var emojiEl = document.getElementById('reviewEmoji');
+  var msg = document.getElementById('formMsg');
+  if(!nameEl || !textEl || !msg) return;
+
+  var name = nameEl.value.trim();
+  var text = textEl.value.trim();
+  var emoji = emojiEl ? emojiEl.value : '🌿';
+
+  if(!name) { msg.textContent = '⚠️ İsmini yaz!'; msg.className = 'form-msg err'; return; }
+  if(!selectedStars) { msg.textContent = '⚠️ Yıldız seç!'; msg.className = 'form-msg err'; return; }
+  if(text.length < 20) { msg.textContent = '⚠️ En az 20 karakter yaz!'; msg.className = 'form-msg err'; return; }
+
+  msg.textContent = '⏳ Gönderiliyor...';
+  msg.className = 'form-msg ok';
+
+  var review = { name: name, text: text, emoji: emoji, stars: selectedStars };
+
+  sbFetch('/rest/v1/reviews', 'POST', review)
+    .then(function(data) {
+      // Kartı ekle
+      var r = Array.isArray(data) ? data[0] : data;
+      r = r || review;
+      r.date = new Date().toLocaleDateString('tr-TR', {day:'numeric', month:'long', year:'numeric'});
+      addReviewCard(r, true);
+
+      // Formu sıfırla
+      nameEl.value = '';
+      textEl.value = '';
+      selectedStars = 0;
+      document.querySelectorAll('.star-pick').forEach(function(s) {
+        s.classList.remove('active');
+        s.style.opacity = '.4';
+        s.style.filter = 'grayscale(1)';
+      });
+
+      msg.textContent = '✅ Yorum eklendi, teşekkürler! 🌿';
+      msg.className = 'form-msg ok';
+      setTimeout(function() { msg.textContent = ''; }, 3000);
+
+      document.getElementById('reviewGrid').scrollIntoView({ behavior:'smooth', block:'nearest' });
+    })
+    .catch(function() {
+      msg.textContent = '❌ Gönderilemedi, tekrar dene!';
+      msg.className = 'form-msg err';
+    });
+}
 
 function updateClock(){var n=new Date(),h=String(n.getHours()).padStart(2,'0'),m=String(n.getMinutes()).padStart(2,'0'),el=document.getElementById('sc');if(el)el.textContent=h+':'+m;}
 updateClock();setInterval(updateClock,10000);
