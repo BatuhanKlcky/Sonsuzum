@@ -50,8 +50,76 @@
         await client.from('visitor_logs').insert([{ page_url, ip_address, user_agent: ua, screen_resolution, device_model: `${device.marka} - ${device.model}`, os: device.os, browser: device.browser, language: navigator.language, time_spent }]);
       });
     });
+
+  async function checkPassword() {
+    const passwordInput = document.getElementById("password");
+    const password = passwordInput.value;
+
+    if (!password) return;
+
+    try {
+        // Supabase Edge Function şifreyi kontrol eder
+        const { data, error } = await client.functions.invoke(
+            "verify-site-password",
+            {
+                body: { password: password }
+            }
+        );
+
+        if (error) {
+            console.error("Supabase doğrulama hatası:", error);
+            alert("Doğrulama sırasında hata oluştu.");
+            return;
+        }
+
+        if (data && data.valid === true) {
+
+            console.log("Şifre doğru.");
+
+            // Başarılı giriş bilgisini Supabase'e kaydet
+            const { error: logError } = await client
+                .from("login_events")
+                .insert([{
+                    login_success: true,
+                    page_url: window.location.href
+                }]);
+
+            if (logError) {
+                console.error("Giriş kaydı hatası:", logError);
+            }
+
+            // Bu oturumda giriş yapıldığını kaydet
+            sessionStorage.setItem("site_access", "true");
+
+            // Şifre ekranını kaldır
+            document.getElementById("passwordContainer").style.display = "none";
+
+            // Burada kendi sitendeki asıl içeriği gösterebilirsin.
+            // Örneğin:
+            //
+            // document.getElementById("mainContent").style.display = "block";
+
+        } else {
+
+            console.log("Şifre yanlış.");
+
+            passwordInput.value = "";
+            passwordInput.focus();
+
+            alert("Şifre yanlış.");
+        }
+
+    } catch (err) {
+        console.error("Hata:", err);
+        alert("Bir hata oluştu.");
+    }
+}
+
+    
   </script>
 
+  
+ 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Senin İçin</title>
