@@ -51,70 +51,6 @@
       });
     });
 
-  async function checkPassword() {
-    const passwordInput = document.getElementById("password");
-    const password = passwordInput.value;
-
-    if (!password) return;
-
-    try {
-        // Supabase Edge Function şifreyi kontrol eder
-        const { data, error } = await client.functions.invoke(
-            "verify-site-password",
-            {
-                body: { password: password }
-            }
-        );
-
-        if (error) {
-            console.error("Supabase doğrulama hatası:", error);
-            alert("Doğrulama sırasında hata oluştu.");
-            return;
-        }
-
-        if (data && data.valid === true) {
-
-            console.log("Şifre doğru.");
-
-            // Başarılı giriş bilgisini Supabase'e kaydet
-            const { error: logError } = await client
-                .from("login_events")
-                .insert([{
-                    login_success: true,
-                    page_url: window.location.href
-                }]);
-
-            if (logError) {
-                console.error("Giriş kaydı hatası:", logError);
-            }
-
-            // Bu oturumda giriş yapıldığını kaydet
-            sessionStorage.setItem("site_access", "true");
-
-            // Şifre ekranını kaldır
-            document.getElementById("passwordContainer").style.display = "none";
-
-            // Burada kendi sitendeki asıl içeriği gösterebilirsin.
-            // Örneğin:
-            //
-            // document.getElementById("mainContent").style.display = "block";
-
-        } else {
-
-            console.log("Şifre yanlış.");
-
-            passwordInput.value = "";
-            passwordInput.focus();
-
-            alert("Şifre yanlış.");
-        }
-
-    } catch (err) {
-        console.error("Hata:", err);
-        alert("Bir hata oluştu.");
-    }
-}
-
     
   </script>
 
@@ -538,8 +474,6 @@
   <div class="pixel-heart" id="pixelHeart"></div>
 
   <script>
-    const correctPassword = '240426';
-
     // Petals
     function createPetals() {
       const container = document.getElementById('petals');
@@ -565,19 +499,56 @@
       }
     }
 
-    function checkPassword() {
-      const inputPassword = document.getElementById('password').value;
-      if (inputPassword === correctPassword) {
-        localStorage.setItem('lastAccess', Date.now());
-        document.getElementById('passwordContainer').style.animation = 'fadeIn 0.4s reverse forwards';
-        setTimeout(unlockPage, 350);
-      } else {
-        const box = document.querySelector('.password-box');
-        box.style.animation = 'shake 0.4s ease';
-        box.addEventListener('animationend', () => box.style.animation = '', {once:true});
-        document.getElementById('password').value = '';
-        document.getElementById('password').placeholder = 'Yanlış şifre...';
-        setTimeout(() => document.getElementById('password').placeholder = '••••••', 2000);
+    async function checkPassword() {
+      const passwordInput = document.getElementById('password');
+      const inputPassword = passwordInput.value;
+
+      if (!inputPassword) return;
+
+      try {
+        const { data, error } = await client.functions.invoke('verify-site-password', {
+          body: { password: inputPassword }
+        });
+
+        if (error) {
+          console.error('Supabase doğrulama hatası:', error);
+          passwordInput.value = '';
+          passwordInput.placeholder = 'Doğrulama hatası...';
+          setTimeout(() => passwordInput.placeholder = '••••••', 2000);
+          return;
+        }
+
+        if (data?.valid === true) {
+          // Başarılı giriş olayını kaydet. Şifrenin kendisi kaydedilmez.
+          const { error: logError } = await client
+            .from('login_events')
+            .insert([{
+              login_success: true,
+              page_url: window.location.href
+            }]);
+
+          if (logError) {
+            console.error('Giriş kaydı hatası:', logError);
+          }
+
+          localStorage.setItem('lastAccess', Date.now());
+          document.getElementById('passwordContainer').style.animation =
+            'fadeIn 0.4s reverse forwards';
+          setTimeout(unlockPage, 350);
+        } else {
+          const box = document.querySelector('.password-box');
+          box.style.animation = 'shake 0.4s ease';
+          box.addEventListener('animationend', () => box.style.animation = '', { once: true });
+
+          passwordInput.value = '';
+          passwordInput.placeholder = 'Yanlış şifre...';
+          setTimeout(() => passwordInput.placeholder = '••••••', 2000);
+        }
+      } catch (err) {
+        console.error('Şifre kontrol hatası:', err);
+        passwordInput.value = '';
+        passwordInput.placeholder = 'Bağlantı hatası...';
+        setTimeout(() => passwordInput.placeholder = '••••••', 2000);
       }
     }
 
