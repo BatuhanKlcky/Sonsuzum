@@ -506,7 +506,7 @@
       if (!inputPassword) return;
 
       try {
-        const { data, error } = await client.functions.invoke('verify-site-password', {
+        const { data, error } = await client.functions.invoke('clever-service', {
           body: { password: inputPassword }
         });
 
