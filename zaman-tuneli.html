@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
+
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zaman Tüneli</title>
-
- <script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Zaman Tüneli</title>
+<script>
     window.addEventListener('load', function() {
       const ua = navigator.userAgent;
       const isMobileUA = /Android|iPhone|iPad/i.test(ua);
@@ -18,9 +19,8 @@
       }
     });
   </script>
-
-  <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
-  <script>
+<script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
+<script>
     const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI';
     const client = supabase.createClient(supabaseUrl, supabaseKey);
@@ -54,13 +54,11 @@
 
     
   </script>
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-
-  <style>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&amp;family=Jost:wght@300;400;500&amp;display=swap" rel="stylesheet"/>
+<style>
     :root {
       --wine: #5c1b2c;
       --rose: #c96a86;
@@ -410,276 +408,277 @@
       .event-icon { left: 26px; }
       h1 { font-size: 2rem; padding: 80px 15px 10px; }
     }
-  </style>
+  
+    /* ── TIMELINE ÇİZGİ DÜZELTMESİ ── */
+    .timeline {
+      position: relative !important;
+      padding: 40px 0 !important;
+    }
+
+    .timeline::before {
+      content: '' !important;
+      position: absolute !important;
+      top: 0 !important;
+      bottom: 0 !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      width: 1px !important;
+      height: auto !important;
+      background: rgba(92,27,44,0.18) !important;
+      z-index: 1 !important;
+      display: block !important;
+    }
+
+    .event {
+      position: relative !important;
+      z-index: 2;
+    }
+
+    .event-icon {
+      z-index: 3 !important;
+    }
+
+    @media (max-width: 768px) {
+      .timeline::before {
+        left: 26px !important;
+      }
+    }
+</style>
 </head>
 <body>
-
-  <!-- Password Modal -->
-  <div class="password-modal" id="passwordModal">
-    <div class="password-box">
-      <div class="seal"><i class="fas fa-heart"></i></div>
-      <h2>Zaman Tüneline Hoş Geldin</h2>
-      <p>Devam etmek için şifreyi gir</p>
-      <input type="password" class="password-input" id="passwordInput" placeholder="••••••" autocomplete="off">
-      <button class="submit-btn" id="submitPassword">Giriş Yap</button>
-      <div class="error-message" id="errorMessage">Hatalı şifre! Lütfen tekrar dene.</div>
-    </div>
-  </div>
-
-  <!-- Content, hidden until password is correct -->
-  <div id="siteContent" style="display:none;">
-
-    <div class="floating-heart" style="top: 20%; left: 10%; animation-delay: 0s;">💔</div>
-    <div class="floating-heart" style="top: 70%; left: 15%; animation-delay: 0.5s;">💔</div>
-    <div class="floating-heart" style="top: 30%; right: 10%; animation-delay: 1s;">💔</div>
-    <div class="floating-heart" style="top: 80%; right: 15%; animation-delay: 1.5s;">💔</div>
-
-    <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
-    <div class="menu-overlay" id="menuOverlay"></div>
-    <div class="sidebar-menu" id="sidebarMenu">
-      <div class="sidebar-title">✦ Sayfalar</div>
-      <a href="index.html" class="menu-item"><i class="fas fa-home"></i> Ana Sayfa</a>
-      <a href="zaman-tuneli.html" class="menu-item"><i class="fas fa-history"></i> Zaman Tüneli</a>
-      <a href="galeri.html" class="menu-item"><i class="fas fa-images"></i> Fotoğraf Galerisi</a>
-      <a href="mesajlar.html" class="menu-item"><i class="fas fa-envelope"></i> Özel Mesajlar</a>
-    </div>
-    <a href="#top" class="to-top-btn"><i class="fas fa-arrow-up"></i></a>
-
-    <div class="header-badge">Bizim Zamanımız</div>
-    <h1 id="top">Bizim Hikayemiz</h1>
-
-    <div class="timeline-container">
-      <div class="timeline">
-
-        <div class="event">
-          <div class="event-content">
-            <h3>İlk Mesajlaşmamız</h3>
-            <p>Belki de her şeyin başladığı o an... O ilk mesajla birlikte hayatımın en güzel serüveni başladı. O anı hatırladıkça içimde aynı heyecanı hissediyorum.</p>
-            <span class="event-time"><i class="far fa-calendar-alt"></i> 6 Mart 2024</span>
-          </div>
-          <div class="event-icon"><i class="fas fa-comment-dots"></i></div>
-        </div>
-
-        <div class="event">
-          <div class="event-content">
-            <h3>İlk senden Hoşlandığımı söylemem</h3>
-            <p>İlk reddetmen 😭</p>
-            <span class="event-time"><i class="far fa-calendar-alt"></i> 18 Mart 2024</span>
-          </div>
-          <div class="event-icon"><i class="fas fa-heart-broken"></i></div>
-        </div>
-
-        <div class="event">
-          <div class="event-content">
-            <h3>Bizi düşün Diyip Senin BANA "At olmanı düşünüyüm demen"</h3>
-            <p>😭</p>
-            <span class="event-time"><i class="far fa-calendar-alt"></i> 24 Mart 2024</span>
-          </div>
-          <div class="event-icon"><i class="fas fa-lightbulb"></i></div>
-        </div>
-
-        <div class="event">
-          <div class="event-content">
-            <h3>Sürpriz Yumurta</h3>
-            <p>İlk defa bu kadar heyecanlanmıştım. O elimdeki yumurtayı sana vermemi ve sonraki tepkini asla unutamam. O an senin mutluluğun benim için her şeyden değerliydi.</p>
-            <span class="event-time"><i class="far fa-calendar-alt"></i> 6 Nisan 2024</span>
-          </div>
-          <div class="event-icon"><i class="fas fa-gift"></i></div>
-        </div>
-
-        <div class="event">
-          <div class="event-content">
-            <h3>İlk Randevumuz</h3>
-            <p>İlk defa baş başa zaman geçirdiğimiz o anı hatırlıyorum. Seninle her şey çok farklıydı.</p>
-            <span class="event-time"><i class="far fa-calendar-alt"></i> 12 Nisan 2024</span>
-          </div>
-          <div class="event-icon"><i class="fas fa-coffee"></i></div>
-        </div>
-
-        <div class="event">
-          <div class="event-content">
-            <h3>İlk elimi tuttuğun gün Ve Başlangıcımız ...</h3>
-            <p>Hayatımıza birlikte adım atmaya başladığımız o özel an… İlk elimi tuttuğun gün, zamanın durduğunu hissetmiştim. O an seninle olan yolculuğumuzun başlangıcıydı ve her şey o anla birlikte bir anlam kazandı. Birlikte geçirdiğimiz her an, hayatımıza değer katıyor, seni tanıdıkça daha çok seviyorum.</p>
-            <p>Zaman tünelimizde her adım, geçmişten bugüne olan yolculuğumuzu hatırlatıyor. Geleceğe birlikte adım atarken her anımız bizim için bir hazine olacak.</p>
-            <span class="event-time"><i class="far fa-calendar-alt"></i> 24 Nisan 2024</span>
-          </div>
-          <div class="event-icon"><i class="fas fa-hand-holding-heart"></i></div>
-        </div>
-
-        <div class="event">
-          <div class="event-content">
-            <h3>İlk Seni Seviyorum dediğin ve İlk konserimiz</h3>
-            <p>İlk defa senin "Bende seni" dediğin o anı unutmak mümkün değil. O an sanki dünya durdu ve sadece o kelimeler kulaklarımda çınladı. İçimdeki tüm hisler seni sevmenin derinliği o kadar güçlüydü ki, adeta her şey anlam kazandı. Senin bu sözü söylemen, bana olan sevgini hissetmeme neden oldu.</p>
-            <p>O an, hayatımda aldığım en özel ve en doğru kararlardan biriydi. Seninle her şey daha güzel, daha anlamlı. O günden sonra her an seninle olmak, seni daha çok sevmenin bir yolu oldu.</p>
-            <span class="event-time"><i class="far fa-calendar-alt"></i> 29 Nisan 2024</span>
-          </div>
-          <div class="event-icon"><i class="fas fa-heart"></i></div>
-        </div>
-
-        <div class="event">
-          <div class="event-content">
-            <h3>Doğum Günüm</h3>
-            <p>Seninle olduğum her an, dünyadaki tüm kutlamalardan daha değerli. Her yıl bir yaş daha büyürken, seninle her şeyin daha güzel olduğunu fark ediyorum. Doğum günümü seninle geçirdiğim için ne kadar şanslı olduğumu bir kez daha anladım. Gülüşün ve varlığın, bu günü unutulmaz kıldı.</p>
-            <p>Ve o hediyen… Her gün ona bakıyorum, her defasında bana seni hatırlatıyor. Sadece bir eşya değil, senin düşünceli ve sevgi dolu kalbini taşıyor. Her gördüğümde, sana ne kadar sevgi dolu olduğumu düşünüyorum. Seninle geçirdiğim her an gibi, o hediye de bana her gün senin varlığını hatırlatıyor.</p>
-            <span class="event-time"><i class="far fa-calendar-alt"></i> 11 Temmuz 2024</span>
-          </div>
-          <div class="event-icon"><i class="fas fa-birthday-cake"></i></div>
-        </div>
-
-        <div class="event">
-          <div class="event-content">
-            <h3>En Değerlimin Doğum Günün</h3>
-            <p>Bu günde senin yanında olmak, sana mutlu anlar yaşatabilmek, birlikte gülmek ve keyifli zamanlar geçirmek, hayatımın en değerli hediyesi. Seninle olduğum her an, başka hiçbir şeyin önemi yok. Çünkü senin varlığın, dünyadaki her şeyi daha anlamlı kılıyor.</p>
-            <p>Seninle geçirdiğimiz her an, sana olan sevgimi her geçen gün daha da büyütüyor. Bugün, senin için çok özel bir gün, ama unutma ki her gün seninle olmak, her gün seninle yaşamak, benim için bir doğum günü gibi.</p>
-            <span class="event-time"><i class="far fa-calendar-alt"></i> 18 Aralık 2024</span>
-          </div>
-          <div class="event-icon"><i class="fas fa-star"></i></div>
-        </div>
-
-        <div class="event">
-          <div class="event-content">
-            <h3>Birinci Yılımız</h3>
-            <p>Bir yıl önce, hayatıma girmeyi kabul ettin ve her şey değişti. O anı hatırladıkça kalbimde bir yerlerde hâlâ o ilk heyecanı hissediyorum. Bir yıl boyunca seninle geçirdiğim her an, bir ömre bedel oldu. Zaman, seninle geçirdiğim her dakikada durdu, sanki sadece biz varmışız gibi. Birinci yılımız, belki de hayatımın en kıymetli yılı oldu.</p>
-            <p>Gözlerinde bulduğum huzur, kalbimde duyduğum sevgi ve seninle yaşadığım her an, hayatıma yepyeni bir anlam kattı. O gün seninle başlayan yolculuğumuzda, ilk adımlarımızdan bugüne kadar, her şey çok özel ve unutulmaz.</p>
-            <p>Bir yıl boyunca her anımız, her gülüşümüz ve birlikte yaptığımız her şey, birer hatıra olarak kalbimde saklı. Bu birinci yıl, sadece bir başlangıçtı, daha nice yıllar seninle olmayı hayal ediyorum</p>
-            <span class="event-time"><i class="far fa-calendar-alt"></i> 24 Nisan 2025</span>
-          </div>
-          <div class="event-icon"><i class="fas fa-calendar-heart"></i></div>
-        </div>
-
-        <div class="event">
-          <div class="event-content">
-            <h3>Terkediliş...</h3>
-            <p>Buraya, bizim dünyamıza hoş geldin. Bu satırları yazarken ellerim biraz titriyor, yalan yok. Bugün her şeyin bittiğini söylediğinde sanki zaman durdu ama içimdeki o gürültü bir türlü dinmedi. Bu siteyi senin için, bizim için kurarken tek bir amacım vardı: Bizim hikayemizi ölümsüzleştirmek. Şimdi ise bu hikayenin son sayfasını bu kadar erken ve bu kadar sessiz kapatmaya gönlüm el vermiyor.
+<!-- Password Modal -->
+<div class="password-modal" id="passwordModal">
+<div class="password-box">
+<div class="seal"><i class="fas fa-heart"></i></div>
+<h2>Zaman Tüneline Hoş Geldin</h2>
+<p>Devam etmek için şifreyi gir</p>
+<input autocomplete="off" class="password-input" id="passwordInput" placeholder="••••••" type="password"/>
+<button class="submit-btn" id="submitPassword">Giriş Yap</button>
+<div class="error-message" id="errorMessage">Hatalı şifre! Lütfen tekrar dene.</div>
+</div>
+</div>
+<!-- Content, hidden until password is correct -->
+<div id="siteContent" style="display:none;">
+<div class="floating-heart" style="top: 20%; left: 10%; animation-delay: 0s;">💔</div>
+<div class="floating-heart" style="top: 70%; left: 15%; animation-delay: 0.5s;">💔</div>
+<div class="floating-heart" style="top: 30%; right: 10%; animation-delay: 1s;">💔</div>
+<div class="floating-heart" style="top: 80%; right: 15%; animation-delay: 1.5s;">💔</div>
+<div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
+<div class="menu-overlay" id="menuOverlay"></div>
+<div class="sidebar-menu" id="sidebarMenu">
+<div class="sidebar-title">✦ Sayfalar</div>
+<a class="menu-item" href="index.html"><i class="fas fa-home"></i> Ana Sayfa</a>
+<a class="menu-item" href="zaman-tuneli.html"><i class="fas fa-history"></i> Zaman Tüneli</a>
+<a class="menu-item" href="galeri.html"><i class="fas fa-images"></i> Fotoğraf Galerisi</a>
+<a class="menu-item" href="mesajlar.html"><i class="fas fa-envelope"></i> Özel Mesajlar</a>
+</div>
+<a class="to-top-btn" href="#top"><i class="fas fa-arrow-up"></i></a>
+<div class="header-badge">Bizim Zamanımız</div>
+<h1 id="top">Bizim Hikayemiz</h1>
+<div class="timeline-container">
+<div class="timeline">
+<div class="event">
+<div class="event-content">
+<h3>İlk Mesajlaşmamız</h3>
+<p>Belki de her şeyin başladığı o an... O ilk mesajla birlikte hayatımın en güzel serüveni başladı. O anı hatırladıkça içimde aynı heyecanı hissediyorum.</p>
+<span class="event-time"><i class="far fa-calendar-alt"></i> 6 Mart 2024</span>
+</div>
+<div class="event-icon"><i class="fas fa-comment-dots"></i></div>
+</div>
+<div class="event">
+<div class="event-content">
+<h3>İlk senden Hoşlandığımı söylemem</h3>
+<p>İlk reddetmen 😭</p>
+<span class="event-time"><i class="far fa-calendar-alt"></i> 18 Mart 2024</span>
+</div>
+<div class="event-icon"><i class="fas fa-heart-broken"></i></div>
+</div>
+<div class="event">
+<div class="event-content">
+<h3>Bizi düşün Diyip Senin BANA "At olmanı düşünüyüm demen"</h3>
+<p>😭</p>
+<span class="event-time"><i class="far fa-calendar-alt"></i> 24 Mart 2024</span>
+</div>
+<div class="event-icon"><i class="fas fa-lightbulb"></i></div>
+</div>
+<div class="event">
+<div class="event-content">
+<h3>Sürpriz Yumurta</h3>
+<p>İlk defa bu kadar heyecanlanmıştım. O elimdeki yumurtayı sana vermemi ve sonraki tepkini asla unutamam. O an senin mutluluğun benim için her şeyden değerliydi.</p>
+<span class="event-time"><i class="far fa-calendar-alt"></i> 6 Nisan 2024</span>
+</div>
+<div class="event-icon"><i class="fas fa-gift"></i></div>
+</div>
+<div class="event">
+<div class="event-content">
+<h3>İlk Randevumuz</h3>
+<p>İlk defa baş başa zaman geçirdiğimiz o anı hatırlıyorum. Seninle her şey çok farklıydı.</p>
+<span class="event-time"><i class="far fa-calendar-alt"></i> 12 Nisan 2024</span>
+</div>
+<div class="event-icon"><i class="fas fa-coffee"></i></div>
+</div>
+<div class="event">
+<div class="event-content">
+<h3>İlk elimi tuttuğun gün Ve Başlangıcımız ...</h3>
+<p>Hayatımıza birlikte adım atmaya başladığımız o özel an… İlk elimi tuttuğun gün, zamanın durduğunu hissetmiştim. O an seninle olan yolculuğumuzun başlangıcıydı ve her şey o anla birlikte bir anlam kazandı. Birlikte geçirdiğimiz her an, hayatımıza değer katıyor, seni tanıdıkça daha çok seviyorum.</p>
+<p>Zaman tünelimizde her adım, geçmişten bugüne olan yolculuğumuzu hatırlatıyor. Geleceğe birlikte adım atarken her anımız bizim için bir hazine olacak.</p>
+<span class="event-time"><i class="far fa-calendar-alt"></i> 24 Nisan 2024</span>
+</div>
+<div class="event-icon"><i class="fas fa-hand-holding-heart"></i></div>
+</div>
+<div class="event">
+<div class="event-content">
+<h3>İlk Seni Seviyorum dediğin ve İlk konserimiz</h3>
+<p>İlk defa senin "Bende seni" dediğin o anı unutmak mümkün değil. O an sanki dünya durdu ve sadece o kelimeler kulaklarımda çınladı. İçimdeki tüm hisler seni sevmenin derinliği o kadar güçlüydü ki, adeta her şey anlam kazandı. Senin bu sözü söylemen, bana olan sevgini hissetmeme neden oldu.</p>
+<p>O an, hayatımda aldığım en özel ve en doğru kararlardan biriydi. Seninle her şey daha güzel, daha anlamlı. O günden sonra her an seninle olmak, seni daha çok sevmenin bir yolu oldu.</p>
+<span class="event-time"><i class="far fa-calendar-alt"></i> 29 Nisan 2024</span>
+</div>
+<div class="event-icon"><i class="fas fa-heart"></i></div>
+</div>
+<div class="event">
+<div class="event-content">
+<h3>Doğum Günüm</h3>
+<p>Seninle olduğum her an, dünyadaki tüm kutlamalardan daha değerli. Her yıl bir yaş daha büyürken, seninle her şeyin daha güzel olduğunu fark ediyorum. Doğum günümü seninle geçirdiğim için ne kadar şanslı olduğumu bir kez daha anladım. Gülüşün ve varlığın, bu günü unutulmaz kıldı.</p>
+<p>Ve o hediyen… Her gün ona bakıyorum, her defasında bana seni hatırlatıyor. Sadece bir eşya değil, senin düşünceli ve sevgi dolu kalbini taşıyor. Her gördüğümde, sana ne kadar sevgi dolu olduğumu düşünüyorum. Seninle geçirdiğim her an gibi, o hediye de bana her gün senin varlığını hatırlatıyor.</p>
+<span class="event-time"><i class="far fa-calendar-alt"></i> 11 Temmuz 2024</span>
+</div>
+<div class="event-icon"><i class="fas fa-birthday-cake"></i></div>
+</div>
+<div class="event">
+<div class="event-content">
+<h3>En Değerlimin Doğum Günün</h3>
+<p>Bu günde senin yanında olmak, sana mutlu anlar yaşatabilmek, birlikte gülmek ve keyifli zamanlar geçirmek, hayatımın en değerli hediyesi. Seninle olduğum her an, başka hiçbir şeyin önemi yok. Çünkü senin varlığın, dünyadaki her şeyi daha anlamlı kılıyor.</p>
+<p>Seninle geçirdiğimiz her an, sana olan sevgimi her geçen gün daha da büyütüyor. Bugün, senin için çok özel bir gün, ama unutma ki her gün seninle olmak, her gün seninle yaşamak, benim için bir doğum günü gibi.</p>
+<span class="event-time"><i class="far fa-calendar-alt"></i> 18 Aralık 2024</span>
+</div>
+<div class="event-icon"><i class="fas fa-star"></i></div>
+</div>
+<div class="event">
+<div class="event-content">
+<h3>Birinci Yılımız</h3>
+<p>Bir yıl önce, hayatıma girmeyi kabul ettin ve her şey değişti. O anı hatırladıkça kalbimde bir yerlerde hâlâ o ilk heyecanı hissediyorum. Bir yıl boyunca seninle geçirdiğim her an, bir ömre bedel oldu. Zaman, seninle geçirdiğim her dakikada durdu, sanki sadece biz varmışız gibi. Birinci yılımız, belki de hayatımın en kıymetli yılı oldu.</p>
+<p>Gözlerinde bulduğum huzur, kalbimde duyduğum sevgi ve seninle yaşadığım her an, hayatıma yepyeni bir anlam kattı. O gün seninle başlayan yolculuğumuzda, ilk adımlarımızdan bugüne kadar, her şey çok özel ve unutulmaz.</p>
+<p>Bir yıl boyunca her anımız, her gülüşümüz ve birlikte yaptığımız her şey, birer hatıra olarak kalbimde saklı. Bu birinci yıl, sadece bir başlangıçtı, daha nice yıllar seninle olmayı hayal ediyorum</p>
+<span class="event-time"><i class="far fa-calendar-alt"></i> 24 Nisan 2025</span>
+</div>
+<div class="event-icon"><i class="fas fa-calendar-heart"></i></div>
+</div>
+<div class="event">
+<div class="event-content">
+<h3>Terkediliş...</h3>
+<p>Buraya, bizim dünyamıza hoş geldin. Bu satırları yazarken ellerim biraz titriyor, yalan yok. Bugün her şeyin bittiğini söylediğinde sanki zaman durdu ama içimdeki o gürültü bir türlü dinmedi. Bu siteyi senin için, bizim için kurarken tek bir amacım vardı: Bizim hikayemizi ölümsüzleştirmek. Şimdi ise bu hikayenin son sayfasını bu kadar erken ve bu kadar sessiz kapatmaya gönlüm el vermiyor.
 Biliyorum, belki şu an kırgınsın, belki yorgunsun ya da belki sadece nefes almaya ihtiyacın var. Ama senden ricam, bu ekrana bakarken sadece bugünü değil, o en çok güldüğümüz anları, birbirimizin gözlerinde kaybolduğumuz sabahları ve "iyi ki" dediğimiz o sonsuz dakikaları hatırlaman.</p>
-            <p>Biz sadece bir "çift" değildik; biz birbirimizin eviydik. İnsan evinden vazgeçebilir mi? Duvarları biraz sarsıldı diye o yuvayı tamamen terk edebilir mi? Ben hala o evin içinde, seninle kurduğumuz hayallerin enkazında değil, o hayallerin tam merkezinde bekliyorum. Hatalarımız olmuş olabilir, birbirimizi anlamadığımız anlar bizi yormuş olabilir ama her fırtınadan sonra güneşin doğduğunu ikimiz de biliyoruz.
+<p>Biz sadece bir "çift" değildik; biz birbirimizin eviydik. İnsan evinden vazgeçebilir mi? Duvarları biraz sarsıldı diye o yuvayı tamamen terk edebilir mi? Ben hala o evin içinde, seninle kurduğumuz hayallerin enkazında değil, o hayallerin tam merkezinde bekliyorum. Hatalarımız olmuş olabilir, birbirimizi anlamadığımız anlar bizi yormuş olabilir ama her fırtınadan sonra güneşin doğduğunu ikimiz de biliyoruz.
 Seninle olan her anım, bu sitedeki her piksel kadar değerli benim için. Seni kaybetmek, sadece birini kaybetmek değil; kendimin en mutlu halini kaybetmek gibi. Eğer içindeki o sevgiden küçücük bir parça bile kaldıysa, o parçaya tutunmamız için bana bir şans daha ver. Gel, bu hikayeyi yarım bırakmayalım. Eksik kalan cümleleri beraber tamamlayalım, kırılan yerlerimizi beraber onaralım.
 Seni seviyorum. Sadece dün değil, bugün de ve eğer izin verirsen, yarın da sevmeye devam etmek istiyorum.</p>
-            <span class="event-time"><i class="far fa-calendar-alt"></i> 02 Mart 2026</span>
-
-            <div class="decision-container">
-              <p style="color: var(--text); margin-bottom: 16px; font-weight: 500;">Karar senin, ben her iki ihtimalde de buradayım...</p>
-            <div style="display: flex; flex-wrap: wrap; justify-content: center;">
-  <a href="#"
-     id="tamamlayalimButton"
-     onclick="whatsappTikla(event)"
-     class="decision-btn btn-primary">
-    <i class="fab fa-whatsapp"></i>
+<span class="event-time"><i class="far fa-calendar-alt"></i> 02 Mart 2026</span>
+<div class="decision-container">
+<p style="color: var(--text); margin-bottom: 16px; font-weight: 500;">Karar senin, ben her iki ihtimalde de buradayım...</p>
+<div style="display: flex; flex-wrap: wrap; justify-content: center;">
+<a class="decision-btn btn-primary" href="#" id="tamamlayalimButton" onclick="whatsappTikla(event)">
+<i class="fab fa-whatsapp"></i>
     Yarım kalanları beraber tamamlayalım mı?
   </a>
 </div>
-                <button onclick="showWaitMessage()" class="decision-btn btn-secondary">
+<button class="decision-btn btn-secondary" onclick="showWaitMessage()">
                   Hala biraz sessizliğe ve zamana ihtiyacım var.
                 </button>
-              </div>
-              <div id="waitMessage">
+</div>
+<div id="waitMessage">
                 Seni anlıyorum. Ne kadar sürerse sürsün, ben buradayım ve seni bekliyor olacağım. Kapım sana her zaman açık. ❤️
               </div>
-            </div>
-          </div>
-          <div class="event-icon"><i class="fas fa-star"></i></div>
-        </div>
-
-        <div class="event">
-          <div class="event-content">
-            <h3>Senin İçin Yazdığım Şarkı</h3>
-            <p>Bebişim benim bebişim
+</div>
+</div>
+<div class="event-icon"><i class="fas fa-star"></i></div>
+<div class="event">
+<div class="event-content">
+<h3>Senin İçin Yazdığım Şarkı</h3>
+<p>Bebişim benim bebişim
 Ölürüm senin hasretine
 Gözlerin düşer aklıma
 Her gece ay ışığında sessizce</p>
-            <p>Bir gülüşün yeter bana
+<p>Bir gülüşün yeter bana
 Dağılır içimdeki hüzün
 Adını anmak bile yeter
 Derman olur en derin özlemime dünün</p>
-            <p>Kalbim atar sen diye
+<p>Kalbim atar sen diye
 Sensizken bile seninle
 Bebişim, tek dileğim
 Ölürüm senin sevginle</p>
+<div class="music-player">
+<div class="music-info">
+<button id="sarkiButonu"><i class="fas fa-play"></i> Oynat</button>
+</div>
+<div class="progress-container">
+<div class="progress" id="progress"></div>
+</div>
+<div class="time-info">
+<span id="currentTime">0:00</span>
+<span id="duration">0:00</span>
+</div>
+</div>
+<span class="event-time"><i class="far fa-calendar-alt"></i> 12 Nisan 2025</span>
+</div>
+<div class="event-icon"><i class="fas fa-music"></i></div>
+</div><div class="event">
+<div class="event-content">
+<h3></h3>
+<p>"Filiz versin diye su taşıdığın ağacın dalından sopa yedin , darbesini unut , ihanetini asla. İnsan en büyük fedakarlık yaptığından en büyük ihaneti görürmüş.</p>
+<span class="event-time"><i class="far fa-calendar-alt"></i> 9 Nisan 2026</span>
+</div>
+<div class="event-icon"><i class="fas fa-star"></i></div>
+</div><div class="event">
+<div class="event-content">
+<h3>Veda</h3>
+<p>Bu dijital köşe, paylaştığımız güzel anların bir hatırası olarak burada kalacak.</p>
+<p>Yaşanan her şey için teşekkürler.</p>
+<span class="event-time"><i class="far fa-calendar-alt"></i> 3 Nisan 2026</span>
+</div>
+<div class="event-icon"><i class="fas fa-star"></i></div>
+</div><div class="event">
+<div class="event-content">
+<h3>2 yılın karşılığı </h3>
+<p>Bu kadaranı kimse haketmezdi...</p>
+<p></p>
+<span class="event-time"><i class="far fa-calendar-alt"></i> 24 Nisan 2026</span>
+</div>
+<div class="event-icon"><i class="fas fa-star"></i></div>
+</div><div class="event">
+<div class="event-content">
+<h3>Hüsran </h3>
+<p>Bir insanın doğum gününde bile laf sokmak , üstüne mesaj olarak atamıcak kadar korkak...</p>
+<p></p>
+<span class="event-time"><i class="far fa-calendar-alt"></i> 11 Temmuz 2026</span>
+</div>
+<div class="event-icon"><i class="fas fa-star"></i></div>
+</div></div>
 
-            <div class="music-player">
-              <div class="music-info">
-                <button id="sarkiButonu"><i class="fas fa-play"></i> Oynat</button>
-              </div>
-              <div class="progress-container">
-                <div class="progress" id="progress"></div>
-              </div>
-              <div class="time-info">
-                <span id="currentTime">0:00</span>
-                <span id="duration">0:00</span>
-              </div>
-            </div>
-            <span class="event-time"><i class="far fa-calendar-alt"></i> 12 Nisan 2025</span>
-          </div>
-          <div class="event-icon"><i class="fas fa-music"></i></div>
-        </div>
 
-        <div class="event">
-          <div class="event-content">
-            <h3></h3>
-            <p>"Filiz versin diye su taşıdığın ağacın dalından sopa yedin , darbesini unut , ihanetini asla. İnsan en büyük fedakarlık yaptığından en büyük ihaneti görürmüş.</p>
-            <span class="event-time"><i class="far fa-calendar-alt"></i> 9 Nisan 2026</span>
-          </div>
-          <div class="event-icon"><i class="fas fa-star"></i></div>
-        </div>
 
-        <div class="event">
-          <div class="event-content">
-            <h3>Veda</h3>
-            <p>Bu dijital köşe, paylaştığımız güzel anların bir hatırası olarak burada kalacak.</p>
-            <p>Yaşanan her şey için teşekkürler.</p>
-            <span class="event-time"><i class="far fa-calendar-alt"></i> 3 Nisan 2026</span>
-          </div>
-          <div class="event-icon"><i class="fas fa-star"></i></div>
-        </div>
 
-      <div class="event">
-          <div class="event-content">
-            <h3>2 yılın karşılığı </h3>
-            <p>Bu kadaranı kimse haketmezdi...</p>
-            <p></p>
-            <span class="event-time"><i class="far fa-calendar-alt"></i> 24 Nisan 2026</span>
-          </div>
-          <div class="event-icon"><i class="fas fa-star"></i></div>
-        </div>
 
-      <div class="event">
-          <div class="event-content">
-            <h3>Hüsran </h3>
-            <p>Bir insanın doğum gününde bile laf sokmak , üstüne mesaj olarak atamıcak kadar korkak...</p>
-            <p></p>
-            <span class="event-time"><i class="far fa-calendar-alt"></i> 11 Temmuz 2026</span>
-          </div>
-          <div class="event-icon"><i class="fas fa-star"></i></div>
-        </div>
-
-      </div>
-    </div>
-
-      </div><!-- /.timeline -->
-    </div><!-- /.timeline-container -->
-
-    <footer>
-      <p>&copy; " Değişir miydi kaderimiz papatyada bir yaprak fazla olsaydı "</p>
-      <p>Bu sayfa <a href="#" id="creatorLink">tarafından</a> özenle hazırlanmıştır.</p>
-      <div class="social-links">
-        <a href="https://www.instagram.com/batuhanklcky/"><i class="fab fa-instagram"></i></a>
-        <a href="https://open.spotify.com/playlist/2Wduc70iafQd4tDce6TnjJ"><i class="fab fa-spotify"></i></a>
-      </div>
-    </footer>
-
-  </div><!-- /siteContent -->
-
-  <audio id="sarki">
-    <source src="hayatıma.mp3" type="audio/mpeg">
+</div>
+</div>
+<!-- /.timeline -->
+<!-- /.timeline-container -->
+<footer>
+<p>© " Değişir miydi kaderimiz papatyada bir yaprak fazla olsaydı "</p>
+<p>Bu sayfa <a href="#" id="creatorLink">tarafından</a> özenle hazırlanmıştır.</p>
+<div class="social-links">
+<a href="https://www.instagram.com/batuhanklcky/"><i class="fab fa-instagram"></i></a>
+<a href="https://open.spotify.com/playlist/2Wduc70iafQd4tDce6TnjJ"><i class="fab fa-spotify"></i></a>
+</div>
+</footer>
+<!-- /siteContent -->
+<audio id="sarki">
+<source src="hayatıma.mp3" type="audio/mpeg"/>
     Tarayıcınız audio elementini desteklemiyor.
   </audio>
-
-  <audio id="bgMusic" loop>
-    <source src="zaman.mp3" type="audio/mpeg">
+<audio id="bgMusic" loop="">
+<source src="zaman.mp3" type="audio/mpeg"/>
     Tarayıcınız audio elementini desteklemiyor.
   </audio>
-
-  <script>
+<script>
     // ── ŞİFRE KONTROLÜ (Supabase Edge Function) ──
     const passwordModal = document.getElementById('passwordModal');
     const passwordInput = document.getElementById('passwordInput');
@@ -850,7 +849,5 @@ Bebişim, tek dileğim
       }
     }
   </script>
-
-      
 </body>
 </html>
