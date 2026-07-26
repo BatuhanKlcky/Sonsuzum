@@ -559,10 +559,15 @@ Seni seviyorum. Sadece dün değil, bugün de ve eğer izin verirsen, yarın da 
 
             <div class="decision-container">
               <p style="color: var(--text); margin-bottom: 16px; font-weight: 500;">Karar senin, ben her iki ihtimalde de buradayım...</p>
-              <div style="display: flex; flex-wrap: wrap; justify-content: center;">
-                <a href="#" onclick="whatsappTikla(event)" class="decision-btn btn-primary">
-                  <i class="fab fa-whatsapp"></i> Yarım kalanları beraber tamamlayalım mı?
-                </a>
+            <div style="display: flex; flex-wrap: wrap; justify-content: center;">
+  <a href="#"
+     id="tamamlayalimButton"
+     onclick="whatsappTikla(event)"
+     class="decision-btn btn-primary">
+    <i class="fab fa-whatsapp"></i>
+    Yarım kalanları beraber tamamlayalım mı?
+  </a>
+</div>
                 <button onclick="showWaitMessage()" class="decision-btn btn-secondary">
                   Hala biraz sessizliğe ve zamana ihtiyacım var.
                 </button>
@@ -685,29 +690,63 @@ Bebişim, tek dileğim
   </audio>
 
   <script>
-    // ── ŞİFRE KONTROLÜ ──
-    const CORRECT_PASSWORD = "240426";
+    // ── ŞİFRE KONTROLÜ (Supabase Edge Function) ──
     const passwordModal = document.getElementById('passwordModal');
     const passwordInput = document.getElementById('passwordInput');
     const submitPassword = document.getElementById('submitPassword');
     const errorMessage = document.getElementById('errorMessage');
     const siteContent = document.getElementById('siteContent');
 
-    function checkPassword() {
-      if (passwordInput.value === CORRECT_PASSWORD) {
-        errorMessage.classList.remove('show');
-        passwordModal.classList.add('hidden');
-        siteContent.style.display = 'block';
-        initPageEffects();
-        document.getElementById('bgMusic').play().catch(() => {});
-      } else {
+    async function checkPassword() {
+      const inputPassword = passwordInput.value;
+      if (!inputPassword) return;
+
+      submitPassword.disabled = true;
+
+      try {
+        const { data, error } = await client.functions.invoke('clever-service', {
+          body: { password: inputPassword }
+        });
+
+        if (error) {
+          console.error('Supabase doğrulama hatası:', error);
+          errorMessage.textContent = 'Doğrulama sırasında bir hata oluştu.';
+          errorMessage.classList.add('show');
+          return;
+        }
+
+        if (data?.valid === true) {
+          errorMessage.classList.remove('show');
+
+          const { error: logError } = await client
+            .from('login_events')
+            .insert([{
+              login_success: true,
+              page_url: window.location.href
+            }]);
+
+          if (logError) console.error('Giriş kaydı hatası:', logError);
+
+          passwordModal.classList.add('hidden');
+          siteContent.style.display = 'block';
+          initPageEffects();
+          document.getElementById('bgMusic').play().catch(() => {});
+        } else {
+          errorMessage.textContent = 'Hatalı şifre! Lütfen tekrar dene.';
+          errorMessage.classList.add('show');
+          passwordInput.style.animation = 'shake 0.5s';
+          setTimeout(() => {
+            passwordInput.style.animation = '';
+            passwordInput.value = '';
+            passwordInput.focus();
+          }, 500);
+        }
+      } catch (err) {
+        console.error('Şifre kontrol hatası:', err);
+        errorMessage.textContent = 'Bağlantı hatası. Lütfen tekrar dene.';
         errorMessage.classList.add('show');
-        passwordInput.style.animation = 'shake 0.5s';
-        setTimeout(() => {
-          passwordInput.style.animation = '';
-          passwordInput.value = '';
-          passwordInput.focus();
-        }, 500);
+      } finally {
+        submitPassword.disabled = false;
       }
     }
 
@@ -798,10 +837,30 @@ Bebişim, tek dileğim
       msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    function whatsappTikla(e) {
+    async function whatsappTikla(e) {
       e.preventDefault();
-      window.location.href = "https://wa.me/905372459764?text=Seni%20dinlemeye%20haz%C4%B1r%C4%B1m...";
+
+      try {
+        const { error } = await client
+          .from('button_events')
+          .insert([{
+            button_name: 'Yarım kalanları beraber tamamlayalım mı?',
+            page_url: window.location.href
+          }]);
+
+        if (error) {
+          console.error('Buton tıklaması kaydedilemedi:', error);
+        } else {
+          console.log('Buton tıklaması Supabase’e kaydedildi.');
+        }
+      } catch (err) {
+        console.error('Supabase buton kayıt hatası:', err);
+      } finally {
+        window.location.href = "https://wa.me/905372459764?text=Seni%20dinlemeye%20haz%C4%B1r%C4%B1m...";
+      }
     }
   </script>
+
+      
 </body>
 </html>
