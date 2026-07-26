@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <!DOCTYPE html>
 
+<!DOCTYPE html>
+
 <html lang="tr">
 <head>
 <meta charset="utf-8"/>
@@ -443,6 +445,34 @@
         left: 26px !important;
       }
     }
+
+    /* ── KARTLARI GARANTİLİ SAĞ/SOL SIRALA ── */
+    .timeline > .event.event-left {
+      justify-content: flex-start !important;
+    }
+
+    .timeline > .event.event-right {
+      justify-content: flex-end !important;
+    }
+
+    @media (min-width: 769px) {
+      .timeline > .event.event-left .event-content,
+      .timeline > .event.event-right .event-content {
+        width: calc(50% - 50px) !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .timeline > .event.event-left,
+      .timeline > .event.event-right {
+        justify-content: flex-start !important;
+      }
+
+      .timeline > .event.event-left .event-content,
+      .timeline > .event.event-right .event-content {
+        width: 100% !important;
+      }
+    }
 </style>
 </head>
 <body>
@@ -477,7 +507,7 @@
 <h1 id="top">Bizim Hikayemiz</h1>
 <div class="timeline-container">
 <div class="timeline">
-<div class="event">
+<div class="event event-left">
 <div class="event-content">
 <h3>İlk Mesajlaşmamız</h3>
 <p>Belki de her şeyin başladığı o an... O ilk mesajla birlikte hayatımın en güzel serüveni başladı. O anı hatırladıkça içimde aynı heyecanı hissediyorum.</p>
@@ -485,7 +515,7 @@
 </div>
 <div class="event-icon"><i class="fas fa-comment-dots"></i></div>
 </div>
-<div class="event">
+<div class="event event-right">
 <div class="event-content">
 <h3>İlk senden Hoşlandığımı söylemem</h3>
 <p>İlk reddetmen 😭</p>
@@ -493,7 +523,7 @@
 </div>
 <div class="event-icon"><i class="fas fa-heart-broken"></i></div>
 </div>
-<div class="event">
+<div class="event event-left">
 <div class="event-content">
 <h3>Bizi düşün Diyip Senin BANA "At olmanı düşünüyüm demen"</h3>
 <p>😭</p>
@@ -501,7 +531,7 @@
 </div>
 <div class="event-icon"><i class="fas fa-lightbulb"></i></div>
 </div>
-<div class="event">
+<div class="event event-right">
 <div class="event-content">
 <h3>Sürpriz Yumurta</h3>
 <p>İlk defa bu kadar heyecanlanmıştım. O elimdeki yumurtayı sana vermemi ve sonraki tepkini asla unutamam. O an senin mutluluğun benim için her şeyden değerliydi.</p>
@@ -509,7 +539,7 @@
 </div>
 <div class="event-icon"><i class="fas fa-gift"></i></div>
 </div>
-<div class="event">
+<div class="event event-left">
 <div class="event-content">
 <h3>İlk Randevumuz</h3>
 <p>İlk defa baş başa zaman geçirdiğimiz o anı hatırlıyorum. Seninle her şey çok farklıydı.</p>
@@ -517,7 +547,7 @@
 </div>
 <div class="event-icon"><i class="fas fa-coffee"></i></div>
 </div>
-<div class="event">
+<div class="event event-right">
 <div class="event-content">
 <h3>İlk elimi tuttuğun gün Ve Başlangıcımız ...</h3>
 <p>Hayatımıza birlikte adım atmaya başladığımız o özel an… İlk elimi tuttuğun gün, zamanın durduğunu hissetmiştim. O an seninle olan yolculuğumuzun başlangıcıydı ve her şey o anla birlikte bir anlam kazandı. Birlikte geçirdiğimiz her an, hayatımıza değer katıyor, seni tanıdıkça daha çok seviyorum.</p>
@@ -526,7 +556,7 @@
 </div>
 <div class="event-icon"><i class="fas fa-hand-holding-heart"></i></div>
 </div>
-<div class="event">
+<div class="event event-left">
 <div class="event-content">
 <h3>İlk Seni Seviyorum dediğin ve İlk konserimiz</h3>
 <p>İlk defa senin "Bende seni" dediğin o anı unutmak mümkün değil. O an sanki dünya durdu ve sadece o kelimeler kulaklarımda çınladı. İçimdeki tüm hisler seni sevmenin derinliği o kadar güçlüydü ki, adeta her şey anlam kazandı. Senin bu sözü söylemen, bana olan sevgini hissetmeme neden oldu.</p>
@@ -535,7 +565,7 @@
 </div>
 <div class="event-icon"><i class="fas fa-heart"></i></div>
 </div>
-<div class="event">
+<div class="event event-right">
 <div class="event-content">
 <h3>Doğum Günüm</h3>
 <p>Seninle olduğum her an, dünyadaki tüm kutlamalardan daha değerli. Her yıl bir yaş daha büyürken, seninle her şeyin daha güzel olduğunu fark ediyorum. Doğum günümü seninle geçirdiğim için ne kadar şanslı olduğumu bir kez daha anladım. Gülüşün ve varlığın, bu günü unutulmaz kıldı.</p>
@@ -544,7 +574,7 @@
 </div>
 <div class="event-icon"><i class="fas fa-birthday-cake"></i></div>
 </div>
-<div class="event">
+<div class="event event-left">
 <div class="event-content">
 <h3>En Değerlimin Doğum Günün</h3>
 <p>Bu günde senin yanında olmak, sana mutlu anlar yaşatabilmek, birlikte gülmek ve keyifli zamanlar geçirmek, hayatımın en değerli hediyesi. Seninle olduğum her an, başka hiçbir şeyin önemi yok. Çünkü senin varlığın, dünyadaki her şeyi daha anlamlı kılıyor.</p>
@@ -553,7 +583,7 @@
 </div>
 <div class="event-icon"><i class="fas fa-star"></i></div>
 </div>
-<div class="event">
+<div class="event event-right">
 <div class="event-content">
 <h3>Birinci Yılımız</h3>
 <p>Bir yıl önce, hayatıma girmeyi kabul ettin ve her şey değişti. O anı hatırladıkça kalbimde bir yerlerde hâlâ o ilk heyecanı hissediyorum. Bir yıl boyunca seninle geçirdiğim her an, bir ömre bedel oldu. Zaman, seninle geçirdiğim her dakikada durdu, sanki sadece biz varmışız gibi. Birinci yılımız, belki de hayatımın en kıymetli yılı oldu.</p>
@@ -563,7 +593,7 @@
 </div>
 <div class="event-icon"><i class="fas fa-calendar-heart"></i></div>
 </div>
-<div class="event">
+<div class="event event-left">
 <div class="event-content">
 <h3>Terkediliş...</h3>
 <p>Buraya, bizim dünyamıza hoş geldin. Bu satırları yazarken ellerim biraz titriyor, yalan yok. Bugün her şeyin bittiğini söylediğinde sanki zaman durdu ama içimdeki o gürültü bir türlü dinmedi. Bu siteyi senin için, bizim için kurarken tek bir amacım vardı: Bizim hikayemizi ölümsüzleştirmek. Şimdi ise bu hikayenin son sayfasını bu kadar erken ve bu kadar sessiz kapatmaya gönlüm el vermiyor.
@@ -590,7 +620,7 @@ Seni seviyorum. Sadece dün değil, bugün de ve eğer izin verirsen, yarın da 
 </div>
 </div>
 <div class="event-icon"><i class="fas fa-star"></i></div>
-<div class="event">
+<div class="event event-right">
 <div class="event-content">
 <h3>Senin İçin Yazdığım Şarkı</h3>
 <p>Bebişim benim bebişim
@@ -620,14 +650,14 @@ Bebişim, tek dileğim
 <span class="event-time"><i class="far fa-calendar-alt"></i> 12 Nisan 2025</span>
 </div>
 <div class="event-icon"><i class="fas fa-music"></i></div>
-</div><div class="event">
+</div><div class="event event-left">
 <div class="event-content">
 <h3></h3>
 <p>"Filiz versin diye su taşıdığın ağacın dalından sopa yedin , darbesini unut , ihanetini asla. İnsan en büyük fedakarlık yaptığından en büyük ihaneti görürmüş.</p>
 <span class="event-time"><i class="far fa-calendar-alt"></i> 9 Nisan 2026</span>
 </div>
 <div class="event-icon"><i class="fas fa-star"></i></div>
-</div><div class="event">
+</div><div class="event event-right">
 <div class="event-content">
 <h3>Veda</h3>
 <p>Bu dijital köşe, paylaştığımız güzel anların bir hatırası olarak burada kalacak.</p>
@@ -635,7 +665,7 @@ Bebişim, tek dileğim
 <span class="event-time"><i class="far fa-calendar-alt"></i> 3 Nisan 2026</span>
 </div>
 <div class="event-icon"><i class="fas fa-star"></i></div>
-</div><div class="event">
+</div><div class="event event-left">
 <div class="event-content">
 <h3>2 yılın karşılığı </h3>
 <p>Bu kadaranı kimse haketmezdi...</p>
@@ -643,7 +673,7 @@ Bebişim, tek dileğim
 <span class="event-time"><i class="far fa-calendar-alt"></i> 24 Nisan 2026</span>
 </div>
 <div class="event-icon"><i class="fas fa-star"></i></div>
-</div><div class="event">
+</div><div class="event event-right">
 <div class="event-content">
 <h3>Hüsran </h3>
 <p>Bir insanın doğum gününde bile laf sokmak , üstüne mesaj olarak atamıcak kadar korkak...</p>
@@ -652,11 +682,6 @@ Bebişim, tek dileğim
 </div>
 <div class="event-icon"><i class="fas fa-star"></i></div>
 </div></div>
-
-
-
-
-
 </div>
 </div>
 <!-- /.timeline -->
