@@ -1,637 +1,120 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
 
-
-  
-  <script>
-    window.addEventListener('load', function() {
-      const ua = navigator.userAgent;
-      const isMobileUA = /Android|iPhone|iPad/i.test(ua);
-      const isSmallScreen = window.screen.width <= 768;
-      if (!isMobileUA && isSmallScreen) {
-        const uyari = document.createElement('div');
-        uyari.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;text-align:center;padding:30px;font-family:sans-serif;`;
-        uyari.innerHTML = `<div style="font-size:50px;margin-bottom:20px;">📱</div><h2 style="margin-bottom:15px;">Masaüstü modu kapalı</h2><p style="color:#ccc;margin-bottom:25px;line-height:1.6;">Bu sayfayı düzgün görmek için tarayıcındaki masaüstü modunu kapatman gerekiyor.<br><br>Chrome'da sağ üstteki 3 nokta → <strong>"Masaüstü sitesi"</strong> seçeneğini kapat.</p><button onclick="location.reload()" style="padding:12px 30px;background:#ff69b4;border:none;border-radius:25px;color:white;font-size:16px;cursor:pointer;">Kapattım, tekrar dene</button>`;
-        document.body.appendChild(uyari);
-      }
-    });
-  </script>
-
-  <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
   <script>
     const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI';
     const client = supabase.createClient(supabaseUrl, supabaseKey);
     let visitStart = Date.now();
     async function getDeviceInfo() {
-      const ua = navigator.userAgent;
-      let marka = 'Bilinmiyor', model = 'Bilinmiyor';
-      try {
-        if (navigator.userAgentData) {
-          const hints = await navigator.userAgentData.getHighEntropyValues(['model','brand','platform','platformVersion']);
-          if (hints.model) model = hints.model;
-          if (hints.brands) { const real = hints.brands.find(b => !b.brand.includes('Not') && !b.brand.includes('Chromium') && b.brand !== 'Google Chrome'); if (real) marka = real.brand; }
-        }
-      } catch(e) {}
-      const os = ua.match(/Android ([\d.]+)/) ? 'Android ' + ua.match(/Android ([\d.]+)/)[1] : /iPhone/.test(ua) ? 'iOS' : /Windows/.test(ua) ? 'Windows' : /Mac/.test(ua) ? 'macOS' : 'Bilinmiyor';
-      const browser = /EdgA?\//.test(ua) ? 'Edge' : /OPR\/|Opera/.test(ua) ? 'Opera' : /Chrome/.test(ua) ? 'Chrome' : /Firefox/.test(ua) ? 'Firefox' : /Safari/.test(ua) ? 'Safari' : 'Diğer';
-      return { marka, model, os, browser };
+      const ua = navigator.userAgent; let marka='Bilinmiyor',model='Bilinmiyor';
+      try { if(navigator.userAgentData){const h=await navigator.userAgentData.getHighEntropyValues(['model','brand','platform','platformVersion']);if(h.model)model=h.model;if(h.brands){const r=h.brands.find(b=>!b.brand.includes('Not')&&!b.brand.includes('Chromium')&&b.brand!=='Google Chrome');if(r)marka=r.brand;}} } catch(e){}
+      const os=ua.match(/Android ([\d.]+)/)?'Android '+ua.match(/Android ([\d.]+)/)[1]:/iPhone/.test(ua)?'iOS':/Windows/.test(ua)?'Windows':/Mac/.test(ua)?'macOS':'Bilinmiyor';
+      const browser=/EdgA?\//.test(ua)?'Edge':/OPR\/|Opera/.test(ua)?'Opera':/Chrome/.test(ua)?'Chrome':/Firefox/.test(ua)?'Firefox':/Safari/.test(ua)?'Safari':'Diğer';
+      return{marka,model,os,browser};
     }
-    fetch('https://api.ipify.org?format=json').then(r => r.json()).then(async ipData => {
-      const ua = navigator.userAgent;
-      const ip_address = ipData.ip;
-      const page_url = window.location.href;
-      const screen_resolution = `${window.screen.width}x${window.screen.height}`;
-      const device = await getDeviceInfo();
-      await client.from('visitor_logs').insert([{ page_url, ip_address, user_agent: ua, screen_resolution, device_model: `${device.marka} - ${device.model}`, os: device.os, browser: device.browser, language: navigator.language, time_spent: 0 }]);
-      window.addEventListener('beforeunload', async () => {
-        const time_spent = Math.floor((Date.now() - visitStart) / 1000);
-        await client.from('visitor_logs').insert([{ page_url, ip_address, user_agent: ua, screen_resolution, device_model: `${device.marka} - ${device.model}`, os: device.os, browser: device.browser, language: navigator.language, time_spent }]);
-      });
+    fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(async ipData=>{
+      const ua=navigator.userAgent,ip_address=ipData.ip,page_url=window.location.href,screen_resolution=`${window.screen.width}x${window.screen.height}`,device=await getDeviceInfo();
+      await client.from('visitor_logs').insert([{page_url,ip_address,user_agent:ua,screen_resolution,device_model:`${device.marka} - ${device.model}`,os:device.os,browser:device.browser,language:navigator.language,time_spent:0}]);
+      window.addEventListener('beforeunload',async()=>{const time_spent=Math.floor((Date.now()-visitStart)/1000);await client.from('visitor_logs').insert([{page_url,ip_address,user_agent:ua,screen_resolution,device_model:`${device.marka} - ${device.model}`,os:device.os,browser:device.browser,language:navigator.language,time_spent}]);});
     });
-
-    
   </script>
-
   
- 
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Senin İçin</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <style>
-    :root {
-      --rose: #e8738a;
-      --rose-deep: #c45070;
-      --blush: #f5c6d0;
-      --cream: #fff5f7;
-      --dark: #1a0a0f;
-      --glass: rgba(255,255,255,0.08);
-      --glass-border: rgba(255,255,255,0.18);
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      background-image: url('https://github.com/BatuhanKlcky/Sonsuzum/blob/main/arkapaln2.jpg?raw=true');
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-      font-family: 'Montserrat', sans-serif;
-      color: #fff;
-      text-align: center;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(160deg, rgba(20,5,10,0.45) 0%, rgba(100,20,50,0.25) 50%, rgba(20,5,10,0.55) 100%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* ── FLOATING PETALS ── */
-    .petals { position: fixed; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
-    .petal {
-      position: absolute;
-      top: -40px;
-      width: 10px; height: 14px;
-      background: radial-gradient(ellipse at 40% 30%, #ffb3c6, #e8738a88);
-      border-radius: 50% 0 50% 0;
-      opacity: 0;
-      animation: fall linear infinite;
-    }
-    @keyframes fall {
-      0%   { transform: translateY(0) rotate(0deg) scale(1);   opacity: 0; }
-      5%   { opacity: 0.7; }
-      95%  { opacity: 0.4; }
-      100% { transform: translateY(110vh) rotate(540deg) scale(0.5); opacity: 0; }
-    }
-
-    /* ── PASSWORD SCREEN ── */
-    .password-container {
-      position: fixed; inset: 0; z-index: 200;
-      display: flex; justify-content: center; align-items: center;
-      background: rgba(10,2,6,0.75);
-      backdrop-filter: blur(12px);
-      animation: fadeIn 0.6s ease;
-    }
-
-    .password-box {
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(24px);
-      padding: 50px 40px;
-      border-radius: 24px;
-      width: 340px;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
-      animation: slideUp 0.5s cubic-bezier(.22,.68,0,1.4) forwards;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .password-box::before {
-      content: '';
-      position: absolute;
-      top: -60px; left: 50%; transform: translateX(-50%);
-      width: 200px; height: 200px;
-      background: radial-gradient(circle, rgba(232,115,138,0.3), transparent 70%);
-      pointer-events: none;
-    }
-
-    .password-box .lock-icon {
-      font-size: 2rem;
-      color: var(--blush);
-      margin-bottom: 16px;
-      display: block;
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
-
-    .password-box h2 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.55rem;
-      font-weight: 300;
-      letter-spacing: 0.03em;
-      color: #fff;
-      margin-bottom: 8px;
-    }
-
-    .password-box .subtitle {
-      font-size: 0.75rem;
-      color: rgba(255,255,255,0.45);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-bottom: 32px;
-    }
-
-    .input-wrap {
-      position: relative;
-      margin-bottom: 20px;
-    }
-
-    .input-wrap i {
-      position: absolute;
-      left: 18px; top: 50%; transform: translateY(-50%);
-      color: var(--rose);
-      font-size: 0.85rem;
-    }
-
-    .password-box input {
-      width: 100%;
-      padding: 14px 18px 14px 42px;
-      border-radius: 50px;
-      border: 1px solid rgba(255,255,255,0.15);
-      background: rgba(255,255,255,0.07);
-      color: #fff;
-      font-size: 0.95rem;
-      font-family: 'Montserrat', sans-serif;
-      letter-spacing: 0.15em;
-      transition: all 0.3s;
-    }
-
-    .password-box input::placeholder { color: rgba(255,255,255,0.3); letter-spacing: 0.05em; }
-    .password-box input:focus {
-      outline: none;
-      border-color: var(--rose);
-      background: rgba(255,255,255,0.11);
-      box-shadow: 0 0 0 3px rgba(232,115,138,0.2);
-    }
-
-    .password-box button {
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, var(--rose), var(--rose-deep));
-      border: none;
-      color: white;
-      font-size: 0.85rem;
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 500;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: 0 8px 24px rgba(196,80,112,0.4);
-    }
-
-    .password-box button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 32px rgba(196,80,112,0.55);
-    }
-    .password-box button:active { transform: translateY(0); }
-
-    /* ── MAIN CONTENT ── */
-    .container {
-      display: none;
-      position: relative;
-      z-index: 5;
-      min-height: 100vh;
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 60px 24px;
-    }
-
-    .hero-badge {
-      font-size: 0.7rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--blush);
-      opacity: 0.8;
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .hero-badge::before, .hero-badge::after {
-      content: '';
-      display: inline-block;
-      width: 32px; height: 1px;
-      background: var(--blush);
-      opacity: 0.5;
-    }
-
-    h1 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(2rem, 6vw, 3.8rem);
-      font-weight: 300;
-      font-style: italic;
-      color: #fff;
-      line-height: 1.25;
-      max-width: 780px;
-      margin-bottom: 32px;
-      text-shadow: 0 4px 40px rgba(0,0,0,0.6);
-      letter-spacing: 0.01em;
-    }
-
-    .divider {
-      width: 60px; height: 1px;
-      background: linear-gradient(90deg, transparent, var(--rose), transparent);
-      margin: 0 auto 28px;
-    }
-
-    p {
-      font-family: 'Montserrat', sans-serif;
-      font-size: clamp(0.9rem, 2.5vw, 1.1rem);
-      font-weight: 300;
-      max-width: 580px;
-      margin: 0 auto;
-      line-height: 2;
-      color: rgba(255,255,255,0.75);
-      letter-spacing: 0.02em;
-    }
-
-    .version-tag {
-      margin-top: 40px;
-      font-size: 0.65rem;
-      letter-spacing: 0.2em;
-      color: rgba(255,255,255,0.2);
-      text-transform: uppercase;
-    }
-
-    /* ── SIDEBAR ── */
-    .menu-toggle {
-      position: fixed;
-      top: 24px; left: 24px;
-      z-index: 50;
-      width: 46px; height: 46px;
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(12px);
-      border-radius: 50%;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      font-size: 1.1rem;
-      cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    }
-    .menu-toggle:hover { background: rgba(255,255,255,0.15); transform: scale(1.05); }
-
-    .sidebar-menu {
-      position: fixed;
-      top: 0; left: -290px;
-      width: 280px; height: 100%;
-      background: rgba(15,4,9,0.85);
-      backdrop-filter: blur(24px);
-      border-right: 1px solid rgba(255,255,255,0.08);
-      z-index: 40;
-      transition: left 0.4s cubic-bezier(.77,0,.175,1);
-      padding: 90px 24px 24px;
-    }
-    .sidebar-menu.active { left: 0; }
-
-    .sidebar-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.1rem;
-      font-style: italic;
-      color: var(--blush);
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      letter-spacing: 0.05em;
-    }
-
-    .menu-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: rgba(255,255,255,0.7);
-      text-decoration: none;
-      padding: 12px 14px;
-      margin-bottom: 4px;
-      border-radius: 10px;
-      transition: all 0.25s;
-      font-size: 0.88rem;
-      letter-spacing: 0.04em;
-      font-weight: 400;
-    }
-    .menu-item i { width: 16px; color: var(--rose); font-size: 0.8rem; }
-    .menu-item:hover {
-      background: rgba(232,115,138,0.12);
-      color: #fff;
-      padding-left: 20px;
-    }
-
-    .menu-overlay {
-      display: none;
-      position: fixed; inset: 0;
-      z-index: 35;
-      background: rgba(0,0,0,0.4);
-      backdrop-filter: blur(2px);
-    }
-    .menu-overlay.active { display: block; }
-
-    /* ── PIXEL HEART ── */
-    .pixel-heart {
-      position: fixed;
-      bottom: 28px; right: 28px;
-      width: 40px; height: 40px;
-      z-index: 100;
-      cursor: pointer;
-      display: none;
-      filter: drop-shadow(0 4px 12px rgba(232,115,138,0.6));
-      transition: filter 0.3s;
-    }
-    .pixel-heart:hover { filter: drop-shadow(0 6px 20px rgba(232,115,138,0.9)); }
-    .pixel { width: 8px; height: 8px; background-color: #e8738a; position: absolute; border-radius: 1px; }
-
-    /* ── ANIMATIONS ── */
-    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-    @keyframes slideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes contentReveal {
-      from { opacity:0; transform:translateY(20px) }
-      to   { opacity:1; transform:translateY(0) }
-    }
-
-    .animate-in { animation: contentReveal 0.8s cubic-bezier(.22,.68,0,1) forwards; opacity: 0; }
-    .delay-1 { animation-delay: 0.15s }
-    .delay-2 { animation-delay: 0.3s }
-    .delay-3 { animation-delay: 0.45s }
-    .delay-4 { animation-delay: 0.6s }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 768px) {
-      .menu-toggle { display: flex; }
-      .password-box { width: 88%; padding: 40px 28px; }
-    }
-    @media (max-width: 480px) {
-      .sidebar-menu { width: 240px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<title>404</title>
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+  body {
+    background-color: #f1f1f1;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 60px;
+    color: #24292f;
+    text-align: center;
+  }
+  .container {
+    max-width: 600px;
+  }
+  h1 {
+    font-size: 76px;
+    font-weight: 400;
+    margin: 0 0 30px 0;
+    color: #1b1f23;
+  }
+  p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #57606a;
+    margin: 6px 0;
+  }
+  .bold {
+    font-weight: 600;
+    color: #24292f;
+  }
+  a {
+    color: #0969da;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  .status {
+    margin-top: 40px;
+    font-size: 13px;
+    color: #57606a;
+  }
+  .status a {
+    color: #57606a;
+    font-weight: 600;
+  }
+  .divider {
+    color: #d0d7de;
+    margin: 0 8px;
+  }
+  .icon {
+    margin-top: 30px;
+  }
+  .icon svg {
+    width: 32px;
+    height: 32px;
+    fill: #d0d7de;
+  }
+</style>
 </head>
 <body>
-
-  <!-- Petals -->
-  <div class="petals" id="petals"></div>
-
-  <!-- Background music -->
-  <audio autoplay loop id="bgMusic">
-    <source src="https://raw.githubusercontent.com/BatuhanKlcky/sevdam1/main/ozdemir-erdogan-ac-kapiyi.mp3" type="audio/mpeg">
-  </audio>
-
-  <!-- Password -->
-  <div class="password-container" id="passwordContainer">
-    <div class="password-box">
-      <i class="fas fa-lock lock-icon"></i>
-      <h2>Hoşgeldin</h2>
-      <p class="subtitle">Lütfen şifreyi gir</p>
-      <div class="input-wrap">
-        <i class="fas fa-key"></i>
-        <input type="password" id="password" placeholder="••••••" onkeydown="if(event.key==='Enter')checkPassword()">
-      </div>
-      <button onclick="checkPassword()">Giriş Yap</button>
+  <div class="container">
+    <h1>404</h1>
+    <p class="bold">There isn't a GitHub Pages site here.</p>
+    <p>
+      If you're trying to publish one, <a href="#">read the full documentation</a>
+      to learn how to set up
+      <span class="bold">GitHub Pages</span> for your repository, organization, or user account.
+    </p>
+    <div class="status">
+      <a href="#">GitHub Status</a>
+      <span class="divider">—</span>
+      <a href="#">@githubstatus</a>
+    </div>
+    <div class="icon">
+      <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+        0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13
+        -.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07
+        -1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82
+        .64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12
+        .51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01
+        2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+      </svg>
     </div>
   </div>
 
-  <!-- Main content -->
-  <div class="container" id="mainContent">
-    <div class="hero-badge animate-in delay-1">Yalnızca senin için</div>
-    <h1 class="animate-in delay-2">Seninle geçen her saniye, hayatımın en güzel hikayesiydi.</h1>
-    <div class="divider animate-in delay-3"></div>
-    <p class="animate-in delay-3">
-      Gülüşün, dokunuşun, varlığın… Hepsi bana aşkın en saf halini öğretti.
-      Şimdi bu sayfalar, bizim hikayemizin şahidi olarak burada son kez seni bekliyor.
-    </p>
-    <div class="version-tag animate-in delay-4">v1.1</div>
-  </div>
-
-  <!-- Menu toggle -->
-  <div class="menu-toggle" id="menuToggle">
-    <i class="fas fa-bars"></i>
-  </div>
-
-  <!-- Overlay -->
-  <div class="menu-overlay" id="menuOverlay"></div>
-
-  <!-- Sidebar -->
-  <div class="sidebar-menu" id="sidebarMenu">
-    <div class="sidebar-title">✦ Keşfet</div>
-    <a href="X" class="menu-item"><i class="fas fa-home"></i> Anasayfa</a>
-    <a href="zaman-tuneli.html" class="menu-item"><i class="fas fa-history"></i> Zaman Tüneli</a>
-    <a href="galeri.html" class="menu-item"><i class="fas fa-images"></i> Fotoğraf Galerisi</a>
-    <a href="mesajlar.html" class="menu-item"><i class="fas fa-envelope"></i> Özel Mesajlar</a>
-    <a href="cicek.html" class="menu-item"><i class="fas fa-seedling"></i> Çiçek Tarlası</a>
-    <a href="cube.html" class="menu-item"><i class="fas fa-cube"></i> Zeka Küpü</a>
-    <a href="stick-hero.html" class="menu-item"><i class="fas fa-gamepad"></i> Çubuk Adam</a>
-    <a href="#" class="menu-item" id="musicControl"><i class="fas fa-music"></i> Müzik: Açık</a>
-  </div>
-
-  <!-- Pixel Heart -->
-  <div class="pixel-heart" id="pixelHeart"></div>
-
-  <script>
-    // Petals
-    function createPetals() {
-      const container = document.getElementById('petals');
-      for (let i = 0; i < 18; i++) {
-        const p = document.createElement('div');
-        p.className = 'petal';
-        p.style.left = Math.random() * 100 + 'vw';
-        p.style.animationDuration = (8 + Math.random() * 12) + 's';
-        p.style.animationDelay = (Math.random() * 10) + 's';
-        p.style.width = (7 + Math.random() * 8) + 'px';
-        p.style.height = (10 + Math.random() * 10) + 'px';
-        p.style.opacity = 0;
-        container.appendChild(p);
-      }
-    }
-    createPetals();
-
-    window.onload = function() {
-      const lastAccess = localStorage.getItem('lastAccess');
-      const currentTime = Date.now();
-      if (lastAccess && (currentTime - lastAccess) < 100) {
-        unlockPage();
-      }
-    }
-
-    async function checkPassword() {
-      const passwordInput = document.getElementById('password');
-      const inputPassword = passwordInput.value;
-
-      if (!inputPassword) return;
-
-      try {
-        const { data, error } = await client.functions.invoke('clever-service', {
-          body: { password: inputPassword }
-        });
-
-        if (error) {
-          console.error('Supabase doğrulama hatası:', error);
-          passwordInput.value = '';
-          passwordInput.placeholder = 'Doğrulama hatası...';
-          setTimeout(() => passwordInput.placeholder = '••••••', 2000);
-          return;
-        }
-
-        if (data?.valid === true) {
-          // Başarılı giriş olayını kaydet. Şifrenin kendisi kaydedilmez.
-          const { error: logError } = await client
-            .from('login_events')
-            .insert([{
-              login_success: true,
-              page_url: window.location.href
-            }]);
-
-          if (logError) {
-            console.error('Giriş kaydı hatası:', logError);
-          }
-
-          localStorage.setItem('lastAccess', Date.now());
-          document.getElementById('passwordContainer').style.animation =
-            'fadeIn 0.4s reverse forwards';
-          setTimeout(unlockPage, 350);
-        } else {
-          const box = document.querySelector('.password-box');
-          box.style.animation = 'shake 0.4s ease';
-          box.addEventListener('animationend', () => box.style.animation = '', { once: true });
-
-          passwordInput.value = '';
-          passwordInput.placeholder = 'Yanlış şifre...';
-          setTimeout(() => passwordInput.placeholder = '••••••', 2000);
-        }
-      } catch (err) {
-        console.error('Şifre kontrol hatası:', err);
-        passwordInput.value = '';
-        passwordInput.placeholder = 'Bağlantı hatası...';
-        setTimeout(() => passwordInput.placeholder = '••••••', 2000);
-      }
-    }
-
-    function unlockPage() {
-      document.getElementById('passwordContainer').style.display = 'none';
-      const mc = document.getElementById('mainContent');
-      mc.style.display = 'flex';
-      document.getElementById('pixelHeart').style.display = 'block';
-      document.getElementById('menuToggle').style.display = 'flex';
-      document.getElementById('bgMusic').play().catch(()=>{});
-      createPixelHeart();
-    }
-
-    // Shake animation
-    const styleEl = document.createElement('style');
-    styleEl.textContent = `@keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }`;
-    document.head.appendChild(styleEl);
-
-    // Menu
-    document.getElementById('menuToggle').addEventListener('click', () => {
-      document.getElementById('sidebarMenu').classList.toggle('active');
-      document.getElementById('menuOverlay').classList.toggle('active');
-      document.getElementById('menuToggle').innerHTML =
-        document.getElementById('sidebarMenu').classList.contains('active')
-          ? '<i class="fas fa-times"></i>'
-          : '<i class="fas fa-bars"></i>';
-    });
-
-    document.getElementById('menuOverlay').addEventListener('click', () => {
-      document.getElementById('sidebarMenu').classList.remove('active');
-      document.getElementById('menuOverlay').classList.remove('active');
-      document.getElementById('menuToggle').innerHTML = '<i class="fas fa-bars"></i>';
-    });
-
-    // Music
-    document.getElementById('musicControl').addEventListener('click', function() {
-      const mus = document.getElementById('bgMusic');
-      if (mus.paused) { mus.play(); this.innerHTML = '<i class="fas fa-music"></i> Müzik: Açık'; }
-      else { mus.pause(); this.innerHTML = '<i class="fas fa-volume-mute"></i> Müzik: Kapalı'; }
-    });
-
-    // Pixel Heart
-    function createPixelHeart() {
-      const heart = document.getElementById('pixelHeart');
-      heart.innerHTML = '';
-      const heartShape = [
-        [0,1,0,1,0],
-        [1,1,1,1,1],
-        [1,1,1,1,1],
-        [0,1,1,1,0],
-        [0,0,1,0,0]
-      ];
-      for (let y = 0; y < 5; y++) {
-        for (let x = 0; x < 5; x++) {
-          if (heartShape[y][x] === 1) {
-            const px = document.createElement('div');
-            px.className = 'pixel';
-            px.style.left = (x * 8) + 'px';
-            px.style.top = (y * 8) + 'px';
-            px.style.transitionDelay = (Math.random() * 0.3) + 's';
-            heart.appendChild(px);
-          }
-        }
-      }
-    }
-
-    let clickCount = 0;
-    document.getElementById('pixelHeart').addEventListener('click', function() {
-      clickCount++;
-      const pixels = document.querySelectorAll('.pixel');
-      pixels.forEach(px => {
-        px.style.transform = 'scale(1.5)';
-        px.style.background = '#ff4c8b';
-        setTimeout(() => { px.style.transform = 'scale(1)'; px.style.background = '#e8738a'; }, 300);
-      });
-      if (clickCount === 5) {
-        alert('Seni çok seviyorum 💗');
-        clickCount = 0;
-        window.location.href = 'https://batuhanklcky.github.io/Sonsuzum/kalp.html';
-      }
-    });
-
-    document.getElementById('bgMusic').play().catch(()=>{});
-  </script>
+  
 </body>
 </html>
