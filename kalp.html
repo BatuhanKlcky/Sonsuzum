@@ -1,56 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
+
     <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
-
-<script>
-  const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI';
-  const client = supabase.createClient(supabaseUrl, supabaseKey);
-
-  let visitStart = Date.now();
-
-  // IP adresini al
-  fetch('https://api.ipify.org?format=json')
-    .then(response => response.json())
-    .then(ipData => {
-      const page_url = window.location.href;
-      const user_agent = navigator.userAgent;
-      const screen_resolution = `${window.screen.width}x${window.screen.height}`;
-      const ip_address = ipData.ip;
-
-      // Sayfa kapanınca ziyaret kaydet
-      window.addEventListener('beforeunload', async () => {
-        const visitEnd = Date.now();
-        const time_spent = Math.floor((visitEnd - visitStart) / 1000);
-
-        const { error } = await client
-          .from('visitor_logs')
-          .insert([{
-            page_url,
-            ip_address,
-            user_agent,
-            screen_resolution,
-            time_spent
-          }]);
-
-        if (error) {
-          console.error('Ziyaretçi kaydedilirken hata:', error);
-        } else {
-          console.log('Ziyaret kaydedildi!');
-        }
-      });
+  <script>
+    const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI';
+    const client = supabase.createClient(supabaseUrl, supabaseKey);
+    let visitStart = Date.now();
+    async function getDeviceInfo() {
+      const ua = navigator.userAgent; let marka='Bilinmiyor',model='Bilinmiyor';
+      try { if(navigator.userAgentData){const h=await navigator.userAgentData.getHighEntropyValues(['model','brand','platform','platformVersion']);if(h.model)model=h.model;if(h.brands){const r=h.brands.find(b=>!b.brand.includes('Not')&&!b.brand.includes('Chromium')&&b.brand!=='Google Chrome');if(r)marka=r.brand;}} } catch(e){}
+      const os=ua.match(/Android ([\d.]+)/)?'Android '+ua.match(/Android ([\d.]+)/)[1]:/iPhone/.test(ua)?'iOS':/Windows/.test(ua)?'Windows':/Mac/.test(ua)?'macOS':'Bilinmiyor';
+      const browser=/EdgA?\//.test(ua)?'Edge':/OPR\/|Opera/.test(ua)?'Opera':/Chrome/.test(ua)?'Chrome':/Firefox/.test(ua)?'Firefox':/Safari/.test(ua)?'Safari':'Diğer';
+      return{marka,model,os,browser};
+    }
+    fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(async ipData=>{
+      const ua=navigator.userAgent,ip_address=ipData.ip,page_url=window.location.href,screen_resolution=`${window.screen.width}x${window.screen.height}`,device=await getDeviceInfo();
+      await client.from('visitor_logs').insert([{page_url,ip_address,user_agent:ua,screen_resolution,device_model:`${device.marka} - ${device.model}`,os:device.os,browser:device.browser,language:navigator.language,time_spent:0}]);
+      window.addEventListener('beforeunload',async()=>{const time_spent=Math.floor((Date.now()-visitStart)/1000);await client.from('visitor_logs').insert([{page_url,ip_address,user_agent:ua,screen_resolution,device_model:`${device.marka} - ${device.model}`,os:device.os,browser:device.browser,language:navigator.language,time_spent}]);});
     });
-</script>
-    
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="Heart-Particles.css">
-    <title>Kalp...</title>
-  </head>
-  <body>
-    <canvas id="c"></canvas>
-    <button class="start-btn">Başlat</button>
-    <script src="Heart-Particles.js  "></script>
-  </body>
+  </script>
+  
+<meta charset="UTF-8">
+<title>404</title>
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+  body {
+    background-color: #f1f1f1;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 60px;
+    color: #24292f;
+    text-align: center;
+  }
+  .container {
+    max-width: 600px;
+  }
+  h1 {
+    font-size: 76px;
+    font-weight: 400;
+    margin: 0 0 30px 0;
+    color: #1b1f23;
+  }
+  p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #57606a;
+    margin: 6px 0;
+  }
+  .bold {
+    font-weight: 600;
+    color: #24292f;
+  }
+  a {
+    color: #0969da;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  .status {
+    margin-top: 40px;
+    font-size: 13px;
+    color: #57606a;
+  }
+  .status a {
+    color: #57606a;
+    font-weight: 600;
+  }
+  .divider {
+    color: #d0d7de;
+    margin: 0 8px;
+  }
+  .icon {
+    margin-top: 30px;
+  }
+  .icon svg {
+    width: 32px;
+    height: 32px;
+    fill: #d0d7de;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>404</h1>
+    <p class="bold">There isn't a GitHub Pages site here.</p>
+    <p>
+      If you're trying to publish one, <a href="#">read the full documentation</a>
+      to learn how to set up
+      <span class="bold">GitHub Pages</span> for your repository, organization, or user account.
+    </p>
+    <div class="status">
+      <a href="#">GitHub Status</a>
+      <span class="divider">—</span>
+      <a href="#">@githubstatus</a>
+    </div>
+    <div class="icon">
+      <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+        0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13
+        -.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07
+        -1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82
+        .64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12
+        .51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01
+        2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+      </svg>
+    </div>
+  </div>
+
+  
+</body>
 </html>
