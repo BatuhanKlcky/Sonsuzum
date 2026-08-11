@@ -1,686 +1,120 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
 
-      
-   <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
-<script>
-  const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI';
-  const client = supabase.createClient(supabaseUrl, supabaseKey);
-
-  let visitStart = Date.now();
-
-  async function getDeviceInfo() {
-    const ua = navigator.userAgent;
-    let marka = 'Bilinmiyor';
-    let model = 'Bilinmiyor';
-
-    try {
-      if (navigator.userAgentData) {
-        const hints = await navigator.userAgentData.getHighEntropyValues([
-          'model', 'brand', 'platform', 'platformVersion'
-        ]);
-        if (hints.model) model = hints.model;
-        if (hints.brands) {
-          const real = hints.brands.find(b =>
-            !b.brand.includes('Not') &&
-            !b.brand.includes('Chromium') &&
-            b.brand !== 'Google Chrome'
-          );
-          if (real) marka = real.brand;
-        }
-      }
-    } catch(e) {}
-
-    const os = ua.match(/Android ([\d.]+)/)
-      ? 'Android ' + ua.match(/Android ([\d.]+)/)[1]
-      : /iPhone/.test(ua) ? 'iOS'
-      : /Windows/.test(ua) ? 'Windows'
-      : /Mac/.test(ua) ? 'macOS' : 'Bilinmiyor';
-
-    const browser = /EdgA?\//.test(ua) ? 'Edge'
-      : /OPR\/|Opera/.test(ua) ? 'Opera'
-      : /Chrome/.test(ua) ? 'Chrome'
-      : /Firefox/.test(ua) ? 'Firefox'
-      : /Safari/.test(ua) ? 'Safari' : 'Diğer';
-
-    return { marka, model, os, browser };
-  }
-
-  fetch('https://api.ipify.org?format=json')
-    .then(r => r.json())
-    .then(async ipData => {
-      const ua = navigator.userAgent;
-      const ip_address = ipData.ip;
-      const page_url = window.location.href;
-      const screen_resolution = `${window.screen.width}x${window.screen.height}`;
-      const device = await getDeviceInfo();
-
-      await client.from('visitor_logs').insert([{
-        page_url,
-        ip_address,
-        user_agent: ua,
-        screen_resolution,
-        device_model: `${device.marka} - ${device.model}`,
-        os: device.os,
-        browser: device.browser,
-        language: navigator.language,
-        time_spent: 0
-      }]);
-
-      window.addEventListener('beforeunload', async () => {
-        const time_spent = Math.floor((Date.now() - visitStart) / 1000);
-        await client.from('visitor_logs').insert([{
-          page_url,
-          ip_address,
-          user_agent: ua,
-          screen_resolution,
-          device_model: `${device.marka} - ${device.model}`,
-          os: device.os,
-          browser: device.browser,
-          language: navigator.language,
-          time_spent
-        }]);
-      });
+    <script src="https://unpkg.com/@supabase/supabase-js@2.42.5/dist/umd/supabase.js"></script>
+  <script>
+    const supabaseUrl = 'https://lvoeziofefbczugymzft.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2b2V6aW9mZWZiY3p1Z3ltemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1ODY1MjcsImV4cCI6MjA2MTE2MjUyN30.u9HyvUCxkchSmtwDzwAm2iy6yQiA7rScCQjKXCpq7XI';
+    const client = supabase.createClient(supabaseUrl, supabaseKey);
+    let visitStart = Date.now();
+    async function getDeviceInfo() {
+      const ua = navigator.userAgent; let marka='Bilinmiyor',model='Bilinmiyor';
+      try { if(navigator.userAgentData){const h=await navigator.userAgentData.getHighEntropyValues(['model','brand','platform','platformVersion']);if(h.model)model=h.model;if(h.brands){const r=h.brands.find(b=>!b.brand.includes('Not')&&!b.brand.includes('Chromium')&&b.brand!=='Google Chrome');if(r)marka=r.brand;}} } catch(e){}
+      const os=ua.match(/Android ([\d.]+)/)?'Android '+ua.match(/Android ([\d.]+)/)[1]:/iPhone/.test(ua)?'iOS':/Windows/.test(ua)?'Windows':/Mac/.test(ua)?'macOS':'Bilinmiyor';
+      const browser=/EdgA?\//.test(ua)?'Edge':/OPR\/|Opera/.test(ua)?'Opera':/Chrome/.test(ua)?'Chrome':/Firefox/.test(ua)?'Firefox':/Safari/.test(ua)?'Safari':'Diğer';
+      return{marka,model,os,browser};
+    }
+    fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(async ipData=>{
+      const ua=navigator.userAgent,ip_address=ipData.ip,page_url=window.location.href,screen_resolution=`${window.screen.width}x${window.screen.height}`,device=await getDeviceInfo();
+      await client.from('visitor_logs').insert([{page_url,ip_address,user_agent:ua,screen_resolution,device_model:`${device.marka} - ${device.model}`,os:device.os,browser:device.browser,language:navigator.language,time_spent:0}]);
+      window.addEventListener('beforeunload',async()=>{const time_spent=Math.floor((Date.now()-visitStart)/1000);await client.from('visitor_logs').insert([{page_url,ip_address,user_agent:ua,screen_resolution,device_model:`${device.marka} - ${device.model}`,os:device.os,browser:device.browser,language:navigator.language,time_spent}]);});
     });
-</script>
-
+  </script>
   
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Anılar Galerisi | Özel Albüm</title>
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-
-  <style>
-    :root {
-      --wine: #5c1b2c;
-      --rose: #c96a86;
-      --rose-deep: #9c4a63;
-      --gold: #b6884f;
-      --blush: #f2d9df;
-      --glass: rgba(255,255,255,0.07);
-      --glass-border: rgba(255,255,255,0.16);
-      --card-bg: #fffaf8;
-      --card-border: #f2dfe4;
-      --text: #3a2030;
-      --text-soft: #7d5c68;
-      --shadow: 0 4px 20px rgba(92,27,44,0.08);
-      --transition: all 0.3s ease;
-    }
-
-    * { margin:0; padding:0; box-sizing:border-box; }
-    ::selection { background: var(--rose); color: #fff; }
-
-    body {
-      background: linear-gradient(170deg, #fdf3f1 0%, #f8e6ea 45%, #fdf6f3 100%);
-      font-family: 'Jost', sans-serif;
-      color: var(--text);
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image: radial-gradient(circle, rgba(92,27,44,0.06) 1px, transparent 1px);
-      background-size: 30px 30px;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* ── PASSWORD MODAL ── */
-    .password-modal {
-      position: fixed; inset: 0;
-      background: rgba(10,2,6,0.75);
-      backdrop-filter: blur(14px);
-      display: flex; justify-content: center; align-items: center;
-      z-index: 10000;
-      animation: fadeIn 0.5s ease;
-    }
-    .password-modal.hidden { display: none; }
-
-    .password-box {
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(26px);
-      padding: 52px 40px 44px;
-      border-radius: 6px 6px 22px 22px;
-      width: 90%; max-width: 340px;
-      text-align: center;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
-      animation: slideUp 0.5s cubic-bezier(.22,.68,0,1.4) forwards;
-      color: white;
-    }
-
-    .seal {
-      width: 56px; height: 56px;
-      margin: 0 auto 18px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 30%, #d98aa0, var(--wine) 75%);
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 6px 18px rgba(92,27,44,0.5), inset 0 -4px 8px rgba(0,0,0,0.35), inset 0 3px 6px rgba(255,255,255,0.25);
-      animation: sealBreathe 3.4s ease-in-out infinite;
-    }
-    .seal i { color: var(--blush); font-size: 1.05rem; }
-    @keyframes sealBreathe { 0%,100%{transform:scale(1);} 50%{transform:scale(1.06);} }
-
-    .password-box h2 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.5rem; font-weight: 400; font-style: italic; margin-bottom: 10px;
-    }
-    .password-box p { font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-bottom: 22px; font-weight: 300; }
-
-    .password-input {
-      width: 100%; padding: 13px 18px;
-      margin-bottom: 18px;
-      border-radius: 50px; border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(255,255,255,0.06); color: #fff;
-      font-size: 0.95rem; font-family: 'Jost', sans-serif;
-      letter-spacing: 0.16em; text-align: center;
-      transition: all 0.3s;
-    }
-    .password-input::placeholder { color: rgba(255,255,255,0.3); letter-spacing: 0.05em; }
-    .password-input:focus { outline:none; border-color:var(--rose); background: rgba(255,255,255,0.1); box-shadow:0 0 0 3px rgba(201,106,134,0.2); }
-
-    .submit-btn {
-      width: 100%; padding: 13px;
-      background: linear-gradient(135deg, var(--rose), var(--rose-deep));
-      border: none; color: white;
-      font-size: 0.78rem; font-family: 'Jost', sans-serif;
-      font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase;
-      border-radius: 50px; cursor: pointer; transition: all 0.3s;
-      box-shadow: 0 8px 24px rgba(92,27,44,0.4);
-    }
-    .submit-btn:hover { transform:translateY(-2px); box-shadow:0 12px 32px rgba(92,27,44,0.55); }
-
-    .error-message {
-      color: var(--blush); margin-top: 14px; font-size: 0.78rem;
-      opacity: 0; transition: opacity 0.3s ease; height: 16px;
-    }
-    .error-message.show { opacity: 1; }
-
-    @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
-    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-    @keyframes slideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
-
-    /* ── CONTAINER / HEADER ── */
-    .container { max-width: 1200px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
-
-    header { text-align: center; margin-bottom: 30px; padding-top: 60px; }
-
-    .header-badge {
-      display: flex; justify-content: center; align-items: center; gap: 10px;
-      font-size: 0.66rem; letter-spacing: 0.26em;
-      text-transform: uppercase; color: var(--gold);
-      margin-bottom: 12px; font-weight: 500;
-    }
-    .header-badge::before, .header-badge::after {
-      content: ''; display: inline-block;
-      width: 28px; height: 1px; background: var(--gold); opacity: 0.6;
-    }
-
-    h1 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(2rem, 5vw, 2.9rem);
-      font-weight: 400; font-style: italic;
-      color: var(--wine);
-      margin-bottom: 10px;
-    }
-
-    .subtitle { color: var(--text-soft); font-size: 0.95rem; font-style: italic; font-weight: 300; }
-
-    /* ── FILTER CONTROLS ── */
-    .filter-controls {
-      display: flex; justify-content: center; align-items: center;
-      gap: 14px; margin-bottom: 34px; flex-wrap: wrap;
-    }
-
-    .search-box { position: relative; width: 300px; max-width: 100%; }
-    .search-box input {
-      width: 100%; padding: 12px 20px 12px 42px;
-      border: 1px solid var(--card-border); border-radius: 50px;
-      background-color: var(--card-bg); box-shadow: var(--shadow);
-      font-size: 0.9rem; font-family: 'Jost', sans-serif; transition: var(--transition);
-      color: var(--text);
-    }
-    .search-box input:focus { outline: none; border-color: var(--rose); box-shadow: 0 0 0 3px rgba(201,106,134,0.15); }
-    .search-box i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--rose-deep); font-size: 0.85rem; }
-
-    .filter-select {
-      padding: 12px 20px; border: 1px solid var(--card-border); border-radius: 50px;
-      background-color: var(--card-bg); box-shadow: var(--shadow);
-      font-size: 0.88rem; font-family: 'Jost', sans-serif;
-      color: var(--text); cursor: pointer; transition: var(--transition);
-    }
-    .filter-select:focus { outline: none; border-color: var(--rose); }
-
-    /* ── GALLERY GRID ── */
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-      gap: 18px;
-      margin-bottom: 40px;
-    }
-
-    .gallery-item {
-      position: relative; border-radius: 16px; overflow: hidden;
-      box-shadow: var(--shadow); transition: var(--transition);
-      aspect-ratio: 1/1; border: 1px solid var(--card-border);
-      background: var(--card-bg);
-    }
-    .gallery-item:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(92,27,44,0.16); }
-    .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: var(--transition); cursor: pointer; }
-    .gallery-item:hover img { transform: scale(1.05); }
-
-    .gallery-item::after {
-      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 45%;
-      background: linear-gradient(to top, rgba(92,27,44,0.75), transparent);
-      opacity: 0; transition: var(--transition);
-    }
-    .gallery-item:hover::after { opacity: 1; }
-
-    .image-caption {
-      position: absolute; bottom: -50px; left: 0; right: 0;
-      padding: 14px 16px; color: white; z-index: 2;
-      opacity: 0; transition: var(--transition);
-      font-size: 0.85rem; font-weight: 300;
-    }
-    .gallery-item:hover .image-caption { bottom: 0; opacity: 1; }
-
-    /* ── LIGHTBOX ── */
-    .full-image-overlay {
-      position: fixed; inset: 0; background-color: rgba(10,2,6,0.92);
-      display: flex; justify-content: center; align-items: center;
-      z-index: 1000; opacity: 0; visibility: hidden; transition: var(--transition);
-      backdrop-filter: blur(10px);
-    }
-    .full-image-overlay.active { opacity: 1; visibility: visible; }
-
-    .full-image-container { position: relative; max-width: 90%; max-height: 85%; }
-    .full-image-container img { max-width: 100%; max-height: 78vh; border-radius: 10px; box-shadow: 0 0 40px rgba(0,0,0,0.5); }
-
-    .nav-btn {
-      position: absolute; top: 50%; transform: translateY(-50%);
-      width: 46px; height: 46px; background-color: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.2); border-radius: 50%;
-      color: white; font-size: 1.3rem; cursor: pointer;
-      display: flex; justify-content: center; align-items: center;
-      transition: var(--transition); backdrop-filter: blur(5px);
-    }
-    .nav-btn:hover { background-color: var(--rose); transform: translateY(-50%) scale(1.08); }
-    .prev-btn { left: -64px; }
-    .next-btn { right: -64px; }
-
-    .close-btn {
-      position: absolute; top: -48px; right: -48px;
-      width: 38px; height: 38px; background-color: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.2); border-radius: 50%;
-      color: white; font-size: 1.1rem; cursor: pointer;
-      display: flex; justify-content: center; align-items: center;
-      transition: var(--transition); backdrop-filter: blur(5px);
-    }
-    .close-btn:hover { background-color: var(--rose-deep); transform: rotate(90deg); }
-
-    .full-image-caption {
-      position: absolute; bottom: -42px; left: 0; right: 0; text-align: center;
-      color: white; font-size: 1rem; font-family: 'Cormorant Garamond', serif; font-style: italic;
-      padding: 8px; background-color: rgba(0,0,0,0.4); border-radius: 8px;
-    }
-
-    /* ── MENU ── */
-    .menu-toggle {
-      position: fixed; top: 24px; left: 24px; z-index: 1001;
-      width: 46px; height: 46px;
-      background: rgba(255,255,255,0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--card-border);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--rose-deep); font-size: 1.1rem;
-      cursor: pointer; box-shadow: 0 4px 20px rgba(92,27,44,0.15);
-      transition: all 0.3s;
-    }
-    .menu-toggle:hover { background: white; transform: scale(1.05); }
-
-    .sidebar-menu {
-      position: fixed; top: 0; left: -290px;
-      width: 270px; height: 100%;
-      background: rgba(255,250,251,0.97);
-      backdrop-filter: blur(20px);
-      border-right: 1px solid var(--card-border);
-      z-index: 1000; transition: left 0.4s cubic-bezier(.77,0,.175,1);
-      padding: 90px 22px 22px;
-      box-shadow: 4px 0 30px rgba(92,27,44,0.08);
-    }
-    .sidebar-menu.active { left: 0; }
-
-    .sidebar-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.05rem; font-style: italic;
-      color: var(--rose-deep); margin-bottom: 20px;
-      padding-bottom: 14px;
-      border-bottom: 1px solid var(--card-border);
-      letter-spacing: 0.04em;
-    }
-
-    .menu-item {
-      display: flex; align-items: center; gap: 10px;
-      color: var(--text-soft); text-decoration: none;
-      padding: 11px 14px; margin-bottom: 4px;
-      border-radius: 10px; transition: all 0.25s;
-      font-size: 0.86rem; letter-spacing: 0.03em;
-    }
-    .menu-item i { width: 16px; color: var(--rose); font-size: 0.78rem; }
-    .menu-item:hover { background: rgba(201,106,134,0.08); color: var(--text); padding-left: 20px; }
-
-    .menu-overlay {
-      display: none; position: fixed; inset: 0; z-index: 35;
-      background: rgba(0,0,0,0.2); backdrop-filter: blur(2px);
-    }
-    .menu-overlay.active { display: block; }
-
-    /* ── FOOTER ── */
-    footer { text-align: center; padding: 30px 0; color: var(--text-soft); font-size: 0.9rem; position: relative; z-index: 1; }
-    .heart { color: var(--rose-deep); font-size: 1.1rem; animation: pulse 1.5s infinite; display: inline-block; }
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
-
-    @media (prefers-reduced-motion: reduce) {
-      .seal, .heart { animation: none; }
-    }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 992px) {
-      .gallery { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
-      .nav-btn { width: 38px; height: 38px; font-size: 1.1rem; }
-      .prev-btn { left: -48px; }
-      .next-btn { right: -48px; }
-    }
-
-    @media (max-width: 768px) {
-      h1 { font-size: 1.8rem; }
-      .full-image-container img { max-height: 68vh; }
-      .nav-btn { width: 34px; height: 34px; font-size: 1rem; }
-      .prev-btn { left: 10px; }
-      .next-btn { right: 10px; }
-      .close-btn { top: 10px; right: 10px; }
-    }
-
-    @media (max-width: 576px) {
-      .gallery { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
-      .filter-controls { flex-direction: column; gap: 10px; }
-      .search-box, .filter-select { width: 100%; }
-      .full-image-container img { max-height: 58vh; }
-      .full-image-caption { font-size: 0.85rem; bottom: -32px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<title>404</title>
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+  body {
+    background-color: #f1f1f1;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 60px;
+    color: #24292f;
+    text-align: center;
+  }
+  .container {
+    max-width: 600px;
+  }
+  h1 {
+    font-size: 76px;
+    font-weight: 400;
+    margin: 0 0 30px 0;
+    color: #1b1f23;
+  }
+  p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #57606a;
+    margin: 6px 0;
+  }
+  .bold {
+    font-weight: 600;
+    color: #24292f;
+  }
+  a {
+    color: #0969da;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  .status {
+    margin-top: 40px;
+    font-size: 13px;
+    color: #57606a;
+  }
+  .status a {
+    color: #57606a;
+    font-weight: 600;
+  }
+  .divider {
+    color: #d0d7de;
+    margin: 0 8px;
+  }
+  .icon {
+    margin-top: 30px;
+  }
+  .icon svg {
+    width: 32px;
+    height: 32px;
+    fill: #d0d7de;
+  }
+</style>
 </head>
 <body>
-
-  <!-- Password Modal -->
-  <div class="password-modal" id="passwordModal">
-    <div class="password-box">
-      <div class="seal"><i class="fas fa-images"></i></div>
-      <h2>Özel Albüme Hoş Geldin</h2>
-      <p>Bu albüm sadece senin için. Devam etmek için şifreyi gir</p>
-      <input type="password" class="password-input" id="passwordInput" placeholder="••••••" autocomplete="off">
-      <button class="submit-btn" id="submitPassword">Giriş Yap</button>
-      <div class="error-message" id="errorMessage">Hatalı şifre! Lütfen tekrar dene.</div>
+  <div class="container">
+    <h1>404</h1>
+    <p class="bold">There isn't a GitHub Pages site here.</p>
+    <p>
+      If you're trying to publish one, <a href="#">read the full documentation</a>
+      to learn how to set up
+      <span class="bold">GitHub Pages</span> for your repository, organization, or user account.
+    </p>
+    <div class="status">
+      <a href="#">GitHub Status</a>
+      <span class="divider">—</span>
+      <a href="#">@githubstatus</a>
+    </div>
+    <div class="icon">
+      <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+        0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13
+        -.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07
+        -1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82
+        .64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12
+        .51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01
+        2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+      </svg>
     </div>
   </div>
 
-  <!-- Content, hidden until password is correct -->
-  <div id="siteContent" style="display:none;">
-
-    <audio id="bgMusic" loop>
-       <source src="https://batuhanklcky.github.io/Sonsuzum/kor.mp3" type="audio/mpeg">
-    </audio>
-
-    <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
-    <div class="menu-overlay" id="menuOverlay"></div>
-    <div class="sidebar-menu" id="sidebarMenu">
-      <div class="sidebar-title">✦ Sayfalar</div>
-      <a href="index.html" class="menu-item"><i class="fas fa-home"></i> Ana Sayfa</a>
-      <a href="zaman-tuneli.html" class="menu-item"><i class="fas fa-history"></i> Zaman Tüneli</a>
-      <a href="galeri.html" class="menu-item"><i class="fas fa-images"></i> Fotoğraf Galerisi</a>
-      <a href="mesajlar.html" class="menu-item"><i class="fas fa-envelope"></i> Özel Mesajlar</a>
-      <a href="#" class="menu-item" id="musicControl"><i class="fas fa-music"></i> Müzik: Açık</a>
-    </div>
-
-    <div class="container">
-      <header>
-        <div class="header-badge">Sana özel</div>
-        <h1>Anılar Galerisi</h1>
-        <p class="subtitle">En güzel anılarımız burada saklı...</p>
-      </header>
-
-      <div class="filter-controls">
-        <div class="search-box">
-          <i class="fas fa-search"></i>
-          <input type="text" id="searchInput" placeholder="Anılarında ara...">
-        </div>
-        <select class="filter-select" id="filterSelect">
-          <option value="all">Tüm Fotoğraflar</option>
-          <option value=".jpg">JPG</option>
-          <option value=".jpeg">JPEG</option>
-          <option value=".png">PNG</option>
-          <option value=".JPG">Büyük JPG</option>
-        </select>
-      </div>
-
-      <div class="gallery" id="gallery"></div>
-    </div>
-
-    <div class="full-image-overlay" id="fullImageOverlay" onclick="closeImage(event)">
-      <div class="full-image-container">
-        <img id="expandedImage">
-        <button class="nav-btn prev-btn" onclick="navigate(-1, event)"><i class="fas fa-chevron-left"></i></button>
-        <button class="nav-btn next-btn" onclick="navigate(1, event)"><i class="fas fa-chevron-right"></i></button>
-        <button class="close-btn" onclick="closeImage(event)"><i class="fas fa-times"></i></button>
-        <div class="full-image-caption" id="fullImageCaption"></div>
-      </div>
-    </div>
-
-    <footer>
-      <p>Bu albüm <span class="heart">♥</span> ile hazırlandı | &copy; 2025 Tüm Sevgim Sende saklıdır</p>
-    </footer>
-
-  </div><!-- /siteContent -->
-
-  <script>
-    // ── ŞİFRE KONTROLÜ ──
-    const CORRECT_PASSWORD = "240426";
-    const passwordModal = document.getElementById('passwordModal');
-    const passwordInput = document.getElementById('passwordInput');
-    const submitPassword = document.getElementById('submitPassword');
-    const errorMessage = document.getElementById('errorMessage');
-    const siteContent = document.getElementById('siteContent');
-
-    function checkPassword() {
-      if (passwordInput.value === CORRECT_PASSWORD) {
-        errorMessage.classList.remove('show');
-        passwordModal.classList.add('hidden');
-        siteContent.style.display = 'block';
-        initGallery();
-      } else {
-        errorMessage.classList.add('show');
-        passwordInput.style.animation = 'shake 0.5s';
-        setTimeout(() => {
-          passwordInput.style.animation = '';
-          passwordInput.value = '';
-          passwordInput.focus();
-        }, 500);
-      }
-    }
-
-    submitPassword.addEventListener('click', checkPassword);
-    passwordInput.addEventListener('keypress', e => { if (e.key === 'Enter') checkPassword(); });
-
-    // ── GALERİ (yalnızca şifre girildikten sonra başlar) ──
-    const galleryData = [
-      { src: "resim1.jpg", alt: "Mutlu bir anımız" },
-      { src: "resim2.jpg", alt: "Güzel bir gün" },
-      { src: "resim3.jpg", alt: "Sevdam" },
-      { src: "resim4.JPG", alt: "Cimbomum" },
-      { src: "resim5.JPG", alt: "Gülüşlerimiz" },
-      { src: "resim6.JPG", alt: "Birlikte geçirdiğimiz zamanlar" },
-      { src: "resim7.JPG", alt: "Mutluluk dolu an" },
-      { src: "resim8.JPG", alt: "Sevgi dolu bakışlar" },
-      { src: "resim9.JPG", alt: "Birlikte" },
-      { src: "resim10.JPG", alt: "Anılarımız" },
-      { src: "resim11.JPG", alt: "Herşeyimm" },
-      { src: "resim12.jpg", alt: "Güzel hatıralar" },
-      { src: "resim13.JPG", alt: "Ezberim" },
-      { src: "resim14.JPG", alt: "Sevgi dolu" },
-      { src: "resim15.jpg", alt: "Mezuniyet" },
-      { src: "resim16.jpg", alt: "-" },
-      { src: "resim17.jpg", alt: "Mezuniyetimiz" },
-      { src: "resim18.jpg", alt: "Mezuniyetimiz" },
-      { src: "resim19.jpg", alt: "Mezuniyetimiz" },
-      { src: "resim20.JPG", alt: ":>" },
-      { src: "resim21.jpg", alt: "Hayallerimiz" },
-      { src: "resim22.jpg", alt: "İlk Konserimiz Ve ilk paylaştığımız Fotoğrafımız " },
-      { src: "resim23.jpg", alt: "İlk Konserimiz 29/04/2024" },
-      { src: "resim24.JPG", alt: "İlk Konserimiz 29/04/2024" },
-      { src: "resim25.JPG", alt: "İlk Konserimiz 29/04/2024" },
-      { src: "resim26.JPG", alt: "-" },
-      { src: "resim27.jpg", alt: "İlk Whatsap arka planım : ) " },
-      { src: "resim28.jpg", alt: "Meleğimin Doğum Günü 18/12/2024" },
-      { src: "resim29.jpg", alt: "Meleğimin Doğum Günü 18/12/2024" },
-      { src: "resim31.jpeg", alt: "Unutmak zor" },
-      { src: "resim32.jpeg", alt: "Keşke" },
-      { src: "resim33.jpeg", alt: "Unutmak Zorunda" },
-      { src: "resim34.jpeg", alt: "Bırakmasan." },
-      { src: "resim30.jpg", alt: "İkinci Konserimiz" }
-          
-    ];
-
-    let currentIndex = 0;
-    let filteredImages = [];
-    let slideInterval;
-
-    const gallery = document.getElementById('gallery');
-    const searchInput = document.getElementById('searchInput');
-    const filterSelect = document.getElementById('filterSelect');
-    const fullImageOverlay = document.getElementById('fullImageOverlay');
-    const expandedImage = document.getElementById('expandedImage');
-    const fullImageCaption = document.getElementById('fullImageCaption');
-
-    function initGallery() {
-      renderGallery(galleryData);
-
-      const bgMusic = document.getElementById('bgMusic');
-      const musicControl = document.getElementById('musicControl');
-      bgMusic.volume = 0.3;
-      bgMusic.play().catch(e => console.log("Otomatik çalma engellendi: ", e));
-
-      searchInput.addEventListener('input', filterGallery);
-      filterSelect.addEventListener('change', filterGallery);
-
-      const menuToggle = document.getElementById('menuToggle');
-      const sidebarMenu = document.getElementById('sidebarMenu');
-      const menuOverlay = document.getElementById('menuOverlay');
-      menuToggle.addEventListener('click', () => {
-        sidebarMenu.classList.toggle('active');
-        menuOverlay.classList.toggle('active');
-        menuToggle.innerHTML = sidebarMenu.classList.contains('active')
-          ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
-      });
-      menuOverlay.addEventListener('click', () => {
-        sidebarMenu.classList.remove('active');
-        menuOverlay.classList.remove('active');
-        menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
-      });
-
-      musicControl.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (bgMusic.paused) {
-          bgMusic.play();
-          musicControl.innerHTML = '<i class="fas fa-music"></i> Müzik: Açık';
-        } else {
-          bgMusic.pause();
-          musicControl.innerHTML = '<i class="fas fa-music"></i> Müzik: Kapalı';
-        }
-      });
-    }
-
-    function renderGallery(images) {
-      gallery.innerHTML = '';
-      filteredImages = images;
-      images.forEach((image, index) => {
-        const galleryItem = document.createElement('div');
-        galleryItem.className = 'gallery-item';
-        galleryItem.innerHTML = `
-          <img src="${image.src}" alt="${image.alt}" onclick="showImage('${image.src}', '${image.alt.replace(/'/g, "\\'")}', ${index})">
-          <div class="image-caption">${image.alt}</div>
-        `;
-        gallery.appendChild(galleryItem);
-      });
-    }
-
-    function filterGallery() {
-      const searchTerm = searchInput.value.toLowerCase();
-      const filterValue = filterSelect.value;
-      const filtered = galleryData.filter(image => {
-        const matchesSearch = image.alt.toLowerCase().includes(searchTerm) || image.src.toLowerCase().includes(searchTerm);
-        const matchesFilter = filterValue === 'all' || image.src.endsWith(filterValue);
-        return matchesSearch && matchesFilter;
-      });
-      renderGallery(filtered);
-    }
-
-    function showImage(src, alt, index) {
-      currentIndex = index;
-      expandedImage.src = src;
-      fullImageCaption.textContent = alt;
-      fullImageOverlay.classList.add('active');
-      document.body.style.overflow = 'hidden';
-      startSlideShow();
-      document.addEventListener('keydown', handleKeyPress);
-    }
-
-    function closeImage(event) {
-      if (event.target === fullImageOverlay || event.target.classList.contains('close-btn') || (event.target.closest && event.target.closest('.close-btn'))) {
-        fullImageOverlay.classList.remove('active');
-        document.body.style.overflow = 'auto';
-        stopSlideShow();
-        document.removeEventListener('keydown', handleKeyPress);
-      }
-    }
-
-    function navigate(direction, event) {
-      if (event) event.stopPropagation();
-      currentIndex += direction;
-      if (currentIndex >= filteredImages.length) currentIndex = 0;
-      if (currentIndex < 0) currentIndex = filteredImages.length - 1;
-      expandedImage.src = filteredImages[currentIndex].src;
-      fullImageCaption.textContent = filteredImages[currentIndex].alt;
-      stopSlideShow();
-      startSlideShow();
-    }
-
-    function startSlideShow() {
-      stopSlideShow();
-      slideInterval = setInterval(() => navigate(1), 5000);
-    }
-
-    function stopSlideShow() {
-      if (slideInterval) clearInterval(slideInterval);
-    }
-
-    function handleKeyPress(e) {
-      if (e.key === 'ArrowRight') navigate(1);
-      if (e.key === 'ArrowLeft') navigate(-1);
-      if (e.key === 'Escape') closeImage({ target: fullImageOverlay });
-    }
-
-    window.showImage = showImage;
-    window.closeImage = closeImage;
-    window.navigate = navigate;
-  </script>
+  
 </body>
 </html>
